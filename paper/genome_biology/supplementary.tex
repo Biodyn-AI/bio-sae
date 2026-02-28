@@ -303,7 +303,7 @@ Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated
 %% --- Figure S1: scGPT overview ---
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{../figures/figS1_scgpt_overview.pdf}
+\includegraphics[width=\textwidth]{../figures/gb_figS1_scgpt_overview.pdf}
 \caption{\textbf{scGPT feature atlas across all 12 layers.} \textbf{(A)}~Variance explained ranges from 85.7\% to 93.5\%, consistently higher than Geneformer. \textbf{(B)}~Dead features are concentrated in early layers (L0--L2) with near-zero elsewhere (49 total). \textbf{(C)}~Annotation rate is stable at 29--34\% across layers, lacking the pronounced U-shape seen in Geneformer. \textbf{(D)}~Co-activation modules average 6.3 per layer (76 total), comparable to Geneformer's 7.8.}
 \label{fig:scgpt_overview}
 \end{figure}
@@ -312,7 +312,7 @@ Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated
 %% --- Figure S2: scGPT per-ontology ---
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{../figures/figS4_scgpt_ontology.pdf}
+\includegraphics[width=\textwidth]{../figures/gb_figS2_scgpt_ontology.pdf}
 \caption{\textbf{scGPT per-ontology enrichment across 12 layers.} \textbf{(A)}~Row-normalized heatmap showing relative enrichment intensity for five ontology databases. GO~BP and Reactome dominate at early layers (L0--L1); KEGG peaks at mid-layers (L3, L7); TRRUST shows a distinctive spike at L9. \textbf{(B)}~Total enrichments per layer are relatively uniform (3,700--5,300), without the clear decline observed in Geneformer's middle layers.}
 \label{fig:scgpt_ontology}
 \end{figure}
@@ -321,7 +321,7 @@ Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated
 %% --- Figure S3: scGPT highways ---
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{../figures/figS3_scgpt_highways.pdf}
+\includegraphics[width=\textwidth]{../figures/gb_figS3_scgpt_highways.pdf}
 \caption{\textbf{scGPT cross-layer connectivity reveals progressive information concentration.} \textbf{(A)}~Upstream connectivity remains high (86--96\%) but downstream connectivity drops sharply from 96\% to 63\% across layer pairs, indicating progressive bottlenecking. \textbf{(B)}~PMI edge density decreases from 75K to 45K edges across the three layer pairs. \textbf{(C)}~Comparison with Geneformer: Geneformer maintains near-complete downstream connectivity (97--100\%) while scGPT drops to 63\%, suggesting fundamentally different information flow architectures.}
 \label{fig:scgpt_highways}
 \end{figure}
@@ -330,7 +330,7 @@ Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated
 %% --- Figure S4: UMAP/force-directed overview ---
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{../figures/fig9_umap_overview.pdf}
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{../figures/gb_figS4_umap_overview.pdf}
 \caption{\textbf{Co-activation network layout of SAE features across layers.} Left column: force-directed graph layout of intra-module co-activation edges, colored by Leiden module membership. Each module forms a spatially distinct community. Right column: same layouts colored by annotation richness (log-transformed number of significant enrichment terms). Unassigned features (gray) cluster centrally. Module count varies from 6 (L0) to 12 (L5), reflecting the complexity of co-activation patterns at different layers.}
 \label{fig:umap_overview}
 \end{figure}
@@ -339,7 +339,7 @@ Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated
 %% --- Figure S5: L11 detail ---
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{../figures/fig10_l11_detail.pdf}
+\includegraphics[width=\textwidth]{../figures/gb_figS5_l11_detail.pdf}
 \caption{\textbf{Six-panel co-activation layout of layer~11 SAE features.} \textbf{(a)}~Eight Leiden modules form spatially distinct communities. \textbf{(b)}~Annotated features (blue) distribute across all module clusters; unannotated features (gray) concentrate centrally. \textbf{(c)}~Top ontology source reveals module-specific enrichment patterns: certain modules are dominated by GO~BP (green), others by STRING interactions (pink) or Reactome pathways (purple). \textbf{(d)}~Annotation richness gradient across modules. \textbf{(e)}~Activation frequency varies systematically across modules. \textbf{(f)}~SVD-aligned features (orange, $n=4$) are scattered across different modules, while 4,594 novel features (blue) fill the landscape.}
 \label{fig:l11_detail}
 \end{figure}
@@ -348,7 +348,7 @@ Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated
 %% --- Figure S6: Annotation-based projections ---
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{../figures/fig11_cross_layer.pdf}
+\includegraphics[width=\textwidth]{../figures/gb_figS6_annotation_projections.pdf}
 \caption{\textbf{Annotation-based projections provide independent validation.} \textbf{(a)}~UMAP of TF-IDF weighted ontology term vectors for layer~11 (4,608 features). Annotated features (left cluster) separate from unannotated features (right blob), with internal structure reflecting shared biological annotations. \textbf{(b)}~t-SNE of TF-IDF annotation vectors for annotated features only ($n=2{,}583$). Fine-grained subclusters partially correspond to co-activation modules, confirming that module structure reflects genuine biological similarity.}
 \label{fig:cross_layer_umap}
 \end{figure}
