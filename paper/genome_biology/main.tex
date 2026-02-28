@@ -358,7 +358,7 @@ Despite near-zero decoder-weight similarity across layers, functional connectivi
 
 Biologically meaningful cascades emerge among the strongest cross-layer connections (Additional file~1: Table~S7). The mTORC1~regulation $\to$ autophagy connection (L0$\to$L5, PMI~=~9.55) recapitulates a well-known signaling axis. Protein modification features at L11 connect to angiogenesis regulation at L17 (PMI~=~10.62).
 
-\paragraph{scGPT cross-layer graph.} scGPT reveals a progressive concentration pattern (Additional file~1: Table~S6): upstream connectivity is consistently high (86.6--95.5\%), but downstream connectivity drops from 95.7\% (L0$\to$L4) to 62.9\% (L8$\to$L11). This suggests that scGPT progressively bottlenecks information toward later layers---a pattern not observed in Geneformer, where downstream connectivity remains near-complete (97.4--99.8\%).
+\paragraph{scGPT cross-layer graph.} scGPT reveals a progressive concentration pattern (Additional file~1: Table~S6, Fig.~S3): upstream connectivity is consistently high (86.6--95.5\%), but downstream connectivity drops from 95.7\% (L0$\to$L4) to 62.9\% (L8$\to$L11). This suggests that scGPT progressively bottlenecks information toward later layers---a pattern not observed in Geneformer, where downstream connectivity remains near-complete (97.4--99.8\%).
 
 \begin{figure}[t]
 \centering
@@ -456,14 +456,14 @@ First, we clustered unannotated features by Jaccard similarity of their top-20 g
 However, this co-activation evidence has important limitations: (1)~with only 6--12 modules covering 96--99.5\% of all features, co-membership may be nearly unavoidable; (2)~features may co-activate due to shared statistical properties rather than shared biology; and (3)~no perturbation validation was performed. We interpret the high co-activation rate as evidence that most unannotated features are not random noise, while noting that the gap between ``not noise'' and ``biologically meaningful'' remains to be bridged.
 
 
-\subsection{Phase 2 success criteria scorecard}
+\subsection{Success criteria scorecard}
 \label{sec:scorecard}
 
-Table~\ref{tab:scorecard} summarizes pre-registered success criteria for Phase~2. Three of five criteria were exceeded, one was partially met (unannotated features participate in co-activation modules but form few standalone clusters), and one was not met. The unmet criterion---perturbation response specificity---is the scientifically most important: it establishes the boundary of what this model knows.
+Table~\ref{tab:scorecard} summarizes the success criteria defined for this study. Three of five criteria were exceeded, one was partially met (unannotated features participate in co-activation modules but form few standalone clusters), and one was not met. The unmet criterion---perturbation response specificity---is the scientifically most important: it establishes the boundary of what this model knows.
 
 \begin{table}[t]
 \centering
-\caption{\textbf{Phase 2 success criteria.} The unmet criterion (perturbation specificity) is the paper's central finding.}
+\caption{\textbf{Success criteria scorecard.} The unmet criterion (perturbation specificity) is the paper's central finding.}
 \label{tab:scorecard}
 \smallskip
 \begin{tabular}{p{3.5cm}p{2.5cm}p{4cm}c}
@@ -588,7 +588,7 @@ For each layer, PMI was computed between all pairs of alive features across 4,05
 
 \subsection{Causal feature patching}
 
-For each of 50 annotated features at layer~11, single-feature ablation was performed using PyTorch forward hooks. At layer~11's output, the hidden state was encoded through the SAE, the target feature zeroed, decoded back, and the original hidden state replaced. The forward pass continued through layers 12--17 to produce output logits. Specificity ratio = $|\bar{\Delta}_\text{target}| / |\bar{\Delta}_\text{other}|$. Each feature tested on 200 cells. Total runtime: 219.5~minutes.
+For each of 50 annotated features at layer~11, single-feature ablation was performed using PyTorch forward hooks. At layer~11's output, the hidden state was encoded through the SAE, the target feature zeroed, decoded back, and the original hidden state replaced. The forward pass continued through layers 12--17 to produce output logits. Specificity ratio = $|\bar{\Delta}_\text{target}| / |\bar{\Delta}_\text{other}|$. Each feature tested on 200 cells.
 
 \subsection{Perturbation response mapping}
 
@@ -596,11 +596,11 @@ For each of 100 CRISPRi targets (48 TRRUST TFs, 52 other genes), Geneformer acti
 
 \subsection{Cross-layer computational graph}
 
-PMI between SAE feature activations at source and target layers, encoding the same positions through both layer's SAEs. For Geneformer: three layer pairs (L0$\to$L5, L5$\to$L11, L11$\to$L17), 500,000 positions each, runtime 33.8~minutes. For scGPT: three layer pairs (L0$\to$L4, L4$\to$L8, L8$\to$L11), all 3,561,832 positions, runtime 12.7~minutes. Information highway = source feature with $\geq$1 target feature at PMI~$> 3$.
+PMI between SAE feature activations at source and target layers, encoding the same positions through both layer's SAEs. For Geneformer: three layer pairs (L0$\to$L5, L5$\to$L11, L11$\to$L17), 500,000 positions each. For scGPT: three layer pairs (L0$\to$L4, L4$\to$L8, L8$\to$L11), all 3,561,832 positions. Information highway = source feature with $\geq$1 target feature at PMI~$> 3$.
 
 \subsection{Multi-tissue SAE}
 
-Multi-tissue SAEs trained on 500K K562 + 500K Tabula Sapiens positions per layer (balanced 1M pool). Architecture, training, and hyperparameters identical to K562-only SAEs. Trained at layers 0, 5, 11, 17. Feature analysis, annotation, and perturbation mapping used same protocols. Tabula Sapiens extraction: 61.6~min, 103.6~GB. Pooling and training: 23.6~min. Analysis and annotation: 46.6~min. Perturbation test: 88.9~min (across 4 layers).
+Multi-tissue SAEs trained on 500K K562 + 500K Tabula Sapiens positions per layer (balanced 1M pool). Architecture, training, and hyperparameters identical to K562-only SAEs. Trained at layers 0, 5, 11, 17. Feature analysis, annotation, and perturbation mapping used same protocols.
 
 \subsection{Novel feature characterization}
 
