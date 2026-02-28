@@ -79,7 +79,13 @@ export function usePerturbationResponse() {
 }
 
 export function useSvdComparison() {
-  return useAsync(() => fetchJson<{ aggregate: Record<string, unknown>; per_layer: Record<string, Record<string, number>> }>('svd_comparison.json'), [])
+  return useAsync(async () => {
+    try {
+      return await fetchJson<{ aggregate: Record<string, unknown>; per_layer: Record<string, Record<string, number>> }>('svd_comparison.json')
+    } catch {
+      return null  // optional — SVD section will be skipped if data unavailable
+    }
+  }, [])
 }
 
 export function useCrossLayerTracking() {
