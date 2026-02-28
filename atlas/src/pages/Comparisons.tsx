@@ -1,6 +1,8 @@
 import Plot from 'react-plotly.js'
 import { useSvdComparison, useCrossLayerTracking, useCausalPatching } from '../hooks/useData'
 import { fmtPct } from '../lib/utils'
+import { InfoIcon } from '../components/Tooltip'
+import { useIsMobile } from '../hooks/useIsMobile'
 import type { CausalFeature } from '../lib/types'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,6 +51,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 function SvdVsSaeSection() {
   const { data, loading, error } = useSvdComparison()
+  const isMobile = useIsMobile()
 
   if (loading) return <Spinner />
   if (error) return <ErrorBox msg={`SVD comparison: ${error}`} />
@@ -66,7 +69,9 @@ function SvdVsSaeSection() {
 
   return (
     <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6 space-y-6">
-      <SectionHeading>SVD vs SAE Variance Explained</SectionHeading>
+      <SectionHeading>
+        <span className="flex items-center">SVD vs SAE Variance Explained<InfoIcon tip="Variance explained by PCA/SVD (gray) vs SAE (blue) at each layer. SAEs capture more variance because they use overcomplete, non-orthogonal bases." /></span>
+      </SectionHeading>
 
       <Plot
         data={[
@@ -89,7 +94,7 @@ function SvdVsSaeSection() {
         ]}
         layout={{
           ...PLOTLY_LAYOUT_BASE,
-          height: 380,
+          height: isMobile ? 280 : 380,
           barmode: 'group',
           legend: {
             font: { color: '#d1d5db' },
@@ -142,6 +147,7 @@ function SvdVsSaeSection() {
 
 function FeaturePersistenceSection() {
   const { data, loading, error } = useCrossLayerTracking()
+  const isMobile = useIsMobile()
 
   if (loading) return <Spinner />
   if (error) return <ErrorBox msg={`Cross-layer tracking: ${error}`} />
@@ -158,7 +164,7 @@ function FeaturePersistenceSection() {
   if (!ap || ap.length === 0) {
     return (
       <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6">
-        <SectionHeading>Feature Persistence Across Layers</SectionHeading>
+        <SectionHeading><span className="flex items-center">Feature Persistence Across Layers<InfoIcon tip="Fraction of features at layer N that have a close match at layer N+1. Low persistence = the layer is transforming representations." /></span></SectionHeading>
         <p className="text-gray-500">No adjacent persistence data available.</p>
       </section>
     )
@@ -173,7 +179,7 @@ function FeaturePersistenceSection() {
 
   return (
     <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6 space-y-4">
-      <SectionHeading>Feature Persistence Across Layers</SectionHeading>
+      <SectionHeading><span className="flex items-center">Feature Persistence Across Layers<InfoIcon tip="Fraction of features at layer N that have a close match at layer N+1. Low persistence = the layer is transforming representations." /></span></SectionHeading>
 
       <Plot
         data={[
@@ -191,7 +197,7 @@ function FeaturePersistenceSection() {
         ]}
         layout={{
           ...PLOTLY_LAYOUT_BASE,
-          height: 340,
+          height: isMobile ? 260 : 340,
           xaxis: {
             ...PLOTLY_LAYOUT_BASE.xaxis,
             title: { text: 'Layer Transition', standoff: 10 },
@@ -223,6 +229,7 @@ function FeaturePersistenceSection() {
 
 function CausalSpecificitySection() {
   const { data, loading, error } = useCausalPatching()
+  const isMobile = useIsMobile()
 
   if (loading) return <Spinner />
   if (error) return <ErrorBox msg={`Causal patching: ${error}`} />
@@ -249,20 +256,23 @@ function CausalSpecificitySection() {
 
   return (
     <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6 space-y-4">
-      <SectionHeading>Causal Specificity of SAE Features</SectionHeading>
+      <SectionHeading><span className="flex items-center">Causal Specificity of SAE Features<InfoIcon tip="Top 50 features ranked by specificity ratio from activation patching experiments." /></span></SectionHeading>
 
       <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-2">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-sm" style={{ backgroundColor: '#ef4444' }} />
           {'> 10x specificity'}
+          <InfoIcon tip="Features with >10x specificity — they affect their target genes much more than off-target genes." position="bottom" />
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-sm" style={{ backgroundColor: '#f97316' }} />
           {'> 2x specificity'}
+          <InfoIcon tip="Moderately specific features (2-10x specificity ratio)." position="bottom" />
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-sm" style={{ backgroundColor: '#6b7280' }} />
           {'< 2x specificity'}
+          <InfoIcon tip="Features with <2x specificity — they affect many genes similarly (polysemantic)." position="bottom" />
         </span>
       </div>
 
@@ -281,7 +291,7 @@ function CausalSpecificitySection() {
         layout={{
           ...PLOTLY_LAYOUT_BASE,
           height: Math.max(400, sorted.length * 22),
-          margin: { t: 20, r: 30, b: 50, l: 250 },
+          margin: { t: 20, r: 30, b: 50, l: isMobile ? 150 : 250 },
           xaxis: {
             ...PLOTLY_LAYOUT_BASE.xaxis,
             title: { text: 'Specificity Ratio (target / off-target)', standoff: 10 },

@@ -4,6 +4,7 @@ import Plot from 'react-plotly.js'
 import { useLayerFeatures, useLayerAnnotations, useCausalPatching, usePerturbationResponse, useLayerCellTypes } from '../hooks/useData'
 import { moduleColor, ontologyColor, ONTOLOGY_LABELS, tissueColor } from '../lib/colors'
 import { fmtPval, fmtK } from '../lib/utils'
+import { InfoIcon } from '../components/Tooltip'
 import type { FeatureCompact, FeatureAnnotations, AnnotationEntry, CausalFeature, PerturbationTarget, FeatureCellTypes } from '../lib/types'
 
 const ONTOLOGY_ORDER = ['GO_BP', 'KEGG', 'Reactome', 'STRING_edges', 'TRRUST_TF_enrichment', 'TRRUST_edges']
@@ -138,18 +139,21 @@ export default function FeaturePage() {
 
 function MetadataGrid({ feature }: { feature: FeatureCompact; layer?: number }) {
   const f = feature
-  const cells: { label: string; value: React.ReactNode }[] = [
+  const cells: { label: string; value: React.ReactNode; tip?: string }[] = [
     {
       label: 'Activation Freq',
       value: <span className="font-mono">{f.f.toFixed(4)}</span>,
+      tip: 'Fraction of input cells where this feature activates. Lower values indicate more selective features.',
     },
     {
       label: 'Mean Activation',
       value: <span className="font-mono">{f.ma.toFixed(3)}</span>,
+      tip: 'Average activation magnitude when the feature fires. Higher = stronger signal.',
     },
     {
       label: 'Fire Count',
       value: <span className="font-mono">{fmtK(f.fc)}</span>,
+      tip: 'Total cells where this feature had nonzero activation.',
     },
     {
       label: 'Module',
@@ -164,10 +168,12 @@ function MetadataGrid({ feature }: { feature: FeatureCompact; layer?: number }) 
       ) : (
         <span className="text-gray-500 italic">Unassigned</span>
       ),
+      tip: 'Co-activation cluster this feature belongs to. Features in the same module tend to fire on the same cells.',
     },
     {
       label: 'Annotations',
       value: <span className="font-mono">{f.na}</span>,
+      tip: 'Number of significant ontology enrichments for this feature\'s top genes.',
     },
     {
       label: 'SVD Status',
@@ -176,6 +182,7 @@ function MetadataGrid({ feature }: { feature: FeatureCompact; layer?: number }) 
       ) : (
         <span className="text-blue-400">Novel (non-SVD)</span>
       ),
+      tip: "'Novel' means this direction was not captured by PCA/SVD \u2014 the SAE learned something new.",
     },
   ]
 
@@ -183,7 +190,7 @@ function MetadataGrid({ feature }: { feature: FeatureCompact; layer?: number }) 
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
       {cells.map(cell => (
         <div key={cell.label} className="bg-gray-900 rounded-lg border border-gray-800 p-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{cell.label}</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1 flex items-center">{cell.label}{cell.tip && <InfoIcon tip={cell.tip} position="bottom" />}</div>
           <div className="text-gray-200 text-sm">{cell.value}</div>
         </div>
       ))}
@@ -198,7 +205,10 @@ function TopGenesChart({ genes }: { genes: { n: string; a: number; fc: number }[
 
   return (
     <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1">Gene Effects</h2>
+      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1 flex items-center">
+        Gene Effects
+        <InfoIcon tip="Genes most strongly associated with this feature. The activation value shows how much each gene contributes when the feature fires." />
+      </h2>
       <p className="text-xs text-gray-600 mb-3">
         Top genes by mean activation — higher values indicate stronger feature association with that gene's expression.
       </p>
@@ -274,7 +284,10 @@ function AnnotationsSection({ annotations }: { annotations: AnnotationEntry[] })
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Annotations</h2>
+      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider flex items-center">
+        Annotations
+        <InfoIcon tip="Biological pathway and process enrichments from five ontology databases. Lower p-values indicate stronger enrichment." />
+      </h2>
       {orderedKeys.map(ontKey => (
         <OntologyGroup
           key={ontKey}
@@ -345,8 +358,9 @@ function CausalPatchingSection({ causal }: { causal: CausalFeature }) {
 
   return (
     <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1">
+      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1 flex items-center">
         Logit Effects (Causal Patching)
+        <InfoIcon tip="Activation patching: measuring how much ablating this single feature changes the model's gene predictions." />
         <span className="text-xs text-gray-500 font-normal ml-2">Layer 11</span>
       </h2>
       <p className="text-xs text-gray-600 mb-4">
@@ -370,9 +384,9 @@ function CausalPatchingSection({ causal }: { causal: CausalFeature }) {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 bg-gray-800/30 rounded-lg p-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-800/30 rounded-lg p-3">
         <div>
-          <div className="text-xs text-gray-500 mb-1">Specificity Ratio</div>
+          <div className="text-xs text-gray-500 mb-1 flex items-center">Specificity Ratio<InfoIcon tip="Ratio of effect on target genes vs. off-target genes. Higher = more specific causal role. >2x is considered specific." position="bottom" /></div>
           <div className={`text-lg font-mono ${causal.sr > 2 ? 'text-green-400' : causal.sr > 1 ? 'text-yellow-400' : 'text-gray-300'}`}>
             {causal.sr.toFixed(2)}
           </div>
@@ -381,7 +395,7 @@ function CausalPatchingSection({ causal }: { causal: CausalFeature }) {
           </div>
         </div>
         <div>
-          <div className="text-xs text-gray-500 mb-1">Target Logit Diff</div>
+          <div className="text-xs text-gray-500 mb-1 flex items-center">Target Logit Diff<InfoIcon tip="Change in predicted probability of the target gene when this feature is patched out." position="bottom" /></div>
           <div className={`text-lg font-mono ${causal.td < 0 ? 'text-red-400' : 'text-green-400'}`}>
             {causal.td > 0 ? '+' : ''}{causal.td.toFixed(3)}
           </div>
@@ -464,8 +478,9 @@ function PerturbationSection({
 }) {
   return (
     <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3 flex items-center">
         Perturbation Response
+        <InfoIcon tip="How this feature responds to gene knockdowns (CRISPRi perturbations). ES = effect size." />
         <span className="text-xs text-gray-500 font-normal ml-2">(Layer 11)</span>
       </h2>
       <p className="text-xs text-gray-500 mb-3">
@@ -511,8 +526,9 @@ function CellTypeEnrichmentSection({ data }: { data: FeatureCellTypes }) {
   return (
     <div className="bg-gray-900 rounded-lg border border-gray-800 p-4 space-y-4">
       <div>
-        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1">
+        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1 flex items-center">
           Cell Type & Tissue Enrichment
+          <InfoIcon tip="Which cell types and tissues show the strongest activation of this feature (using Tabula Sapiens multi-tissue data)." />
           <span className="text-xs text-gray-500 font-normal ml-2">Tabula Sapiens (3,000 cells)</span>
         </h2>
         <p className="text-xs text-gray-600">

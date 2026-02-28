@@ -3,6 +3,8 @@ import Plot from 'react-plotly.js'
 import { useGlobalSummary } from '../hooks/useData'
 import { ONTOLOGY_COLORS, ONTOLOGY_LABELS, layerColor } from '../lib/colors'
 import { fmtPct, fmtK } from '../lib/utils'
+import { InfoIcon } from '../components/Tooltip'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PLOTLY_LAYOUT_BASE: any = {
@@ -30,24 +32,28 @@ const KEY_FINDINGS = [
     description: 'Dive into per-layer feature catalogs with activation patterns, gene loadings, and ontology annotations.',
     to: '/layer/7',
     accent: 'blue',
+    tip: 'Browse all features at each transformer layer, visualized as a UMAP scatter plot.',
   },
   {
     title: 'Biological Modules',
     description: 'Co-activating feature clusters that map to coherent biological programs across cell types.',
     to: '/modules',
     accent: 'green',
+    tip: 'Co-activating feature clusters that represent coherent biological programs (e.g., cell cycle, immune signaling).',
   },
   {
     title: 'Cross-Layer Information Flow',
     description: 'Track how biological representations transform and persist across the 12-layer residual stream.',
     to: '/flow',
     accent: 'purple',
+    tip: 'How features transform across layers \u2014 which early-layer features have analogs in later layers.',
   },
   {
     title: 'SVD vs SAE Comparison',
     description: 'SAE features capture novel biological directions invisible to PCA.',
     to: '/comparisons',
     accent: 'orange',
+    tip: 'Comparison with PCA/SVD baseline. Most SAE features capture novel directions invisible to linear decomposition.',
   },
 ] as const
 
@@ -67,6 +73,7 @@ const ACCENT_TEXT: Record<string, string> = {
 
 export default function Overview() {
   const { data, loading, error } = useGlobalSummary()
+  const isMobile = useIsMobile()
 
   if (loading) {
     return (
@@ -111,29 +118,33 @@ export default function Overview() {
 
       {/* Stat cards */}
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard label="Total Features" value={fmtK(data.total_features)} />
-        <StatCard label="Alive" value={fmtK(data.total_alive)} />
+        <StatCard label="Total Features" value={fmtK(data.total_features)} tip="Total number of SAE dictionary elements (4,608 per layer x 12 layers). Each feature is a learned direction in the model's activation space." />
+        <StatCard label="Alive" value={fmtK(data.total_alive)} tip="Features that activate at least once on test data. Dead features never fire and are excluded from analysis." />
         <StatCard
           label="Annotated"
           value={fmtK(data.total_annotated)}
           sub={fmtPct(data.total_annotated / data.total_alive)}
+          tip="Features with at least one statistically significant ontology enrichment (Fisher's exact test, BH-corrected p < 0.05)."
         />
-        <StatCard label="Modules" value={data.total_modules.toString()} />
+        <StatCard label="Modules" value={data.total_modules.toString()} tip="Groups of features that co-activate on the same cells, identified by Leiden clustering of the co-activation graph." />
         <StatCard
           label="Features / Layer"
           value={data.n_features_per_layer.toLocaleString()}
           sub={`${data.n_layers} layers`}
+          tip="Number of dictionary elements per SAE. The 4x expansion ratio (1,152 to 4,608) enables fine-grained decomposition."
         />
         <StatCard
           label="Var. Explained"
           value={`${fmtPct(veMin)}-${fmtPct(veMax)}`}
+          tip="Fraction of the original activation variance captured by the SAE reconstruction. Higher is better."
         />
       </section>
 
       {/* Annotation rate line chart */}
       <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6">
-        <h2 className="text-lg font-semibold text-gray-200 mb-4">
+        <h2 className="text-lg font-semibold text-gray-200 mb-4 flex items-center">
           Annotation Rate by Layer
+          <InfoIcon tip="Percentage of alive features with significant ontology enrichment at each layer. The U-shape suggests early and late layers capture the most interpretable biology." />
         </h2>
         <Plot
           data={[
@@ -152,7 +163,7 @@ export default function Overview() {
           ]}
           layout={{
             ...PLOTLY_LAYOUT_BASE,
-            height: 340,
+            height: isMobile ? 260 : 340,
             xaxis: {
               ...PLOTLY_LAYOUT_BASE.xaxis,
               title: { text: 'Layer', standoff: 10 },
@@ -172,8 +183,9 @@ export default function Overview() {
 
       {/* Layer x ontology grouped bar chart */}
       <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6">
-        <h2 className="text-lg font-semibold text-gray-200 mb-4">
+        <h2 className="text-lg font-semibold text-gray-200 mb-4 flex items-center">
           Ontology Coverage by Layer
+          <InfoIcon tip="Number of features enriched in each ontology database per layer. Hover bars for exact counts." />
         </h2>
         <Plot
           data={HEATMAP_ONTOLOGIES.map(ont => ({
@@ -190,7 +202,7 @@ export default function Overview() {
           }))}
           layout={{
             ...PLOTLY_LAYOUT_BASE,
-            height: 500,
+            height: isMobile ? 350 : 500,
             margin: { t: 40, r: 30, b: 50, l: 70 },
             barmode: 'group',
             xaxis: {
@@ -231,8 +243,9 @@ export default function Overview() {
               to={card.to}
               className={`block bg-gray-900/50 rounded-xl border border-gray-800 p-5 ring-1 ${ACCENT_RING[card.accent]} transition-all hover:bg-gray-900/80`}
             >
-              <h3 className={`font-semibold mb-2 ${ACCENT_TEXT[card.accent]}`}>
+              <h3 className={`font-semibold mb-2 flex items-center ${ACCENT_TEXT[card.accent]}`}>
                 {card.title}
+                <InfoIcon tip={card.tip} position="bottom" />
               </h3>
               <p className="text-sm text-gray-400 leading-relaxed">
                 {card.description}
@@ -245,11 +258,14 @@ export default function Overview() {
   )
 }
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatCard({ label, value, sub, tip }: { label: string; value: string; sub?: string; tip?: string }) {
   return (
     <div className="bg-gray-900/50 rounded-xl border border-gray-800 px-4 py-5 text-center">
       <div className="text-2xl font-bold text-white">{value}</div>
-      <div className="text-xs text-gray-500 mt-1 uppercase tracking-wider">{label}</div>
+      <div className="text-xs text-gray-500 mt-1 uppercase tracking-wider flex items-center justify-center">
+        {label}
+        {tip && <InfoIcon tip={tip} position="bottom" />}
+      </div>
       {sub && <div className="text-sm text-blue-400 mt-0.5">{sub}</div>}
     </div>
   )

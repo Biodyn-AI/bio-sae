@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import Plot from 'react-plotly.js'
 import { useCrossLayerGraph, useCrossLayerTracking } from '../hooks/useData'
+import { InfoIcon } from '../components/Tooltip'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PLOTLY_LAYOUT_BASE: any = {
@@ -31,6 +33,7 @@ export default function CrossLayerFlow() {
   const { data: graphData, loading: gLoading, error: gError } = useCrossLayerGraph()
   const { data: trackingData, loading: tLoading, error: tError } = useCrossLayerTracking()
   const [selectedPair, setSelectedPair] = useState<string>(PAIR_KEYS[0])
+  const isMobile = useIsMobile()
 
   const loading = gLoading || tLoading
   const error = gError || tError
@@ -90,15 +93,17 @@ export default function CrossLayerFlow() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <h1 className="text-3xl font-bold text-white tracking-tight">
+      <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-2">
         Cross-Layer Information Flow
+        <InfoIcon tip="How biological representations transform across the transformer's depth. Features are tracked by cosine similarity between adjacent layers." position="bottom" />
       </h1>
 
       {/* Persistence chart */}
       {persistenceTrace && (
         <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-gray-200 mb-4">
+          <h2 className="text-lg font-semibold text-gray-200 mb-4 flex items-center">
             Feature Persistence Across Layer Transitions
+            <InfoIcon tip="Fraction of features at layer N that have a close match (cosine similarity > threshold) at layer N+1. Low persistence = the layer is transforming representations." />
           </h2>
           <Plot
             data={[
@@ -116,7 +121,7 @@ export default function CrossLayerFlow() {
             ]}
             layout={{
               ...PLOTLY_LAYOUT_BASE,
-              height: 320,
+              height: isMobile ? 240 : 320,
               xaxis: {
                 ...PLOTLY_LAYOUT_BASE.xaxis,
                 title: { text: 'Layer Transition', standoff: 10 },
@@ -160,8 +165,9 @@ export default function CrossLayerFlow() {
                 <div className="text-xl font-bold text-white">
                   {String(summary.n_features_with_deps)}
                 </div>
-                <div className="text-xs text-gray-500 uppercase tracking-wider">
-                  Features with Deps
+                <div className="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center">
+                  Connected Features
+                  <InfoIcon tip="Features in the source layer that have at least one significant PMI dependency in the target layer." position="bottom" />
                 </div>
               </div>
             )}
@@ -170,8 +176,9 @@ export default function CrossLayerFlow() {
                 <div className="text-xl font-bold text-white">
                   {(summary.mean_max_pmi as number).toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-500 uppercase tracking-wider">
+                <div className="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center">
                   Mean Max PMI
+                  <InfoIcon tip="Average of the strongest PMI connection per source feature. Higher values indicate stronger cross-layer coupling." position="bottom" />
                 </div>
               </div>
             )}
@@ -180,8 +187,9 @@ export default function CrossLayerFlow() {
                 <div className="text-xl font-bold text-white">
                   {String(summary.n_highways)}
                 </div>
-                <div className="text-xs text-gray-500 uppercase tracking-wider">
+                <div className="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center">
                   Highways
+                  <InfoIcon tip="Information highways are features that persist across multiple layers, maintaining their identity through the network." position="bottom" />
                 </div>
               </div>
             )}
@@ -190,8 +198,9 @@ export default function CrossLayerFlow() {
 
         {/* Top dependencies table */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-300 mb-3">
+          <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center">
             Top 20 Dependencies by PMI
+            <InfoIcon tip="The 20 strongest feature-to-feature connections between these layers, ranked by PMI. Higher PMI = stronger statistical dependency." />
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

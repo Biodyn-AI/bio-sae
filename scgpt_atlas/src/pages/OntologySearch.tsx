@@ -4,6 +4,8 @@ import Plot from 'react-plotly.js'
 import { useOntologyIndex } from '../hooks/useData'
 import { ontologyColor, ONTOLOGY_LABELS } from '../lib/colors'
 import { fmtPval } from '../lib/utils'
+import { InfoIcon } from '../components/Tooltip'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PLOTLY_LAYOUT_BASE: any = {
@@ -27,6 +29,7 @@ export default function OntologySearch() {
   const { data, loading, error } = useOntologyIndex()
   const [query, setQuery] = useState('')
   const [selectedTerm, setSelectedTerm] = useState<string | null>(null)
+  const isMobile = useIsMobile()
 
   // All term names for autocomplete
   const allTerms = useMemo(() => {
@@ -96,8 +99,9 @@ export default function OntologySearch() {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       {/* Search input */}
       <div className="flex flex-col items-center space-y-4">
-        <h1 className="text-3xl font-bold text-white tracking-tight">
+        <h1 className="text-3xl font-bold text-white tracking-tight flex items-center justify-center gap-2">
           Pathway &amp; Ontology Search
+          <InfoIcon tip="Search for GO terms, KEGG pathways, Reactome processes, or other ontology terms to find related SAE features." position="bottom" />
         </h1>
         <div className="w-full max-w-xl relative">
           <input
@@ -150,7 +154,7 @@ export default function OntologySearch() {
               data={barData}
               layout={{
                 ...PLOTLY_LAYOUT_BASE,
-                height: 340,
+                height: isMobile ? 260 : 340,
                 barmode: 'stack',
                 title: {
                   text: `${selectedTerm} - features per layer`,

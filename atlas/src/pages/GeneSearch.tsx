@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import Plot from 'react-plotly.js'
 import { useGeneIndex } from '../hooks/useData'
 import { moduleColor } from '../lib/colors'
+import { InfoIcon } from '../components/Tooltip'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PLOTLY_LAYOUT_BASE: any = {
@@ -26,6 +28,7 @@ export default function GeneSearch() {
   const { data, loading, error } = useGeneIndex()
   const [query, setQuery] = useState('')
   const [selectedGene, setSelectedGene] = useState<string | null>(null)
+  const isMobile = useIsMobile()
 
   // All gene names for autocomplete
   const allGenes = useMemo(() => {
@@ -72,8 +75,9 @@ export default function GeneSearch() {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       {/* Search input */}
       <div className="flex flex-col items-center space-y-4">
-        <h1 className="text-3xl font-bold text-white tracking-tight">
+        <h1 className="text-3xl font-bold text-white tracking-tight flex items-center justify-center gap-2">
           Gene Search
+          <InfoIcon tip="Search for any gene to see which SAE features it appears in across all layers." position="bottom" />
         </h1>
         <div className="w-full max-w-xl relative">
           <input
@@ -142,7 +146,7 @@ export default function GeneSearch() {
               ]}
               layout={{
                 ...PLOTLY_LAYOUT_BASE,
-                height: 340,
+                height: isMobile ? 260 : 340,
                 title: {
                   text: `${selectedGene} across layers`,
                   font: { color: '#e5e7eb', size: 14 },

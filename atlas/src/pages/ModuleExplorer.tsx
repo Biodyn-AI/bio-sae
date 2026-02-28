@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useModules } from '../hooks/useData'
 import { moduleColor } from '../lib/colors'
+import { InfoIcon } from '../components/Tooltip'
 
 type SortKey = 'size' | 'layer'
 
@@ -47,14 +48,15 @@ export default function ModuleExplorer() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <h1 className="text-3xl font-bold text-white tracking-tight">
+      <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-2">
         {data.length} Biological Modules across 18 Layers
+        <InfoIcon tip="Biological modules are groups of features that co-activate on the same cells, identified by Leiden community detection." position="bottom" />
       </h1>
 
       {/* Filter row */}
       <div className="flex flex-wrap items-center gap-4">
         <label className="flex items-center gap-2 text-sm text-gray-400">
-          Layer
+          Layer<InfoIcon tip="Filter modules by the transformer layer they belong to." />
           <select
             value={layerFilter === 'all' ? 'all' : layerFilter}
             onChange={e => {
@@ -73,7 +75,7 @@ export default function ModuleExplorer() {
         </label>
 
         <label className="flex items-center gap-2 text-sm text-gray-400">
-          Sort by
+          Sort by<InfoIcon tip="Sort modules by layer number or by size (number of features)." />
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value as SortKey)}
