@@ -1,0 +1,69 @@
+# Large data files
+*.npy
+*.pt
+*.h5ad
+*.h5
+experiments/
+
+# Web app build artifacts and data
+atlas/node_modules/
+atlas/dist/
+atlas/public/data/
+scgpt_atlas/node_modules/
+scgpt_atlas/dist/
+scgpt_atlas/public/data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+paper/*.pdf
+paper/genome_biology/*.pdf
+
+# System files
+.DS_Store
+._*
+Thumbs.db
+.vscode/
+.idea/
+
+# Nested git repos (atlas repos are deployed separately)
+atlas/.git/
+atlas/.git_bak/
+scgpt_atlas/.git/
+scgpt_atlas/.git_bak/
+
+# Temporary/diagnostic files
+paper/test_projections*.py
+paper/diagnose_umap.py
+
+# V1 paper drafts (superseded)
+paper/sae_paper.tex
+paper/references.bib
+paper/generate_figures.py
+
+# Internal planning documents
+PLAN.md
+PLAN_interactive_atlas.md
+
+# Original results files (copies live in docs/)
+/RESULTS_PHASE1.md
+/RESULTS_PHASE2.md
+/RESULTS_PHASE3.md
+/KNOWLEDGE_MAP_SUMMARY.md
+
+# Figure PNG duplicates (PDFs are canonical)
+paper/figures/*.png
+paper/figures/diag_*

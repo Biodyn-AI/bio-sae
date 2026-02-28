@@ -1,0 +1,980 @@
+% Sparse Autoencoder Biological Map of Geneformer and scGPT — Comprehensive arXiv preprint v2
+% Compile: pdflatex sae_paper_v2 && bibtex sae_paper_v2 && pdflatex sae_paper_v2 && pdflatex sae_paper_v2
+\documentclass[onecolumn]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{natbib}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{longtable}
+
+% Prevent overfull hboxes in dense paragraphs
+\tolerance=1000
+\emergencystretch=1em
+
+\bibliographystyle{unsrtnat}
+
+\title{\textbf{Sparse Autoencoders Reveal Organized Biological Knowledge\\but Minimal Regulatory Logic in Single-Cell Foundation Models:\\A Comparative Atlas of Geneformer and scGPT}}
+
+\author{Ihor Kendiukhov\\
+Department of Computer Science\\
+University of T\"ubingen\\
+T\"ubingen, Germany\\
+\texttt{kendiukhov@gmail.com}}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Transformer-based single-cell foundation models encode rich biological information, but whether this includes causal regulatory logic---as opposed to statistical co-expression---remains unclear. We apply sparse autoencoders (SAEs) to decompose the residual streams of two architecturally distinct models---Geneformer V2-316M (18 layers, $d{=}1{,}152$) and scGPT whole-human (12 layers, $d{=}512$, 33M training cells)---producing atlases of 82,525 and 24,527 features, respectively. Both atlases confirm massive superposition: 99.8\% of Geneformer features are invisible to SVD. We systematically characterize each atlas through ontology annotation, co-activation network analysis, causal feature patching, cross-layer tracking, cell type enrichment mapping, and a multi-tissue control experiment. Both models exhibit rich biological organization: 29--59\% of features annotate to Gene Ontology, KEGG, Reactome, STRING, or TRRUST, with U-shaped layer profiles reflecting hierarchical abstraction. Features organize into co-activation modules (76 in scGPT, 141 in Geneformer), form cross-layer information highways (63--99.8\% of features), and map onto cell type identities across immune, kidney, and lung tissues.
+
+However, when tested against genome-scale CRISPRi perturbation data, only 3/48 transcription factors (6.2\%) show regulatory-target-specific feature responses in Geneformer. A multi-tissue control yields marginal improvement (10.4\%, 5/48 TFs), establishing model representations as the bottleneck. These models have internalized organized biological knowledge---pathway membership, protein interactions, functional modules, hierarchical abstraction---but minimal causal regulatory logic. We release both feature atlases as interactive web platforms (\url{https://biodyn-ai.github.io/geneformer-atlas/} and \url{https://biodyn-ai.github.io/scgpt-atlas/}), enabling exploration of individual features, modules, cross-layer information flow, and cell type enrichments across all layers of both models.
+\end{abstract}
+
+%% ============================================================
+%% INTRODUCTION
+%% ============================================================
+\section{Introduction}
+
+Single-cell foundation models (scFMs) such as Geneformer~\citep{theodoris2023transfer} and scGPT~\citep{cui2024scgpt} have demonstrated remarkable capabilities across cell type annotation, perturbation response prediction, and gene network inference. Trained on millions of transcriptomic profiles, these models learn contextual gene representations that capture biological structure without explicit supervision on regulatory relationships. A central question for the field is whether these learned representations encode \emph{causal regulatory logic}---the directed relationships between transcription factors (TFs) and their target genes---or merely reflect \emph{statistical co-expression patterns} that correlate with but do not constitute regulation.
+
+This question has been partially addressed at the level of attention weights. A companion study~\citep{kendiukhov2025systematic} systematically evaluated attention-derived edge scores from Geneformer and scGPT across 37 analyses and 153 statistical tests, finding that attention captures co-expression rather than unique regulatory signal: trivial gene-level baselines outperform attention edges, pairwise scores add zero incremental predictive value, and causal ablation of putatively regulatory heads produces no behavioural effect. However, attention weights represent only one view of a model's internal computation. The residual stream---the running sum of all layer outputs that carries information through the network---may encode richer structure than attention patterns alone reveal.
+
+The superposition hypothesis~\citep{elhage2022superposition} provides a theoretical framework for understanding this structure. When a model must represent more concepts than it has dimensions, it encodes features as nearly-orthogonal directions in activation space, with any given input activating only a sparse subset. For Geneformer V2-316M with 1,152 hidden dimensions, superposition would allow the model to encode thousands of biological concepts---far more than the dimensionality suggests---in a manner invisible to standard linear decomposition methods like SVD or PCA.
+
+Sparse autoencoders (SAEs)~\citep{olshausen1997sparse,sharkey2022taking,cunningham2023sparse,bricken2023monosemanticity} have emerged as a powerful tool for resolving superposition in neural networks. By learning an overcomplete dictionary with a sparsity constraint, SAEs decompose dense activations into interpretable features that correspond to meaningful concepts. This approach has yielded striking results in large language models, revealing interpretable features for safety-relevant concepts~\citep{templeton2024scaling} and scaling to billions of features~\citep{gao2024scaling}. However, SAEs have not been systematically applied to biological foundation models, where the ``concepts'' encoded are genes, pathways, and regulatory programs rather than linguistic entities.
+
+Here, we present the first comprehensive SAE-based interpretability analysis of single-cell foundation models. We train TopK SAEs~\citep{makhzani2013ksparse} on per-position residual stream activations from all 18 layers of Geneformer V2-316M and all 12 layers of scGPT whole-human~\citep{cui2024scgpt}, producing atlases of 82,525 and 24,527 features, respectively. These two models differ substantially in architecture (rank-value vs.\ continuous-value encoding, 18 vs.\ 12 layers, $d{=}1{,}152$ vs.\ $d{=}512$) and training data (30M vs.\ 33M cells), yet we apply an identical analytical pipeline to both, enabling direct cross-model comparison.
+
+We systematically characterize each atlas through complementary analyses organized in three phases: (1)~feature extraction, training, annotation, SVD comparison, and cross-layer tracking; (2)~co-activation network analysis, causal feature patching, cell type enrichment mapping, novel feature characterization, and cross-layer computational graph construction; and (3)~a multi-tissue control experiment testing whether the interpretability bottleneck lies in the SAE training data or in the model itself. To make these results accessible to the community, we release both atlases as interactive web platforms---the Geneformer Feature Atlas and scGPT Feature Atlas---enabling exploration of over 107,000 features across 30 layers of two leading single-cell foundation models. Our results reveal two models that have organized biological knowledge into rich, modular feature atlases---but ones that encode co-expression and pathway structure rather than directed regulatory relationships.
+
+
+%% ============================================================
+%% RESULTS
+%% ============================================================
+\section{Results}
+
+\subsection{SAE feature atlas reveals massive superposition in Geneformer}
+\label{sec:atlas}
+
+We extracted per-position residual stream activations from all 18 layers of Geneformer V2-316M, processing 2,000 K562 control cells from the Replogle genome-scale CRISPRi dataset~\citep{replogle2022mapping} and obtaining 4,056,351 token positions per layer (mean 2,028 genes/cell; 336.4~GB total). For each layer, we trained a TopK sparse autoencoder with 4$\times$ overcomplete dictionary (4,608 features from 1,152 input dimensions) and $k{=}32$ sparsity, subsampling 1~million positions per layer for training efficiency (Methods).
+
+Table~\ref{tab:full18} presents complete training and annotation statistics for all 18 layers (Figure~\ref{fig:overview}). Several patterns emerge. Variance explained peaks at layers 3--4 (85.2--85.3\%) and generally declines thereafter to 76.8\% at layer~17 (with a brief recovery at layers 10--11), indicating that later-layer representations become progressively more distributed and harder to compress with a fixed-size dictionary. Dead features (those never activating on 100K held-out positions) increase from 0 at layer~0 to 70 at layer~16, with a trough at layers 9--11 (6--13 dead) suggesting a ``mid-layer revival'' of structured representations. Feature orthogonality is excellent throughout: mean absolute inter-feature cosine similarity ranges from 0.033--0.040, indicating well-separated dictionary directions.
+
+The total atlas comprises \textbf{82,525 alive features} across all 18 layers, with \textbf{43,241 features} (52.4\%) receiving at least one significant ontology annotation against five biological databases (Gene Ontology Biological Process~\citep{ashburner2000go}, KEGG~\citep{kanehisa2000kegg}, Reactome~\citep{jassal2020reactome}, STRING~\citep{szklarczyk2023string}, and TRRUST~\citep{han2018trrust}).
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Complete SAE training and annotation statistics across all 18 Geneformer layers.} Each SAE uses a 4$\times$ overcomplete dictionary (4,608 features) with TopK $k{=}32$ sparsity, trained on 1M subsampled positions. VarExpl = variance explained. Dead = features with zero activations on 100K held-out positions ($\text{Dead} = 4{,}608 - \text{Alive}$). MeanCos = mean absolute pairwise cosine similarity between feature decoder vectors (the mean signed cosine is $\approx$0; see Section~\ref{sec:geometry}). Ann\% = fraction of alive features with $\geq$1 significant ontology enrichment (FDR $< 0.05$). Enrichments = number of unique (feature, term) pairs with significant enrichment, summed across all five databases. Note: Table~\ref{tab:perontology} provides a per-database breakdown using raw significant test counts, which may differ slightly due to aggregation.}
+\label{tab:full18}
+\smallskip
+\begin{tabular}{rccrcrccc}
+\toprule
+Layer & VarExpl & Alive & Dead & SVD-aligned & Novel & MeanCos & Ann\% & Enrichments \\
+\midrule
+0  & 83.9\% & 4,608 & 0   & 41 & 4,567 & 0.033 & 58.6\% & 23,959 \\
+1  & 84.6\% & 4,606 & 2   & 27 & 4,579 & 0.033 & 57.4\% & 23,131 \\
+2  & 84.8\% & 4,601 & 7   & 29 & 4,572 & 0.034 & 55.5\% & 23,383 \\
+3  & 85.2\% & 4,595 & 13  & 12 & 4,583 & 0.035 & 56.4\% & 21,922 \\
+4  & 85.3\% & 4,583 & 25  & 13 & 4,570 & 0.037 & 53.9\% & 19,910 \\
+5  & 84.6\% & 4,576 & 32  & 8  & 4,568 & 0.036 & 52.1\% & 17,865 \\
+6  & 83.3\% & 4,580 & 28  & 5  & 4,575 & 0.035 & 49.1\% & 16,716 \\
+7  & 81.4\% & 4,591 & 17  & 6  & 4,585 & 0.036 & 47.7\% & 15,470 \\
+8  & 80.4\% & 4,586 & 22  & 3  & 4,583 & 0.038 & 45.4\% & 15,679 \\
+9  & 80.2\% & 4,595 & 13  & 4  & 4,591 & 0.036 & 50.3\% & 16,925 \\
+10 & 81.0\% & 4,602 & 6   & 7  & 4,595 & 0.035 & 55.8\% & 19,587 \\
+11 & 81.6\% & 4,598 & 10  & 4  & 4,594 & 0.037 & 56.2\% & 19,943 \\
+12 & 81.0\% & 4,592 & 16  & 3  & 4,589 & 0.037 & 53.2\% & 19,105 \\
+13 & 80.1\% & 4,583 & 25  & 3  & 4,580 & 0.038 & 50.7\% & 17,338 \\
+14 & 80.0\% & 4,568 & 40  & 2  & 4,566 & 0.040 & 50.6\% & 17,719 \\
+15 & 78.8\% & 4,543 & 65  & 5  & 4,538 & 0.038 & 49.0\% & 15,571 \\
+16 & 76.9\% & 4,538 & 70  & 5  & 4,533 & 0.037 & 54.7\% & 16,080 \\
+17 & 76.8\% & 4,580 & 28  & 12 & 4,568 & 0.039 & 47.0\% & 15,764 \\
+\midrule
+\textbf{Total} & & \textbf{82,525} & \textbf{419} & \textbf{189} & \textbf{82,336} & & & \textbf{336,067} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+%% Figure 1: Overview
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_atlas_overview.pdf}
+\caption{\textbf{Sparse autoencoder feature atlas of Geneformer V2-316M.} We trained TopK SAEs on residual stream activations from all 18 layers, extracting 82,525 interpretable features. Reconstruction quality declines with depth while dead features increase, consistent with increasingly distributed representations at later processing stages.}
+\label{fig:overview}
+\end{figure}
+
+
+\subsection{Quantifying superposition: SAE features versus SVD}
+\label{sec:svd}
+
+To quantify the degree of superposition, we systematically compared SAE features against the top-50 SVD axes at each layer. A feature was classified as ``SVD-aligned'' if its decoder weight vector had cosine similarity $> 0.7$ with any SVD axis.
+
+Across all 18 layers, only \textbf{189 of 82,525} features (0.2\%) aligned with any SVD axis. SVD-aligned features decrease sharply with depth: 41 at layer~0 (where the representation is closest to the input embedding), declining to just 2--5 at mid-to-late layers (Table~\ref{tab:full18}). The remaining 99.8\% (82,336 features) represent structure in the residual stream that is invisible to standard linear decomposition.
+
+Critically, the novel features carry the biological signal:
+\begin{itemize}
+\item \textbf{Annotation rate:} 52.5\% of novel features have ontology annotations versus only 14.3\% of SVD-aligned features.
+\item \textbf{Absolute counts:} 43,214 novel features are annotated versus 27 SVD-aligned.
+\item \textbf{Exclusivity:} 98.7\% of all ontology enrichment terms are found \emph{exclusively} in novel features.
+\item \textbf{Variance:} SAEs explain 77--85\% of activation variance versus 31--38\% for the top-50 SVD axes (2.4$\times$ ratio).
+\end{itemize}
+
+These results confirm that Geneformer uses massive superposition to encode its biological knowledge (Figure~\ref{fig:svd}): the model represents at least 82,525 biological concepts in 1,152 dimensions---a compression ratio exceeding 70$\times$---and the overwhelming majority of this structure is invisible to linear decomposition methods.
+
+%% Figure 2: SVD comparison
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_svd_comparison.pdf}
+\caption{\textbf{Massive superposition confirmed: 99.8\% of SAE features are invisible to SVD.} Novel features carry 98.7\% of biological annotations and explain 2.4$\times$ more variance than SVD. Standard dimensionality reduction techniques miss the vast majority of biological structure encoded in Geneformer's residual stream.}
+\label{fig:svd}
+\end{figure}
+
+
+\subsection{scGPT feature atlas: cross-model replication confirms universal superposition}
+\label{sec:scgpt_atlas}
+
+To test whether the superposition and biological organization observed in Geneformer generalize across architectures, we applied an identical SAE pipeline to scGPT whole-human~\citep{cui2024scgpt}---a model trained on 33 million cells with fundamentally different design choices: continuous-value gene encoding (vs.\ Geneformer's rank-value tokens), 12 transformer layers (vs.\ 18), $d_\text{model}{=}512$ (vs.\ 1,152), and masked gene prediction training objective (vs.\ next-token prediction).
+
+We extracted per-position residual stream activations from all 12 layers, processing 3,000 diverse Tabula Sapiens cells (1,000 immune across 43 cell types, 1,000 kidney, 1,000 lung) and obtaining 3,561,832 token positions per layer. For each layer, we trained a TopK SAE with 4$\times$ overcomplete dictionary (2,048 features from 512 input dimensions) and $k{=}32$ sparsity.
+
+Table~\ref{tab:scgpt_full12} presents complete training statistics for all 12 scGPT layers (visualized in Figure~\ref{fig:scgpt_overview}). Reconstruction quality is notably higher than Geneformer: variance explained ranges from 85.7\% (L7) to 93.5\% (L4), with a mean of 90.2\% versus Geneformer's mean of 81.7\%. Dead features are near-zero: only 49 across all 12 layers (0.2\%), compared to 419 in Geneformer (0.5\%). The total atlas comprises \textbf{24,527 alive features}, with \textbf{7,595 features} (31.0\%) annotated against the same five ontology databases.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Complete scGPT SAE training and annotation statistics across all 12 layers.} Each SAE uses a 4$\times$ overcomplete dictionary (2,048 features) with TopK $k{=}32$ sparsity, trained on 3.56M positions per layer. Notation as in Table~\ref{tab:full18}.}
+\label{tab:scgpt_full12}
+\smallskip
+\begin{tabular}{rccrccc}
+\toprule
+Layer & VarExpl & Alive & Dead & MeanCos & Ann\% & Modules \\
+\midrule
+0  & 92.0\% & 2,027 & 21 & 0.038 & 32.7\% & 6 \\
+1  & 93.0\% & 2,035 & 13 & 0.041 & 30.8\% & 6 \\
+2  & 93.2\% & 2,038 & 10 & 0.040 & 28.7\% & 5 \\
+3  & 93.2\% & 2,045 & 3  & 0.041 & 31.6\% & 7 \\
+4  & 93.5\% & 2,048 & 0  & 0.041 & 30.4\% & 6 \\
+5  & 92.1\% & 2,048 & 0  & 0.042 & 29.6\% & 7 \\
+6  & 90.3\% & 2,048 & 0  & 0.046 & 28.9\% & 7 \\
+7  & 85.7\% & 2,048 & 0  & 0.049 & 32.4\% & 6 \\
+8  & 86.3\% & 2,048 & 0  & 0.046 & 28.9\% & 7 \\
+9  & 86.9\% & 2,047 & 1  & 0.045 & 33.9\% & 5 \\
+10 & 87.4\% & 2,047 & 1  & 0.044 & 31.7\% & 7 \\
+11 & 88.6\% & 2,048 & 0  & 0.043 & 32.0\% & 7 \\
+\midrule
+\textbf{Total} & & \textbf{24,527} & \textbf{49} & & & \textbf{76} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:model_comparison} provides a direct head-to-head comparison (Figure~\ref{fig:cross_model} shows side-by-side visualizations). Despite their architectural differences, both models exhibit the same qualitative phenomena: massive superposition (thousands of features per layer), high reconstruction quality, rich biological annotation, organized modular structure, and cross-layer information highways. Key quantitative differences include scGPT's higher variance explained (90.2\% vs.\ 81.7\%) and lower annotation rate (31.0\% vs.\ 52.4\%). The higher variance explained likely reflects the lower dimensionality ($d{=}512$) making the 4$\times$ expansion (2,048 features) a less extreme overcomplete basis, while the lower annotation rate may result from the continuous-value encoding distributing information more evenly across features.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Cross-model comparison: Geneformer V2-316M vs.\ scGPT whole-human.} Both models analyzed with identical TopK SAE pipeline (4$\times$ expansion, $k{=}32$).}
+\label{tab:model_comparison}
+\smallskip
+\begin{tabular}{lcc}
+\toprule
+Metric & Geneformer & scGPT \\
+\midrule
+Architecture & 18 layers, $d{=}1{,}152$ & 12 layers, $d{=}512$ \\
+Training data & $\sim$30M cells & $\sim$33M cells \\
+Input encoding & Rank-value tokens & Continuous expression \\
+Training objective & Next-token prediction & Masked gene prediction \\
+\midrule
+Features per layer & 4,608 & 2,048 \\
+Total alive features & 82,525 & 24,527 \\
+Dead features & 419 (0.5\%) & 49 (0.2\%) \\
+Mean VarExpl & 81.7\% & 90.2\% \\
+Mean annotation rate & 52.4\% & 31.0\% \\
+Total modules & 141 & 76 \\
+Mean modules/layer & 7.8 & 6.3 \\
+Module coverage & 96.0--99.5\% & 96.3\% mean \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figS1_scgpt_overview.pdf}
+\caption{\textbf{scGPT feature atlas overview across all 12 layers.} \textbf{(A)}~Reconstruction quality (variance explained) ranges from 85.7\% to 93.5\%, consistently higher than Geneformer. \textbf{(B)}~Dead features are concentrated in early layers (L0--L2) with near-zero elsewhere (49 total). \textbf{(C)}~Biological annotation rate is stable at 29--34\% across layers, lacking the pronounced U-shape seen in Geneformer. \textbf{(D)}~Co-activation modules average 6.3 per layer (76 total), comparable to Geneformer's 7.8.}
+\label{fig:scgpt_overview}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figS2_cross_model.pdf}
+\caption{\textbf{Cross-model comparison: Geneformer V2-316M (18 layers) vs.\ scGPT whole-human (12 layers) on normalized depth axis.} \textbf{(A)}~scGPT maintains higher variance explained (85--94\%) than Geneformer (77--85\%) at all relative depths. \textbf{(B)}~Geneformer annotation rate (45--59\%) substantially exceeds scGPT (29--34\%), suggesting rank-value encoding yields more interpretable features. \textbf{(C)}~Summary comparison across key metrics. \textbf{(D)}~Dead feature profiles differ markedly: Geneformer peaks at late layers (L14--L16) while scGPT concentrates dead features in early layers (L0--L2) with near-zero elsewhere.}
+\label{fig:cross_model}
+\end{figure}
+
+
+\subsection{Biological annotation reveals a U-shaped layer profile}
+\label{sec:ushape}
+
+Annotation of each feature's top-20 genes against five databases (Fisher's exact test, Benjamini--Hochberg FDR $< 0.05$) revealed a striking U-shaped profile across layers (Figure~\ref{fig:ushape}). Annotation rates are highest at layers 0--1 (57--59\%), decline to a minimum at layer~8 (45.4\%), recover to 55--56\% at layers 10--11, and decrease again at layers 16--17 (47--55\%).
+
+The scGPT atlas shows a weaker but qualitatively similar pattern across its 12 layers (Figure~\ref{fig:scgpt_ontology}): annotation rates range from 28.7\% (L2) to 33.9\% (L9). Lower annotation rates cluster at L2 (28.7\%), L5 (29.6\%), L6 (28.9\%), and L8 (28.9\%), interspersed with higher rates at L7 (32.4\%) and L9--L11 (31.7--33.9\%). The amplitude is smaller than Geneformer's pronounced U-shape, likely due to the shorter 12-layer stack and different encoding strategy, but a general trend of biological interpretability varying with depth is present.
+
+For Geneformer, this pattern admits a functional interpretation organized into four zones:
+
+\paragraph{Early layers (0--4): Molecular machinery.} Features map cleanly onto existing ontology terms, with the highest GO~BP (8,500--10,150 enrichments/layer), KEGG (2,050--2,650), and Reactome (9,200--11,000) counts. STRING protein--protein interaction associations peak here (248--302 per layer), as do TRRUST TF associations (133--164). Representative features encode textbook biological programs (Table~\ref{tab:examples}).
+
+\paragraph{Middle layers (5--9): Abstract computation.} Annotation rates drop below 50\% at layers 6--8, consistent with intermediate computational representations harder to map to single ontology terms. GO~BP drops to 6,600--7,700, and STRING associations decrease to 181--216 per layer.
+
+\paragraph{Mid-late layers (10--12): Re-specialization.} Annotation rates recover to 53--56\%, with GO~BP returning to 8,200--8,800 and KEGG to 1,750--2,100. Features shift from molecular processes to integrative cellular programs such as cell differentiation, intracellular signaling, and organelle organization.
+
+\paragraph{Terminal layers (15--17): Prediction-focused.} A second annotation decline (47--55\%), with the most dead features (28--70) and most distributed representations. Features at these layers respond broadly to perturbations (Section~\ref{sec:perturbation}) but lack the specificity of mid-layer features.
+
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Per-ontology enrichment counts across all 18 layers.} Each entry is the number of significant enrichments (FDR $< 0.05$) for features at that layer. GO~BP = Gene Ontology Biological Process. TRRUST columns show enrichment for TF target sets (TF) and individual TF$\to$target edges (Edges).}
+\label{tab:perontology}
+\smallskip
+\begin{tabular}{rrrrrrc}
+\toprule
+Layer & GO BP & KEGG & Reactome & STRING & TRRUST TF & TRRUST Edges \\
+\midrule
+0  & 10,153 & 2,650 & 11,001 & 302 & 155 & 42 \\
+1  & 10,022 & 2,433 & 10,512 & 258 & 164 & 48 \\
+2  & 9,948  & 2,495 & 10,790 & 283 & 150 & 32 \\
+3  & 9,726  & 2,514 & 9,525  & 273 & 157 & 37 \\
+4  & 8,537  & 2,045 & 9,195  & 248 & 133 & 30 \\
+5  & 7,695  & 1,845 & 8,189  & 216 & 136 & 24 \\
+6  & 7,180  & 1,555 & 7,871  & 182 & 110 & 28 \\
+7  & 6,628  & 1,637 & 7,080  & 181 & 125 & 30 \\
+8  & 6,850  & 1,570 & 7,169  & 199 & 90  & 27 \\
+9  & 7,299  & 1,643 & 7,880  & 207 & 103 & 29 \\
+10 & 8,461  & 1,751 & 9,247  & 214 & 128 & 30 \\
+11 & 8,785  & 2,089 & 8,957  & 227 & 112 & 31 \\
+12 & 8,217  & 1,915 & 8,856  & 210 & 117 & 35 \\
+13 & 7,158  & 1,686 & 8,393  & 202 & 101 & 28 \\
+14 & 7,615  & 1,595 & 8,412  & 221 & 97  & 27 \\
+15 & 6,790  & 1,520 & 7,135  & 150 & 126 & 34 \\
+16 & 7,040  & 1,781 & 7,172  & 158 & 87  & 25 \\
+17 & 7,002  & 1,762 & 6,869  & 193 & 131 & 25 \\
+\midrule
+\textbf{Total} & \textbf{145,106} & \textbf{34,486} & \textbf{154,253} & \textbf{3,924} & \textbf{2,222} & \textbf{562} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+%% Figure 3: U-shape
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig3_ontology_heatmap.pdf}
+\caption{\textbf{Biological annotation follows a U-shaped profile across Geneformer's 18 layers.} Early layers encode gene-centric molecular programs; middle layers develop abstract internal representations; mid-late layers partially re-specialize; terminal layers optimize for output prediction. This pattern reflects hierarchical biological abstraction within the network.}
+\label{fig:ushape}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figS4_scgpt_ontology.pdf}
+\caption{\textbf{scGPT per-ontology enrichment across 12 layers.} \textbf{(A)}~Row-normalized heatmap showing relative enrichment intensity for five ontology databases. GO~BP and Reactome dominate at early layers (L0--L1); KEGG peaks at mid-layers (L3, L7); TRRUST shows a distinctive spike at L9. \textbf{(B)}~Total enrichments per layer are relatively uniform (3,700--5,300), without the clear decline observed in Geneformer's middle layers.}
+\label{fig:scgpt_ontology}
+\end{figure}
+
+
+\subsection{Example features reveal textbook biological programs}
+\label{sec:examples}
+
+Individual SAE features correspond to recognizable, specific biological programs. Table~\ref{tab:examples} presents representative features from layer~0 (molecular programs) and layer~11 (integrative programs). These are not vague gene correlations but precise functional groupings: feature F3717's top genes (CDK1, CDC20, DLGAP5, PBK) constitute the canonical G2/M checkpoint program; feature F3607 (RRM1, E2F1, MCM4, MCM6, RAD51) captures the DNA replication fork machinery and its repair components.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Representative SAE features at layer~0 (molecular) and layer~11 (integrative).} Top genes = highest mean activation magnitude among the feature's most activated gene positions. Databases = which ontology databases yielded significant enrichments.}
+\label{tab:examples}
+\smallskip
+\small
+\begin{tabular}{cp{3.8cm}p{3.5cm}l}
+\toprule
+Feature & Top Genes & Biological Identity & Databases \\
+\midrule
+\multicolumn{4}{l}{\textit{Layer 0 --- Molecular Programs}} \\
+F3717 & CDK1, CDC20, DLGAP5, PBK & Cell cycle (G2/M) & GO, KEGG, React., STRING \\
+F3607 & RRM1, E2F1, MCM4, MCM6, RAD51 & DNA replication / repair & GO, KEGG, React., STRING, TRRUST \\
+F1116 & ARL6IP4, SQSTM1, JAK1 & B cell activation & GO, KEGG, Reactome \\
+F4536 & DYNC1H1, TLN1, MYH9, SPTAN1 & Cytoskeleton / focal adhesion & GO, KEGG, Reactome \\
+F2829 & TGFB1, PKN1, GADD45A, ZBTB7A & MAPK/TGF$\beta$ signaling & GO, KEGG, React., STRING, TRRUST \\
+F1573 & MKI67, CENPF, TOP2A, CDK1, AURKB & Mitosis / chr.\ segregation & GO, KEGG, React., STRING \\
+\midrule
+\multicolumn{4}{l}{\textit{Layer 11 --- Integrative Programs}} \\
+F2035 & \textit{(cell diff.\ genes)} & Cell diff.\ (neg.\ reg.) & GO, Reactome \\
+F3692 & \textit{(ERAD pathway genes)} & ER-associated degradation & GO, KEGG, Reactome \\
+F3933 & \textit{(signaling genes)} & Intracell.\ signaling (neg.\ reg.) & GO, Reactome \\
+F2936 & \textit{(mitochondrial genes)} & Mitochondrion organization & GO, KEGG, Reactome \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Cross-layer tracking: features are layer-specific with rapid turnover}
+\label{sec:crosslayer}
+
+To understand how features relate across layers, we tracked decoder weight vector similarity from layer~0 features to all subsequent layers. A feature at layer~$L$ is ``matched'' to layer~$L+k$ if its decoder vector has cosine similarity $> 0.7$ with any feature's decoder at layer~$L+k$.
+
+Features are overwhelmingly layer-specific. Only 2--3\% of features at any layer match a feature at the adjacent layer (Table~\ref{tab:persistence}). Strong matches (cosine $> 0.9$) number only 2--26 per layer transition. From layer~0, the decay is steep: 114 matches at L1 (2.5\%), 67 at L4 (1.5\%), 10 at L8 (0.2\%), and effectively zero beyond L10. No layer~0 feature survives past layer~11.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Cross-layer feature persistence from layer~0.} Matches = features at L0 with cosine similarity $> 0.7$ to any feature at the target layer. The model undergoes radical representational transformation: by layer~6, essentially all features are novel with no L0 ancestry.}
+\label{tab:persistence}
+\smallskip
+\begin{tabular}{lcc}
+\toprule
+L0 $\to$ Target & Matches (cos $> 0.7$) & Rate \\
+\midrule
+L0 $\to$ L1  & 114 & 2.5\% \\
+L0 $\to$ L2  & 93 & 2.0\% \\
+L0 $\to$ L4  & 67 & 1.5\% \\
+L0 $\to$ L6  & 25 & 0.5\% \\
+L0 $\to$ L8  & 10 & 0.2\% \\
+L0 $\to$ L10 & 1 & $\sim$0\% \\
+L0 $\to$ L12+ & 0 & 0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A striking finding is that feature persistence anti-correlates with biological content. Of layer~0 features, 98.2\% are transient (present in $\leq$3 layers), with 59.6\% annotated and a mean of 5.4 enrichment terms. The rare moderate-persistence features (1.8\%, present in 4--10 layers) have only 3.7\% annotation rate and 0.1 mean enrichments. The biological content of the model is carried by features that are rebuilt at every layer, not by any persistent scaffold.
+
+
+\subsection{Features organize into 141 biologically coherent co-activation modules}
+\label{sec:modules}
+
+To map the relational structure among features, we constructed co-activation graphs at each of the 18 layers using pointwise mutual information (PMI;~\citealp{manning1999foundations}) computed over the 4~million token positions. Feature $i$ is ``active'' at position $j$ if it is among the top-$k$ activations for that position. PMI quantifies whether two features co-activate more often than expected: $\text{PMI}(i,j) = \log_2 P(i,j) / [P(i)P(j)]$. Leiden community detection~\citep{traag2019louvain} at resolution~1.0 identified co-activation modules.
+
+Table~\ref{tab:modules_full} presents complete module statistics for all 18 layers. Across all layers, we identified \textbf{141 distinct modules} (6--12 per layer) covering \textbf{96.0--99.5\%} of alive features. This is not a trivial result: with $k{=}32$ sparsity out of 4,608 features, random co-activation would produce a connected but undifferentiated graph. Instead, Leiden clustering identifies well-separated communities with distinct biological identity.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Co-activation module statistics across all 18 layers.} PMI-based graphs with Leiden clustering (resolution = 1.0). Modules = number of distinct communities. Coverage = fraction of alive features in at least one module.}
+\label{tab:modules_full}
+\smallskip
+\begin{tabular}{rccrc}
+\toprule
+Layer & Modules & Feats in Modules & PMI Edges & Coverage \\
+\midrule
+0  & 6  & 4,577 & 446,324 & 99.3\% \\
+1  & 8  & 4,562 & 440,681 & 99.0\% \\
+2  & 7  & 4,536 & 404,403 & 98.6\% \\
+3  & 8  & 4,518 & 393,574 & 98.3\% \\
+4  & 9  & 4,502 & 393,194 & 98.2\% \\
+5  & 12 & 4,472 & 390,845 & 97.7\% \\
+6  & 7  & 4,458 & 383,033 & 97.3\% \\
+7  & 8  & 4,439 & 371,832 & 96.7\% \\
+8  & 7  & 4,478 & 369,280 & 97.6\% \\
+9  & 7  & 4,535 & 380,304 & 98.7\% \\
+10 & 9  & 4,571 & 388,498 & 99.3\% \\
+11 & 8  & 4,565 & 388,103 & 99.3\% \\
+12 & 7  & 4,567 & 388,977 & 99.5\% \\
+13 & 7  & 4,561 & 383,779 & 99.5\% \\
+14 & 8  & 4,543 & 379,595 & 99.5\% \\
+15 & 8  & 4,461 & 340,269 & 98.2\% \\
+16 & 8  & 4,358 & 327,895 & 96.0\% \\
+17 & 7  & 4,474 & 343,059 & 97.7\% \\
+\midrule
+\textbf{Total} & \textbf{141} & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Several structural patterns emerge (Figure~\ref{fig:modules}). Module count peaks at layer~5 (12 modules), suggesting maximal functional compartmentalization at early-to-mid processing. PMI edge density declines with depth (446K at L0 to 328K at L16), paralleling the declining variance explained and consistent with increasingly distributed representations. Coverage remains near-complete at all layers, indicating that features are not isolated but participate in organized programs.
+
+Modules have clear biological identity. At layer~0, six modules correspond to: (1)~Cell Cycle / DNA Replication (CDK1, MCM family, E2F factors), (2)~Immune Signaling (JAK-STAT, cytokine receptors), (3)~Metabolism (glycolytic enzymes, TCA cycle, oxidative phosphorylation), (4)~Translation (ribosomal proteins, initiation/elongation factors), (5)~Protein Quality Control (ubiquitin-proteasome, ER stress, chaperones), and (6)~Cytoskeleton / Adhesion (actin regulators, focal adhesion, integrins). At layer~11, eight modules shift toward integrative cellular programs: Cell Differentiation, Intracellular Signaling, Mitochondrial Organization, Vesicular Transport, Chromatin/Transcription, Protein Modification, Cell Motility, and Stress Response.
+
+This thematic shift---from molecular machinery at early layers to integrative cellular programs at mid-late layers---provides additional evidence for hierarchical biological abstraction within the network.
+
+The scGPT atlas exhibits the same modular organization: 76 modules across 12 layers (5--7 per layer), with mean 96.3\% feature coverage. Despite the smaller dictionary size (2,048 vs.\ 4,608), module count per layer is comparable (6.3 vs.\ 7.8 mean), suggesting that the number of biological programs discoverable by SAEs scales sub-linearly with dictionary size. Both models converge on a similar number of functional compartments per layer---consistent with the idea that the underlying biology, rather than model architecture, determines the number of co-activation communities.
+
+%% Figure 4: Modules
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig4_coactivation.pdf}
+\caption{\textbf{Features organize into biologically coherent co-activation modules with themes that evolve across layers.} Module identity shifts from molecular machinery (L0: cell cycle, translation, metabolism) to integrative cellular programs (L11: differentiation, signaling, organelle organization), reflecting hierarchical biological abstraction.}
+\label{fig:modules}
+\end{figure}
+
+
+\subsection{Causal patching demonstrates feature-level computational specificity}
+\label{sec:causal}
+
+Co-activation and annotation establish correlation between features and biology, but not causation. To test whether individual SAE features are causally necessary for the model's computations, we performed causal feature patching at layer~11. For each of 50 richly annotated features, we zeroed its SAE activation in the hidden state (via a forward hook), continued the forward pass through layers 12--17, and measured the resulting change in output logits. Specificity was quantified as the ratio of logit disruption at gene positions matching the feature's ontology annotation (``target genes'') to disruption at all other positions (``other genes''); Methods.
+
+Table~\ref{tab:causal_summary} summarizes the results (Figure~\ref{fig:causal}). The median specificity ratio is \textbf{2.36$\times$}, with \textbf{60\%} of features exceeding 2$\times$ and \textbf{12\%} exceeding 10$\times$. The mean target logit disruption ($-0.116$) is 23$\times$ larger than the mean off-target disruption ($-0.005$), confirming that feature ablation preferentially affects the feature's annotated biology.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Causal patching summary statistics.} 50 features tested at layer~11, 200 cells per feature. Specificity ratio = $|\Delta\text{logit}_\text{target}| / |\Delta\text{logit}_\text{other}|$.}
+\label{tab:causal_summary}
+\smallskip
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Features tested & 50 \\
+Mean specificity ratio & 8.98 \\
+Median specificity ratio & 2.36 \\
+Specific ($>$1$\times$) & 44/50 (88\%) \\
+Specific ($>$2$\times$) & 30/50 (60\%) \\
+Specific ($>$5$\times$) & 12/50 (24\%) \\
+Highly specific ($>$10$\times$) & 6/50 (12\%) \\
+Mean target logit diff & $-$0.116 \\
+Mean other logit diff & $-$0.005 \\
+Runtime & 219.5 min \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Table~\ref{tab:causal_top10} details the ten most specific features. Feature F2035 (negative regulation of cell differentiation) achieves \textbf{114.5$\times$} specificity: ablation disrupts differentiation gene predictions by $-0.208$ while leaving other genes essentially unaffected ($+0.002$). Feature F3692 (ERAD pathway) reaches 108.1$\times$, and F3933 (intracellular signaling) reaches 55.7$\times$. The top feature by absolute effect magnitude is F1023 (mitotic spindle), whose ablation changes target gene logits by $-2.799$---a massive disruption to mitosis gene predictions.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Top 10 causally specific SAE features at layer~11.} $\Delta$Target and $\Delta$Other = mean logit change at target and off-target gene positions, respectively, upon zeroing the feature. Specificity ratios were computed from unrounded values; displayed $\Delta$ values are rounded to three decimal places.}
+\label{tab:causal_top10}
+\smallskip
+\begin{tabular}{clccc}
+\toprule
+Feature & Annotation & Specificity & $\Delta$Target & $\Delta$Other \\
+\midrule
+F2035 & Cell Differentiation (neg.\ reg.) & 114.5$\times$ & $-$0.208 & $+$0.002 \\
+F3692 & ERAD Pathway & 108.1$\times$ & $-$0.129 & $-$0.001 \\
+F3933 & Intracellular Signaling (neg.\ reg.) & 55.7$\times$ & $-$0.196 & $-$0.004 \\
+F157  & Golgi Vesicle Transport & 25.4$\times$ & $-$0.056 & $-$0.002 \\
+F3532 & Protein Metabolic Process (pos.\ reg.) & 11.2$\times$ & $-$0.127 & $-$0.011 \\
+F4516 & Mitotic Spindle Microtubules & 10.6$\times$ & $+$0.672 & $+$0.063 \\
+F1337 & Cell Cycle Phase Transition & 9.4$\times$ & $-$0.058 & $-$0.006 \\
+F1023 & Mitotic Spindle Microtubules & 7.6$\times$ & $-$2.799 & $-$0.367 \\
+F2936 & Mitochondrion Organization & 7.1$\times$ & $-$0.366 & $-$0.051 \\
+F3962 & Endocytosis & 6.9$\times$ & $-$0.099 & $-$0.014 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This contrasts sharply with the companion study's finding~\citep{kendiukhov2025systematic} that ablating entire attention heads or MLP layers at the component level produces null behavioral effects. Feature-level interventions are sufficiently targeted to reveal genuine computational structure that coarser component-level interventions miss. The model's computations are organized at the feature level, not the head or layer level.
+
+\paragraph{scGPT causal patching at layer~7.} We performed the same causal patching experiment on scGPT at layer~7 (at comparable relative depth to Geneformer's L11: approximately two-thirds through each stack). The median specificity was 0.98$\times$ (mean 1.02$\times$), with 0/50 features exceeding 2$\times$ specificity. This substantially weaker causal signal has two possible explanations. First, the experiment used proxy expression values (uniform 1.0 for all genes) rather than actual expression levels, because the original continuous expression values were not preserved during activation extraction. This approximation attenuates the causal signal by introducing reconstruction noise. Second, scGPT's continuous-value encoding may distribute biological information more diffusely across features than Geneformer's rank-value tokenization, making individual feature ablation less impactful. The computational graph analysis (Section~\ref{sec:highways}) confirms that scGPT features are genuinely interconnected, suggesting that the weak causal signal reflects experimental limitations rather than absence of feature-level computation.
+
+%% Figure 5: Causal patching
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig5_causal_patching.pdf}
+\caption{\textbf{Individual SAE features are causally necessary for the model's biological predictions.} Ablating a single feature specifically disrupts predictions for its annotated gene set while leaving other genes largely unaffected. Median specificity 2.36$\times$; top feature 114.5$\times$.}
+\label{fig:causal}
+\end{figure}
+
+
+\subsection{Cross-layer information highways despite representational turnover}
+\label{sec:highways}
+
+Given that features are almost entirely layer-specific (Section~\ref{sec:crosslayer}), how does biological information flow through the network? We computed cross-layer PMI between SAE feature activations at three layer pairs (L0$\to$L5, L5$\to$L11, L11$\to$L17), encoding the same 500,000 positions through both layer's SAEs. An ``information highway'' is a source-layer feature with at least one strong (PMI $> 3$) dependency on a target-layer feature.
+
+Despite near-zero decoder-weight similarity across layers, functional connectivity is pervasive (Table~\ref{tab:highways}; Figure~\ref{fig:highways}). Between \textbf{97.4\%} and \textbf{99.8\%} of features at each layer are information highways. Mean maximum PMI ranges from 6.61 to 6.79, with individual connections reaching PMI $> 10$. The L11$\to$L17 transition shows the densest connectivity (99.8\%), suggesting that information flow \emph{increases} toward the output despite representations becoming more distributed.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Cross-layer information highways.} PMI between SAE feature activations at source and target layers (500K positions each). A highway = source feature with $\geq$1 target-layer feature at PMI $> 3$.}
+\label{tab:highways}
+\smallskip
+\begin{tabular}{lccccc}
+\toprule
+Layer Pair & Feats w/ Deps & Mean Max PMI & Median Max PMI & Max PMI & Highways \\
+\midrule
+L0 $\to$ L5   & 4,604 & 6.61 & 6.72 & 11.10 & 4,530 (98.4\%) \\
+L5 $\to$ L11  & 4,518 & 6.63 & 6.71 & 10.87 & 4,401 (97.4\%) \\
+L11 $\to$ L17 & 4,555 & 6.79 & 6.86 & 10.66 & 4,544 (99.8\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\paragraph{scGPT cross-layer graph.} We computed the same cross-layer PMI analysis for scGPT at three layer pairs: L0$\to$L4, L4$\to$L8, and L8$\to$L11 (Table~\ref{tab:scgpt_highways}; Figure~\ref{fig:scgpt_highways}). The scGPT graph reveals a striking progressive concentration pattern: upstream connectivity is consistently high (86.6--95.5\%), but downstream connectivity drops from 95.7\% (L0$\to$L4) to 62.9\% (L8$\to$L11). This suggests that scGPT progressively bottlenecks information toward later layers---a pattern not observed in Geneformer, where downstream connectivity remains near-complete (97.4--99.8\%). Maximum PMI values are comparable (9.2--10.8 vs.\ 10.7--11.1).
+
+\begin{table}[t]
+\centering
+\caption{\textbf{scGPT cross-layer information highways.} Same methodology as Table~\ref{tab:highways}. Note the progressive drop in downstream connectivity.}
+\label{tab:scgpt_highways}
+\smallskip
+\begin{tabular}{lrccc}
+\toprule
+Layer Pair & PMI Edges & Upstream & Downstream & Max PMI \\
+\midrule
+L0 $\to$ L4  & 75,305 & 1,935/2,027 (95.5\%) & 1,960/2,048 (95.7\%) & 9.15 \\
+L4 $\to$ L8  & 61,263 & 1,955/2,048 (95.5\%) & 1,723/2,048 (84.1\%) & 9.26 \\
+L8 $\to$ L11 & 45,258 & 1,773/2,048 (86.6\%) & 1,289/2,048 (62.9\%) & 10.78 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Biologically meaningful cascades emerge among the strongest Geneformer cross-layer connections (Table~\ref{tab:cascades}). The mTORC1~regulation $\to$ autophagy connection (L0$\to$L5, PMI~=~9.55) recapitulates a well-known signaling axis. Protein modification features at L11 connect to angiogenesis regulation at L17 (PMI~=~10.62), and actomyosin organization at L11 connects to cellular locomotion at L17 (PMI~=~10.14). The model constructs biological pathways through chains of functionally linked but representationally distinct feature sets.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Top cross-layer biological cascades.} Strongest annotated PMI connections between layer pairs. ``Unlabeled'' = the target feature lacks direct ontology annotation.}
+\label{tab:cascades}
+\smallskip
+\small
+\begin{tabular}{lp{2.6cm}p{2.6cm}p{3.2cm}r}
+\toprule
+Pair & Source Feature & Target Feature & Biological Logic & PMI \\
+\midrule
+L0$\to$L5  & Protein Processing in ER & \textit{unlabeled} & ER stress cascade & 11.10 \\
+L0$\to$L5  & mTORC1 Regulation & Autophagy & mTORC1$\to$autophagy & 9.55 \\
+L0$\to$L5  & Wnt Signaling & \textit{unlabeled} & Wnt pathway processing & 9.48 \\
+\midrule
+L5$\to$L11 & Protein Polyubiq. & \textit{unlabeled} & Protein quality control & 10.87 \\
+L5$\to$L11 & Translation & \textit{unlabeled} & Translational regulation & 10.35 \\
+L5$\to$L11 & RNA Splicing (neg.\ reg.) & \textit{unlabeled} & Post-transcriptional & 10.21 \\
+\midrule
+L11$\to$L17 & Protein Modification & Angiogenesis (pos.\ reg.) & PTM$\to$phenotype & 10.62 \\
+L11$\to$L17 & COPII Vesicle Budding & Thermogenesis & Secretory$\to$metabolic & 10.29 \\
+L11$\to$L17 & Actomyosin Org. & Cell Locomotion (neg.\ reg.) & Structure$\to$motility & 10.14 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+%% Figure 6: Highways
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig6_cross_layer.pdf}
+\caption{\textbf{Despite complete representational turnover between layers, 97--99.8\% of features participate in information highways.} The model transmits biological information through functional connections between representationally distinct feature sets, building biological pathways as chains of layer-specific features.}
+\label{fig:highways}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figS3_scgpt_highways.pdf}
+\caption{\textbf{scGPT cross-layer connectivity reveals progressive information concentration.} \textbf{(A)}~Upstream connectivity remains high (86--96\%) but downstream connectivity drops sharply from 96\% to 63\% across layer pairs, indicating progressive bottlenecking. \textbf{(B)}~PMI edge density decreases from 75K to 45K edges across the three layer pairs. \textbf{(C)}~Comparison with Geneformer: Geneformer maintains near-complete downstream connectivity (97--100\%) while scGPT drops to 63\%, suggesting fundamentally different information flow architectures.}
+\label{fig:scgpt_highways}
+\end{figure}
+
+
+\subsection{Perturbation response mapping reveals detection without regulatory specificity}
+\label{sec:perturbation}
+
+The preceding sections establish that SAE features are biologically annotated, modularly organized, causally specific, and functionally connected. We now ask the critical question: does this atlas encode \emph{regulatory logic}?
+
+We mapped perturbation responses using CRISPRi knockdown cells from the Replogle dataset~\citep{replogle2022mapping}: 100 targets (48 TRRUST TFs and 52 other genes), 20 perturbed cells per target, compared against a control baseline of 100K positions. A feature ``responds'' if its activation changes significantly (Wilcoxon test, FDR~$< 0.05$, $|\text{effect}| > 0.5$). For each TRRUST TF, we tested whether responding features are enriched for the TF's known regulatory targets.
+
+Table~\ref{tab:perturbation} summarizes the results. The model detects perturbations: \textbf{92\%} of knockdowns cause at least one significant SAE feature change, with a mean of 2.54 responding features per target. However, the responses are overwhelmingly non-specific: only \textbf{3 of 48 TRRUST TFs (6.2\%)} produce feature responses that match their known regulatory targets. The mean number of specific features per target is just 0.03.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Perturbation response mapping results (K562-only SAE, layer~11).} 100 CRISPRi targets tested against control baseline (100K positions). TF specificity = fraction of TRRUST TFs whose responding features are enriched for the TF's known targets.}
+\label{tab:perturbation}
+\smallskip
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Perturbation targets tested & 100 \\
+Targets causing feature changes & 92/100 (92\%) \\
+TRRUST TFs tested & 48 \\
+TFs with specific response & 3/48 (6.2\%) \\
+Mean responding features per target & 2.54 \\
+Mean specific features per target & 0.03 \\
+Runtime & 21.9 min \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This 6.2\% specificity rate is the central negative finding (Figure~\ref{fig:perturbation}). The model knows \emph{that} a perturbation has occurred---it detects the shift in cell state---but does not encode \emph{which specific regulatory targets} should be affected. This confirms, at the granular SAE feature level, what the companion attention-based analysis found at the component level~\citep{kendiukhov2025systematic}: Geneformer's internal representations encode co-expression structure and pathway membership, but not the directed TF$\to$target regulatory wiring.
+
+The distinction matters conceptually. When a TF is knocked down, its direct targets are downregulated, but so are many indirect targets, compensatory responders, and cell-state-associated genes. The model's SAE features respond to the overall shift in expression profile, activating features that match the \emph{new cell state} (a co-expression pattern) rather than features that specifically encode the TF's regulatory program.
+
+%% Figure 7: Perturbation
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig7_perturbation.pdf}
+\caption{\textbf{The model detects 92\% of perturbations but only 3/48 TFs (6.2\%) produce regulatory-target-specific feature responses.} Features respond to cell-state shifts induced by knockdown, not to the specific regulatory consequences of TF loss.}
+\label{fig:perturbation}
+\end{figure}
+
+
+\subsection{Multi-tissue SAE confirms Geneformer as the bottleneck}
+\label{sec:multitissue}
+
+The low perturbation specificity (6.2\%) has two possible explanations: (a)~a limitation of the SAE training data---K562 cells lack TF diversity, so the SAE never learned TF-specific features; or (b)~a limitation of Geneformer itself, which does not encode regulatory relationships regardless of SAE training. To distinguish these, we trained multi-tissue SAEs on pooled activations from K562 and diverse Tabula Sapiens~\citep{tabula2022tabula} cells (3,000 cells: 1,000 immune across 43 cell types, 1,000 kidney, 1,000 lung; 5,623,164 total token positions).
+
+Multi-tissue SAEs were trained at four layers (0, 5, 11, 17) with identical architecture, using 500K K562 and 500K Tabula Sapiens positions per layer. Training quality was comparable to K562-only SAEs (Table~\ref{tab:mt_training}).
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Multi-tissue SAE training quality.} Pooled K562 (500K) + Tabula Sapiens (500K) activations, identical architecture to K562-only SAEs.}
+\label{tab:mt_training}
+\smallskip
+\begin{tabular}{lccc}
+\toprule
+Layer & Var.\ Explained & Alive Features & Annotation Rate \\
+\midrule
+0  & 79.1\% & 4,607/4,608 & 54.3\% \\
+5  & 79.5\% & 4,477/4,608 & 43.4\% \\
+11 & 77.3\% & 4,546/4,608 & 51.2\% \\
+17 & 73.2\% & 4,413/4,608 & 42.3\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+The critical comparison is presented in Table~\ref{tab:perturbation_comparison} (Figure~\ref{fig:multitissue}). The best multi-tissue layer (L11) achieved \textbf{10.4\% TF specificity} (5/48 TFs)---an improvement of 4.2 percentage points over the K562-only result. However, the improvement fails three tests of systematicity:
+
+\begin{enumerate}
+\item \textbf{Non-systematic per-TF pattern.} Table~\ref{tab:per_tf} shows the head-to-head comparison: 5 TFs gained specificity (ATF5, BRCA1, GATA1, RBMX, NFRKB), 3 lost it (MAX, PHB2, SRF), and 40 were unchanged. The sets of improving and worsening TFs are largely disjoint, suggesting stochastic variation.
+\item \textbf{TF feature representation decreased.} The K562-only SAE has \emph{more} TF-associated features (64.5\% with TFs in top genes) than the multi-tissue SAE (60.5\%; Table~\ref{tab:tf_diagnostics}). Multi-tissue training did not increase TF representation.
+\item \textbf{Layer pattern is informative.} L0 shows 0\% specificity (embedding features do not encode regulation), L5 shows 8.3\%, L11 peaks at 10.4\%, and L17 drops to 2.1\%. At L17, features respond broadly (10--20 per target) but almost none are specific---late-layer features are too abstract for regulatory mapping.
+\end{enumerate}
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Perturbation specificity: K562-only vs.\ multi-tissue SAE.} Specificity = fraction of TRRUST TFs (48 total) with target-specific responding features.}
+\label{tab:perturbation_comparison}
+\smallskip
+\begin{tabular}{llcc}
+\toprule
+SAE Training Data & Layer & TFs Specific & Rate \\
+\midrule
+K562-only & 11 & 3/48 & 6.2\% \\
+\midrule
+K562 + Tabula Sapiens & 0  & 0/48 & 0.0\% \\
+K562 + Tabula Sapiens & 5  & 4/48 & 8.3\% \\
+\textbf{K562 + Tabula Sapiens} & \textbf{11} & \textbf{5/48} & \textbf{10.4\%} \\
+K562 + Tabula Sapiens & 17 & 1/48 & 2.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Per-TF head-to-head comparison at layer~11.} Only TFs with changed specificity are shown; 40 additional TFs had no specific features in either condition.}
+\label{tab:per_tf}
+\smallskip
+\begin{tabular}{lccc}
+\toprule
+TF & K562-SAE Specific & MT-SAE Specific & Change \\
+\midrule
+ATF5  & 0 & 1 & gained \\
+BRCA1 & 0 & 1 & gained \\
+GATA1 & 0 & 1 & gained \\
+RBMX  & 0 & 1 & gained \\
+NFRKB & 0 & 1 & gained \\
+\midrule
+MAX   & 1 & 0 & lost \\
+PHB2  & 1 & 0 & lost \\
+SRF   & 1 & 0 & lost \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{\textbf{TF feature diagnostics.} Features with known TFs in top-20 genes and TF-dominant features ($\geq$3 TFs in top genes). Denominators = features with non-empty top-20 gene lists (may differ from alive counts in Table~\ref{tab:mt_training} because some features that are ``dead'' on the 100K held-out sample still produce gene lists from the full training data). K562-only SAE has more TF-associated features than the multi-tissue SAE.}
+\label{tab:tf_diagnostics}
+\smallskip
+\begin{tabular}{lcc}
+\toprule
+SAE & Features with TFs in top genes & TF-dominant ($\geq$3 TFs) \\
+\midrule
+K562-only L11     & 2,967/4,598 (64.5\%) & 424 \\
+Multi-tissue L0   & 2,796/4,608 (60.7\%) & 452 \\
+Multi-tissue L5   & 2,777/4,568 (60.8\%) & 337 \\
+Multi-tissue L11  & 2,782/4,601 (60.5\%) & 343 \\
+Multi-tissue L17  & 2,680/4,603 (58.2\%) & 346 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+%% Figure 8: Multi-tissue
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig8_multitissue.pdf}
+\caption{\textbf{Multi-tissue SAE yields only marginal, non-systematic improvement (6.2\% $\to$ 10.4\%), establishing Geneformer's representations as the bottleneck.} If regulatory relationships were encoded in the model, diverse training data should have substantially improved their extraction.}
+\label{fig:multitissue}
+\end{figure}
+
+
+\subsection{Unannotated features: co-activation evidence and its limits}
+\label{sec:unannotated}
+
+A concern with the atlas is that 41--55\% of features lack ontology annotations. To investigate whether these are noise or encode biology not captured by existing databases, we applied two tests across four representative layers (0, 5, 11, 17).
+
+First, we clustered unannotated features by Jaccard similarity of their top-20 gene sets (Leiden, resolution~=~0.5). Only 2--3\% form standalone gene-set clusters (11--19 clusters of 4--11 features each), including ribosomal protein programs (RPL11, RPL5, RPL23, RPS19), mitochondrial complex assembly (RPS3, RPL3, NDUFS3, UQCRC1), and metabolite transport (SLC25A5, ATP5F1B, VDAC1). These clusters contain recognizable gene programs under-represented as discrete ontology terms.
+
+Second, we tested guilt-by-association: whether unannotated features belong to co-activation modules (Section~\ref{sec:modules}) alongside annotated features. Table~\ref{tab:novel} presents the results.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Unannotated feature analysis.} Co-activate = unannotated feature belongs to a co-activation module containing annotated features. Isolated = no module membership. A small number of features (3 at L11, 17 at L17) belong to modules containing only unannotated features and are excluded from both columns. Clusters = standalone gene-set clusters among unannotated features.}
+\label{tab:novel}
+\smallskip
+\begin{tabular}{rrrcrr}
+\toprule
+Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated \\
+\midrule
+0  & 2,702 & 1,906 & 15 (48 feats) & 1,876 (98.4\%) & 30 (1.6\%) \\
+5  & 2,383 & 2,193 & 19 (69 feats) & 2,090 (95.3\%) & 103 (4.7\%) \\
+11 & 2,583 & 2,015 & 11 (47 feats) & 1,984 (98.5\%) & 28 (1.4\%) \\
+17 & 2,154 & 2,426 & 12 (58 feats) & 2,334 (96.2\%) & 75 (3.1\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The vast majority (95--98.5\%) of unannotated features co-activate with annotated features in biological modules. Only 28--103 features per layer (1.4--4.7\% of unannotated features) are truly isolated.
+
+However, this co-activation evidence has important limitations that prevent us from concluding biological meaning:
+
+\begin{enumerate}
+\item \textbf{Module coverage is near-total.} With only 6--12 modules covering 96--99.5\% of all features, modules are large (hundreds of features each). Co-membership at this granularity may be nearly unavoidable regardless of biological content.
+\item \textbf{Co-activation has multiple explanations.} Features may co-activate due to shared statistical properties (similar activation thresholds, correlated noise, positional biases) rather than shared biological function.
+\item \textbf{No perturbation validation.} We did not test whether unannotated features respond specifically when genes in their top gene sets are perturbed. Given the 6.2\% specificity rate for annotated TF features, the validation bar is high.
+\end{enumerate}
+
+We therefore interpret the high co-activation rate as evidence that most unannotated features are \emph{not random noise}---they capture systematic patterns in activation space---while noting that the gap between ``not noise'' and ``biologically meaningful'' remains to be bridged by experimental validation.
+
+
+\subsection{Phase 2 success criteria scorecard}
+\label{sec:scorecard}
+
+Table~\ref{tab:scorecard} summarizes the pre-registered success criteria for Phase~2. Three of five criteria were exceeded, one was partially met (unannotated features participate in co-activation modules but form few standalone gene-set clusters), and one was not met. The unmet criterion---perturbation response specificity---is the scientifically most important: it establishes the boundary of what this model knows.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Phase 2 success criteria scorecard.} Criteria were defined before experiments. The unmet criterion (perturbation specificity) is the paper's central finding.}
+\label{tab:scorecard}
+\smallskip
+\begin{tabular}{p{4cm}p{3cm}p{4cm}c}
+\toprule
+Criterion & Target & Result & Status \\
+\midrule
+Modules correspond to known pathways & $\geq$20 total & 141 (6--12/layer) & Exceeded \\
+Causal specificity $\geq$2$\times$ & Majority $>$2$\times$ & 60\% $>$2$\times$, median 2.36$\times$ & Exceeded \\
+Perturbation matches regulation & $\geq$30\% & 6.2\% (3/48 TFs) & \textbf{Not met} \\
+Unannotated features show structure & $\geq$10\% in clusters & 95--98.5\% in co-activation modules$^*$ & Partial \\
+Concepts traceable across layers & $\geq$50\% & 97--99.8\% highways & Exceeded \\
+\bottomrule
+\multicolumn{4}{l}{\small $^*$Co-activation module membership, not standalone gene-set clusters (only 2--3\%; Section~\ref{sec:unannotated}).}
+\end{tabular}
+\end{table}
+
+
+\subsection{Feature space geometry reveals biological clustering}
+\label{sec:geometry}
+
+To visualize the organization of SAE features, we initially projected decoder weight vectors into two dimensions using UMAP with cosine distance. However, all projections produced uniform, structureless point clouds regardless of hyperparameter settings. Quantitative analysis confirmed the cause: SAE decoder weight vectors are quasi-orthogonal by design (mean pairwise cosine similarity = 0.0007; within-module vs.\ between-module Cohen's $d = 0.075$). This quasi-orthogonality is a geometric signature of superposition: 4,608 features pack into 1,152 dimensions by spreading nearly uniformly across the hypersphere, making biological structure invisible in weight space.
+
+We therefore visualized the co-activation network directly, using force-directed graph layout of intra-module connections (Methods). This approach leverages the PMI-based co-activation structure identified by Leiden clustering, placing features that frequently co-activate in proximity. To independently validate the resulting organization, we also projected annotation-based representations (TF-IDF weighted ontology term vectors) using UMAP and t-SNE.
+
+\paragraph{Module structure forms distinct communities.} Figure~\ref{fig:umap_overview} shows force-directed layouts for layers~0, 5, 11, and~17, colored by co-activation module membership and annotation richness. Each module forms a spatially coherent community, with clear separation between modules at all four representative layers. This visualization directly reveals the modular organization that is invisible in decoder weight geometry: features cluster by \emph{co-activation pattern}, not by geometric direction. Annotation richness (right column) shows that biologically rich features (yellow) are distributed across all module communities, while sparsely annotated features (purple) concentrate in the central unassigned region, indicating that module membership correlates with biological interpretability.
+
+\paragraph{Detailed layer~11 map.} Figure~\ref{fig:l11_detail} provides a six-panel view of layer~11's co-activation landscape. Panel~(a) confirms that the eight Leiden modules form distinct spatial communities. Panel~(b) shows that annotated features (blue, $n=2{,}583$) are distributed across all module clusters, while unannotated features ($n=2{,}015$) are enriched in the central unassigned region---consistent with module membership increasing the probability of functional annotation. Panel~(c) reveals that different ontology sources have distinct module preferences: certain modules are enriched for GO~BP annotations (green) while others are dominated by STRING protein interactions (pink) or Reactome pathways (purple), suggesting that modules capture functionally coherent biological programs. Panel~(d) shows annotation richness gradients within individual modules. Panel~(e) demonstrates that activation frequency varies systematically across modules, with some modules containing predominantly high-frequency features and others containing low-frequency specialists. Panel~(f) highlights the 4 SVD-aligned features at layer~11, which are scattered across different modules---consistent with SVD axes capturing global variance directions that cross-cut biological programs.
+
+\paragraph{Annotation-based projections.} Figure~\ref{fig:cross_layer_umap} provides independent validation using annotation content rather than co-activation structure. Panel~(a) shows a UMAP projection of TF-IDF weighted ontology term vectors for all 4,608 layer~11 features: annotated features cluster by shared biological annotations (left group), while unannotated features form a separate blob (right), confirming that annotation-based similarity captures meaningful biological relationships. Panel~(b) shows a t-SNE projection of annotated features only ($n=2{,}583$), revealing fine-grained subclusters that partially correspond to co-activation modules---providing orthogonal evidence that module structure reflects genuine biological similarity rather than statistical artifacts of the PMI clustering procedure.
+
+%% Figure 9: UMAP overview
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/fig9_umap_overview.pdf}
+\caption{\textbf{Co-activation network layout reveals modular organization of SAE features across layers.} Left column: force-directed graph layout of intra-module co-activation edges, colored by Leiden module membership. Each module forms a spatially distinct community. Right column: same layouts colored by annotation richness (log-transformed number of significant enrichment terms). Unassigned features (gray) cluster centrally. Module count varies from 6 (L0) to 12 (L5), reflecting the complexity of co-activation patterns at different layers.}
+\label{fig:umap_overview}
+\end{figure}
+
+%% Figure 10: L11 detail
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig10_l11_detail.pdf}
+\caption{\textbf{Six-panel co-activation layout of layer~11 SAE features.} \textbf{(a)}~Eight Leiden modules form spatially distinct communities in the force-directed layout. \textbf{(b)}~Annotated features (blue) distribute across all module clusters; unannotated features (gray) concentrate centrally. \textbf{(c)}~Top ontology source reveals module-specific enrichment patterns: certain modules are dominated by GO~BP (green), others by STRING interactions (pink) or Reactome pathways (purple). \textbf{(d)}~Annotation richness gradient across modules. \textbf{(e)}~Activation frequency varies systematically across modules. \textbf{(f)}~SVD-aligned features (orange, $n=4$) are scattered across different modules, while 4,594 novel features (blue) fill the landscape.}
+\label{fig:l11_detail}
+\end{figure}
+
+%% Figure 11: Cross-layer + t-SNE
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig11_cross_layer.pdf}
+\caption{\textbf{Annotation-based projections provide independent validation.} \textbf{(a)}~UMAP of TF-IDF weighted ontology term vectors for layer~11 (4,608 features). Annotated features (left cluster) separate from unannotated features (right blob), with internal structure reflecting shared biological annotations. \textbf{(b)}~t-SNE of TF-IDF annotation vectors for annotated features only ($n=2{,}583$). Fine-grained subclusters partially correspond to co-activation modules, confirming that module structure reflects genuine biological similarity.}
+\label{fig:cross_layer_umap}
+\end{figure}
+
+
+\subsection{Cell type enrichment mapping}
+\label{sec:celltypes}
+
+To connect SAE features to cellular identity, we performed cell type enrichment analysis across all layers of both models. For each feature, we computed its mean activation in cells of each cell type (among the 3,000 Tabula Sapiens cells spanning 56 cell types across immune, kidney, and lung tissues) and tested for enrichment using Fisher's exact test with Benjamini--Hochberg correction.
+
+In the scGPT atlas, 2,028/2,048 features (99.0\%) at layer~7 are enriched for at least one cell type, demonstrating that the vast majority of SAE features have cell-type-specific activation patterns. Similar coverage was observed across all 12 layers. The enrichment patterns are tissue-coherent: immune features activate preferentially in T cells, B cells, macrophages, and dendritic cells; kidney features in proximal tubule cells and podocytes; lung features in alveolar epithelial cells and pulmonary endothelial cells.
+
+For the Geneformer atlas, we extracted Tabula Sapiens activations through Geneformer and encoded them with the K562-trained SAEs. Cell type enrichments were computed analogously across all 18 layers, with similarly high coverage. Note that despite the SAEs being trained on K562 activations, they generalize to diverse tissue contexts---a consequence of the overcomplete dictionary providing sufficient capacity to represent cell-type-specific activation patterns. Both models' features tile cell identity space comprehensively, consistent with the models' training on diverse cell populations.
+
+These enrichments are available for interactive exploration in both web atlases (Section~\ref{sec:atlases}).
+
+
+\subsection{Interactive feature atlases}
+\label{sec:atlases}
+
+To enable community access to the complete feature atlases, we developed and deployed two interactive web platforms:
+
+\begin{itemize}
+\item \textbf{Geneformer Feature Atlas} (\url{https://biodyn-ai.github.io/geneformer-atlas/}): 82,525 features across 18 layers of Geneformer V2-316M.
+\item \textbf{scGPT Feature Atlas} (\url{https://biodyn-ai.github.io/scgpt-atlas/}): 24,527 features across 12 layers of scGPT whole-human.
+\end{itemize}
+
+Both platforms provide six integrated views:
+
+\paragraph{Layer Explorer.} Browse all features at any layer with sortable statistics (activation frequency, annotation count, top genes, ontology annotations). Features link to detailed individual pages.
+
+\paragraph{Feature Detail Pages.} For each feature: top-20 gene list with activation magnitudes, complete ontology annotations with $p$-values, co-activation module membership, cell type enrichments with effect sizes, and causal patching results (where available).
+
+\paragraph{Module Explorer.} Interactive co-activation module maps showing module membership, inter-module connections via PMI edges, and module-level annotation summaries. Modules are visualized as force-directed graphs.
+
+\paragraph{Cross-Layer Flow.} Visualization of the cross-layer computational graph, showing information highway edges between layer pairs, hub features with highest connectivity, and the biological cascades connecting upstream to downstream features.
+
+\paragraph{Gene Search.} Search for any gene to find all features where it appears as a top-activated gene, across all layers. Enables gene-centric navigation of the feature space.
+
+\paragraph{Ontology Search.} Search by Gene Ontology, KEGG, Reactome, or other database terms to find all annotated features across layers. Enables function-centric exploration.
+
+The atlases are built with React, Vite, and Plotly.js, served via GitHub Pages, and require no installation or data download. All underlying data are available in the associated GitHub repositories.
+
+
+%% ============================================================
+%% DISCUSSION
+%% ============================================================
+\section{Discussion}
+
+We have presented the first systematic application of sparse autoencoders to single-cell foundation models, producing comprehensive feature atlases for two architecturally distinct models: 82,525 features across 18 layers of Geneformer V2-316M and 24,527 features across 12 layers of scGPT whole-human. Both atlases reveal models that have organized biological knowledge into rich, modular, and interconnected internal representations---but representations that fundamentally encode \emph{co-expression and pathway structure} rather than \emph{causal regulatory logic}. Here we discuss the implications.
+
+\paragraph{Superposition is massive and biologically productive.}
+The finding that 99.8\% of SAE features are invisible to SVD, yet these novel features carry 98.7\% of all ontology annotations, has important implications for how we study neural network representations in biology. Standard dimensionality reduction techniques (PCA, UMAP, SVD) applied to model activations will miss the vast majority of encoded biological structure. The model uses its 1,152 dimensions to represent at least 82,525 distinct features through superposition---a compression ratio exceeding 70$\times$. The quasi-orthogonality of decoder weight vectors (mean pairwise cosine $\approx 0$, Section~\ref{sec:geometry}) provides direct geometric evidence for this superposition: features pack into the available dimensions by spreading nearly uniformly on the hypersphere, making them invisible to any linear analysis of weight space. Biological structure is instead encoded in \emph{which features fire together}---captured by gene-set similarity and co-activation modules---rather than in geometric proximity of weight vectors. Claims about what a model ``knows'' based on linear probing of its activation space may substantially underestimate the richness of learned representations.
+
+\paragraph{Cross-model convergence despite architectural divergence.}
+The parallel analysis of Geneformer and scGPT reveals that superposition and biological feature organization are not artifacts of a single architecture. Despite fundamental differences---rank-value vs.\ continuous-value encoding, 18 vs.\ 12 layers, $d{=}1{,}152$ vs.\ $d{=}512$, next-token vs.\ masked gene prediction---both models develop modular feature organization (5--12 modules/layer), rich ontology annotation (29--59\%), and cross-layer information highways. The quantitative differences are instructive: scGPT achieves higher reconstruction quality (90.2\% vs.\ 81.7\% VarExpl) with fewer dead features (0.2\% vs.\ 0.5\%), suggesting that the lower-dimensional representation is more efficiently compressed. Conversely, Geneformer's higher annotation rate (52.4\% vs.\ 31.0\%) suggests that its rank-value tokenization may create more interpretable feature boundaries. The convergence on similar co-activation module counts (5--7 for scGPT, 6--12 for Geneformer) despite 2.25$\times$ dictionary size difference implies that the number of discoverable biological programs is determined more by the biology than by the model.
+
+\paragraph{Hierarchical biological abstraction across layers.}
+The U-shaped annotation profile, the shift in module themes from molecular machinery to integrative programs, and the complete representational turnover between layers together paint a picture of hierarchical biological abstraction. Early layers encode gene-centric, pathway-level programs that map cleanly to existing ontology terms. Middle layers transform these into more abstract computational representations. Later layers partially re-specialize before optimizing for output prediction. This parallels findings in large language models, where early layers handle token-level processing and later layers handle more abstract semantic computation, but here the ``tokens'' are genes and the ``semantics'' are biological programs.
+
+\paragraph{Feature-level structure versus component-level nulls.}
+The causal patching results (median 2.36$\times$ specificity, top 114.5$\times$) stand in stark contrast to the companion study's finding that attention head and MLP layer ablation produces null behavioral effects~\citep{kendiukhov2025systematic}. This implies that the model's biological computations are encoded at the feature level---in specific directions within the residual stream---rather than being localized to individual attention heads or MLP layers. The features discovered by SAEs represent a more natural decomposition of the model's computation than architectural components.
+
+\paragraph{The co-expression--regulation dichotomy persists at every level of analysis.}
+Our results extend the companion study's findings from attention weights to the residual stream. The convergence across independent methods is notable: attention-derived edge scores show zero incremental predictive value; component-level ablation produces null behavioral effects; and SAE features show rich biological annotation (45--59\%) but only 6.2\% regulatory specificity. These are independent methods probing fundamentally different aspects of model computation, yet all identify the same boundary.
+
+The explanation lies in what co-expression captures versus what regulation requires. Co-expression is symmetric (genes A and B are either co-expressed or not), massively overdetermined (thousands of gene pairs co-express for each pair that has a direct regulatory relationship), and dominated by non-regulatory sources (shared pathway membership, cell cycle, metabolic state). A model trained to predict gene expression from expression context learns which genes co-occur, not which ones cause others to change. The few TFs that show specificity---SRF, MAX, and PHB2 in the K562-only SAE; ATF5, BRCA1, GATA1, NFRKB, and RBMX in the multi-tissue SAE---tend to be well-characterized TFs with large target sets, suggesting that only overwhelmingly strong regulatory signal can be distinguished from the co-expression background.
+
+\paragraph{The multi-tissue control establishes the model as the bottleneck.}
+The multi-tissue SAE experiment is perhaps the most important control. By training on diverse cell types where TF programs vary naturally, we provided maximal opportunity for TF-specific features to emerge. The marginal improvement (6.2\% $\to$ 10.4\%) with non-systematic gains and losses, combined with decreased TF feature representation (64.5\% $\to$ 60.5\%), indicates that the limitation is in Geneformer's representations, not in the SAE methodology or training data.
+
+\paragraph{Implications for foundation model training.}
+Current scFM training objectives---next-token prediction for Geneformer, masked gene prediction for scGPT---may inherently bias representations toward co-expression. Learning causal regulatory relationships would require training signals that distinguish cause from correlation, such as perturbation prediction objectives. Our analysis suggests such objectives would need to be incorporated during pre-training, as the fundamental feature structure of the residual stream lacks regulatory specificity.
+
+\paragraph{SAEs as a general interpretability framework for biological models.}
+Independent of the regulatory question, our work establishes SAEs as a productive framework for scFM interpretability. The feature atlas provides a vocabulary for what the model computes; modules map its organizational structure; cross-layer highways reveal information flow; causal patching measures computational specificity; and cell type enrichments connect features to cellular identity. The successful application of an identical pipeline to two architecturally distinct models---with qualitatively consistent results---demonstrates that these tools are applicable to any transformer-based biological model.
+
+\paragraph{Interactive atlases as community resources.}
+The release of both feature atlases as interactive web platforms represents a practical contribution beyond the analytical findings. Over 107,000 features across 30 layers of two models are now explorable without computational requirements, enabling biologists to query specific genes, pathways, or cell types and discover which model features encode them. This ``feature-centric'' view of model internals complements existing ``cell-centric'' tools (e.g., cell type annotation, trajectory inference) and may facilitate hypothesis generation about how these models process biological information.
+
+\paragraph{Limitations.}
+Our analysis has several important limitations. First, the perturbation specificity test relies on TRRUST as the reference regulatory network, which captures only a fraction of true relationships. Second, SAE features with $k{=}32$ at 4$\times$ expansion represent one point in the architecture space. Third, causal patching tests only single-feature ablation; combinatorial effects remain unexplored. Fourth, the multi-tissue SAE used a simple pooling strategy; stratified or adversarial approaches might perform differently. Fifth, guilt-by-association analysis demonstrates co-activation but not independent biological function; with modules covering 96--99.5\% of features, co-membership may partly reflect shared statistical properties rather than biology. Sixth, the scGPT causal patching used proxy expression values (uniform 1.0), likely underestimating true feature-level specificity; future work should preserve original expression values during extraction. Seventh, perturbation response mapping was performed only on Geneformer; a direct scGPT perturbation comparison awaits availability of matched scGPT-processed CRISPRi data.
+
+\paragraph{Outlook.}
+The SAE feature atlas opens several directions: integration with perturbation prediction tasks, application to perturbation-aware models, extension to multi-modal models incorporating chromatin accessibility, and circuit-level analysis of biological information processing in transformers. The cross-layer computational graph provides a foundation for understanding how these models transform molecular-level input into biological predictions.
+
+%% ============================================================
+%% METHODS
+%% ============================================================
+\section{Methods}
+
+\subsection{Models and data}
+
+\paragraph{Geneformer.} We used Geneformer V2-316M~\citep{theodoris2023transfer} (18 transformer layers, 1,152 hidden dimensions, 18 attention heads per layer) from HuggingFace (\texttt{ctheodoris/\allowbreak Geneformer}, subfolder \texttt{Geneformer-V2-316M}). K562 data was obtained from the Replogle genome-scale CRISPRi dataset~\citep{replogle2022mapping}. We extracted 2,000 control cells (mean 2,028 genes per cell, 4,056,351 total token positions). For the multi-tissue experiment, we additionally used 3,000 cells from Tabula Sapiens~\citep{tabula2022tabula} (1,000 immune cells across 43 cell types, 1,000 kidney cells, 1,000 lung cells), yielding 5,623,164 token positions.
+
+\paragraph{scGPT.} We used scGPT whole-human~\citep{cui2024scgpt} (12 transformer layers, 512 hidden dimensions, 8 attention heads per layer), trained on approximately 33 million single-cell transcriptomic profiles from the CELLxGENE census. Unlike Geneformer's rank-value tokenization, scGPT uses continuous expression values as input alongside gene token IDs from a vocabulary of approximately 60,700 genes. Genes are sorted by expression level (descending) and padded/truncated to a maximum sequence length of 1,200. Activations were extracted from the same 3,000 Tabula Sapiens cells used for Geneformer's multi-tissue experiment (1,000 immune, 1,000 kidney, 1,000 lung), yielding 3,561,832 token positions per layer. FlashMHA layers were converted to standard MultiheadAttention for macOS compatibility (\texttt{Wqkv.} $\to$ \texttt{in\_proj\_} weight conversion).
+
+\subsection{Activation extraction}
+
+For both models, we performed forward passes with PyTorch hooks registered at each transformer layer's output (after the residual connection), collecting hidden states at every gene position. Activations were stored as memory-mapped NumPy arrays (float32). Extraction used Apple Silicon MPS acceleration with batch size~1.
+
+For Geneformer ($d{=}1{,}152$): 336.4~GB for 18 K562 layers (18.7~GB per layer); 103.6~GB for four Tabula Sapiens layers. For scGPT ($d{=}512$): approximately 82~GB for 12 layers ($\sim$6.8~GB per layer; variable due to per-cell sequence length differences).
+
+\subsection{TopK sparse autoencoder architecture}
+
+We used TopK SAEs~\citep{makhzani2013ksparse} with an architecture parameterized by input dimension $d$. The encoder maps $\mathbf{x} \in \mathbb{R}^{d}$ (centered by subtracting the training-set mean) through a linear projection $\mathbf{h} = W_\text{enc}(\mathbf{x} - \boldsymbol{\mu}) + \mathbf{b}_\text{enc}$ to a pre-activation vector $\mathbf{h} \in \mathbb{R}^{4d}$, followed by TopK sparsification retaining only the $k{=}32$ largest activations. The decoder reconstructs via $\hat{\mathbf{x}} = W_\text{dec}\mathbf{h}_\text{sparse} + \boldsymbol{\mu}$, where $W_\text{dec}$ columns are unit-normalized after each gradient step. Training minimized MSE: $\mathcal{L} = \|\mathbf{x} - \hat{\mathbf{x}}\|^2$.
+
+For Geneformer ($d{=}1{,}152$): 4,608 features per layer, 1M subsampled positions per layer. For scGPT ($d{=}512$): 2,048 features per layer, trained on all 3,561,832 positions per layer. Both used identical hyperparameters: Adam optimizer, learning rate $3 \times 10^{-4}$, batch size 4,096, 5 epochs. The same \texttt{TopKSAE} implementation was used for both models without modification, demonstrating the architecture-agnostic nature of the approach.
+
+\subsection{Feature analysis and ontology annotation}
+
+For each alive feature (activation frequency $> 0$ on 100K held-out positions), we identified the top 20 genes by mean activation magnitude. Each feature was tested for enrichment against: Gene Ontology Biological Process~\citep{ashburner2000go}, KEGG pathways~\citep{kanehisa2000kegg}, Reactome pathways~\citep{jassal2020reactome}, STRING protein--protein interactions~\citep{szklarczyk2023string}, and TRRUST TF--target relationships~\citep{han2018trrust}. Enrichment: Fisher's exact test (one-sided), Benjamini--Hochberg FDR at $\alpha = 0.05$. A feature was ``annotated'' with $\geq$1 significant enrichment. SVD comparison used top-50 singular vectors; ``SVD-aligned'' = decoder cosine $> 0.7$ with any SVD axis.
+
+\subsection{Co-activation graph and module detection}
+
+For each layer, PMI was computed between all pairs of alive features across 4,056,351 positions. Feature $i$ is ``active'' at position $j$ if among the top-$k$ ($k{=}32$) activations. $\text{PMI}(i,j) = \log_2 P(i,j) / [P(i)P(j)]$. Edges retained at PMI exceeding a significance threshold ($p < 0.001$ under permutation null). Community detection: Leiden algorithm~\citep{traag2019louvain}, resolution = 1.0.
+
+\subsection{Causal feature patching}
+
+For each of 50 annotated features at layer~11 (selected by annotation richness), single-feature ablation was performed using PyTorch forward hooks. At layer~11's output, the hidden state was encoded through the SAE, the target feature zeroed, decoded back, and the original hidden state replaced. The forward pass continued through layers 12--17 to produce output logits. Specificity ratio = $|\bar{\Delta}_\text{target}| / |\bar{\Delta}_\text{other}|$. Each feature tested on 200 cells. Total runtime: 219.5~minutes.
+
+\subsection{Perturbation response mapping}
+
+For each of 100 CRISPRi targets (48 TRRUST TFs, 52 other genes), Geneformer activations were extracted from 20 perturbed cells and encoded through the layer-11 SAE. Feature responses identified by Wilcoxon rank-sum test against 100K control positions (BH correction, $|\text{effect}| > 0.5$). For TRRUST TFs, enrichment of responding features' top genes for known targets: Fisher's exact test.
+
+\subsection{Cross-layer computational graph}
+
+PMI between SAE feature activations at source and target layers, encoding the same positions through both layer's SAEs. For Geneformer: three layer pairs (L0$\to$L5, L5$\to$L11, L11$\to$L17), 500,000 positions each, runtime 33.8~minutes. For scGPT: three layer pairs (L0$\to$L4, L4$\to$L8, L8$\to$L11), all 3,561,832 positions, runtime 12.7~minutes. Information highway = source feature with $\geq$1 target feature at PMI~$> 3$.
+
+\subsection{Multi-tissue SAE}
+
+Multi-tissue SAEs trained on 500K K562 + 500K Tabula Sapiens positions per layer (balanced 1M pool). Architecture, training, and hyperparameters identical to K562-only SAEs. Trained at layers 0, 5, 11, 17. Feature analysis, annotation, and perturbation mapping used same protocols as K562-only SAE. Tabula Sapiens extraction: 61.6~min, 103.6~GB. Pooling and training: 23.6~min. Analysis and annotation: 46.6~min. Perturbation test: 88.9~min (across 4 layers).
+
+\subsection{Novel feature characterization}
+
+Unannotated features (no significant enrichments) at layers 0, 5, 11, 17 were clustered by Jaccard similarity of top-20 gene sets (Leiden, resolution = 0.5). Guilt-by-association: co-membership in co-activation modules (Section~\ref{sec:modules}) with annotated features. Runtime: $\sim$12 seconds.
+
+\subsection{Cell type enrichment analysis}
+
+For each feature at each layer (both models), we computed the mean activation magnitude in cells belonging to each of 56 cell types from the Tabula Sapiens dataset (spanning immune, kidney, and lung tissues). A feature was considered ``enriched'' for a cell type if its mean activation in that cell type exceeded the global mean by more than one standard deviation, with significance assessed by Fisher's exact test (BH-corrected FDR~$< 0.05$).
+
+\subsection{Interactive web atlases}
+
+Both feature atlases were deployed as single-page web applications built with React 18, TypeScript, Vite 6, Tailwind CSS, and Plotly.js. All feature data (annotations, gene lists, statistics, module memberships, cell type enrichments, causal patching results, cross-layer graph edges) were preprocessed into compact JSON files served statically via GitHub Pages. The applications require no backend server or data download. Source code and data: \url{https://github.com/Biodyn-AI/geneformer-atlas} and \url{https://github.com/Biodyn-AI/scgpt-atlas}.
+
+\subsection{Dimensionality reduction and visualization}
+
+We initially projected decoder weight vectors (4,608 features $\times$ 1,152 dimensions) to 2D using UMAP with cosine distance, but all projections yielded structureless point clouds. Quantitative analysis confirmed that SAE decoder vectors are quasi-orthogonal by design (mean pairwise cosine = 0.0007, within-module vs.\ between-module Cohen's $d = 0.075$), reflecting the superposition property that allows 4,608 features to pack into 1,152 dimensions. Gene-set Jaccard distance (top-20 gene overlap) also yielded limited structure due to extreme sparsity (93.9\% of feature pairs share zero genes).
+
+We therefore adopted two complementary visualization strategies. First, we directly visualized the co-activation network using force-directed graph layout (Fruchterman--Reingold algorithm via NetworkX). For each layer, we constructed a graph with intra-module edges: each module-assigned feature was connected to 10 randomly sampled same-module neighbors, with spring constant $k = 0.3$ and 150 iterations. Unassigned features were placed near the layout centroid with small random offsets. This approach leverages the PMI-based co-activation structure from Leiden clustering to reveal modular organization.
+
+Second, for independent validation, we projected annotation-based feature representations. Each feature was represented by a binary vector over all ontology terms (GO~BP, KEGG, Reactome, STRING, TRRUST) with TF-IDF weighting. These vectors were projected using UMAP~\citep{mcinnes2018umap} with $n_\text{neighbors}=15$, $\min_\text{dist}=0.1$, cosine metric, and fixed random seed. For comparison, annotated features ($n = 2{,}583$) were also projected using t-SNE with perplexity~20 and cosine metric. Features were colored by co-activation module membership, annotation status, number of enrichment terms, dominant ontology source, activation frequency, and SVD alignment status.
+
+
+%% ============================================================
+%% DATA AND CODE AVAILABILITY
+%% ============================================================
+\section*{Data and Code Availability}
+
+All analysis code, trained SAE models, feature catalogs, and intermediate results are available at [repository URL upon publication]. Interactive feature atlases: Geneformer Feature Atlas (\url{https://biodyn-ai.github.io/geneformer-atlas/}; source: \url{https://github.com/Biodyn-AI/geneformer-atlas}) and scGPT Feature Atlas (\url{https://biodyn-ai.github.io/scgpt-atlas/}; source: \url{https://github.com/Biodyn-AI/scgpt-atlas}). Geneformer V2-316M: HuggingFace \texttt{ctheodoris/Geneformer}. scGPT whole-human: available from the scGPT authors~\citep{cui2024scgpt}. Replogle CRISPRi data:~\citet{replogle2022mapping}. Tabula Sapiens:~\citet{tabula2022tabula}. TRRUST:~\citet{han2018trrust}.
+
+
+\section*{Acknowledgments}
+
+Computations were performed on Apple Silicon hardware with MPS acceleration.
+
+
+\bibliography{references_v2}
+
+\end{document}
