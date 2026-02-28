@@ -29,11 +29,11 @@ const PAIR_LABELS: Record<string, string> = {
 
 export default function CrossLayerFlow() {
   const { data: graphData, loading: gLoading, error: gError } = useCrossLayerGraph()
-  const { data: trackingData, loading: tLoading, error: tError } = useCrossLayerTracking()
+  const { data: trackingData, loading: tLoading } = useCrossLayerTracking()
   const [selectedPair, setSelectedPair] = useState<string>(PAIR_KEYS[0])
 
   const loading = gLoading || tLoading
-  const error = gError || tError
+  const error = gError  // tracking data is optional — don't block on its error
 
   // Build persistence chart data
   const persistenceTrace = useMemo(() => {
@@ -85,7 +85,7 @@ export default function CrossLayerFlow() {
     )
   }
 
-  if (!graphData && !trackingData) return null
+  if (!graphData) return null
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -155,13 +155,23 @@ export default function CrossLayerFlow() {
         {/* Summary stats */}
         {summary && (
           <div className="flex flex-wrap gap-6">
+            {summary.n_pmi_edges != null && (
+              <div className="text-center">
+                <div className="text-xl font-bold text-white">
+                  {Number(summary.n_pmi_edges).toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider">
+                  PMI Edges
+                </div>
+              </div>
+            )}
             {summary.n_features_with_deps != null && (
               <div className="text-center">
                 <div className="text-xl font-bold text-white">
                   {String(summary.n_features_with_deps)}
                 </div>
                 <div className="text-xs text-gray-500 uppercase tracking-wider">
-                  Features with Deps
+                  Connected Features
                 </div>
               </div>
             )}
@@ -175,13 +185,23 @@ export default function CrossLayerFlow() {
                 </div>
               </div>
             )}
-            {summary.n_highways != null && (
+            {summary.upstream_coverage != null && (
               <div className="text-center">
                 <div className="text-xl font-bold text-white">
-                  {String(summary.n_highways)}
+                  {((summary.upstream_coverage as number) * 100).toFixed(1)}%
                 </div>
                 <div className="text-xs text-gray-500 uppercase tracking-wider">
-                  Highways
+                  Upstream Coverage
+                </div>
+              </div>
+            )}
+            {summary.downstream_coverage != null && (
+              <div className="text-center">
+                <div className="text-xl font-bold text-white">
+                  {((summary.downstream_coverage as number) * 100).toFixed(1)}%
+                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider">
+                  Downstream Coverage
                 </div>
               </div>
             )}

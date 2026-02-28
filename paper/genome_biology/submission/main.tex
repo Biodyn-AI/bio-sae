@@ -125,7 +125,7 @@ Layer & VarExpl & Alive & Dead & SVD & Novel & MeanCos & Ann\% & Enrichments \\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig1_atlas_overview.pdf}
+\includegraphics[width=\textwidth]{gb_fig1_atlas_overview.pdf}
 \caption{\textbf{Geneformer V2-316M SAE feature atlas.} TopK SAEs on all 18 layers yield 82,525 features. Reconstruction quality declines with depth while dead features increase.}
 \label{fig:overview}
 \end{figure}
@@ -150,7 +150,7 @@ These results confirm that Geneformer uses massive superposition to encode its b
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig2_svd_comparison.pdf}
+\includegraphics[width=\textwidth]{gb_fig2_svd_comparison.pdf}
 \caption{\textbf{99.8\% of SAE features are invisible to SVD.} Novel features carry 98.7\% of annotations and explain 2.4$\times$ more variance.}
 \label{fig:svd}
 \end{figure}
@@ -222,7 +222,7 @@ Module coverage & 96.0--99.5\% & 96.3\% mean \\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig3_cross_model.pdf}
+\includegraphics[width=\textwidth]{gb_fig3_cross_model.pdf}
 \caption{\textbf{Cross-model comparison on normalized depth.} (A)~scGPT has higher variance explained at all depths. (B)~Geneformer has higher annotation rates. (C)~Summary. (D)~Dead feature profiles differ.}
 \label{fig:cross_model}
 \end{figure}
@@ -275,7 +275,7 @@ F2936 & \textit{(mitochondrial genes)} & Mitochondrion organization & GO, KEGG, 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig4_ontology_heatmap.pdf}
+\includegraphics[width=\textwidth]{gb_fig4_ontology_heatmap.pdf}
 \caption{\textbf{U-shaped annotation profile across 18 layers.} Early layers encode molecular programs; middle layers develop abstract representations; later layers re-specialize then optimize for prediction.}
 \label{fig:ushape}
 \end{figure}
@@ -304,7 +304,7 @@ The scGPT atlas exhibits the same modular organization: 76 modules across 12 lay
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig5_coactivation.pdf}
+\includegraphics[width=\textwidth]{gb_fig5_coactivation.pdf}
 \caption{\textbf{Co-activation modules evolve across layers.} Identity shifts from molecular machinery (L0) to integrative programs (L11), reflecting hierarchical abstraction.}
 \label{fig:modules}
 \end{figure}
@@ -343,7 +343,7 @@ This contrasts sharply with the companion study's finding~\cite{kendiukhov2025sy
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig6_causal_patching.pdf}
+\includegraphics[width=\textwidth]{gb_fig6_causal_patching.pdf}
 \caption{\textbf{SAE features are causally necessary.} Ablating a single feature specifically disrupts its annotated gene set. Median 2.36$\times$; top feature 114.5$\times$.}
 \label{fig:causal}
 \end{figure}
@@ -362,7 +362,7 @@ Biologically meaningful cascades emerge among the strongest cross-layer connecti
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig7_highways.pdf}
+\includegraphics[width=\textwidth]{gb_fig7_highways.pdf}
 \caption{\textbf{97--99.8\% of features form information highways.} Biological information flows through functional connections between distinct feature sets across layers.}
 \label{fig:highways}
 \end{figure}
@@ -400,7 +400,7 @@ This 6.2\% specificity rate is the central negative finding (Fig.~\ref{fig:pertu
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig8_perturbation.pdf}
+\includegraphics[width=\textwidth]{gb_fig8_perturbation.pdf}
 \caption{\textbf{92\% perturbation detection but only 6.2\% TF specificity.} Features respond to cell-state shifts, not specific regulatory consequences.}
 \label{fig:perturbation}
 \end{figure}
@@ -440,7 +440,7 @@ K562 + Tabula Sapiens & 17 & 1/48 & 2.1\% \\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/gb_fig9_multitissue.pdf}
+\includegraphics[width=\textwidth]{gb_fig9_multitissue.pdf}
 \caption{\textbf{Multi-tissue SAE yields marginal improvement (6.2\%$\to$10.4\%).} Non-systematic gains establish Geneformer's representations as the bottleneck.}
 \label{fig:multitissue}
 \end{figure}

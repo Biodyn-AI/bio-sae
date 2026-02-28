@@ -96,25 +96,6 @@ export default function Overview() {
   const veMin = veValues.length > 0 ? Math.min(...veValues) : 0
   const veMax = veValues.length > 0 ? Math.max(...veValues) : 0
 
-  // Heatmap data: rows = layers, columns = ontology types
-  const heatmapRaw = layers.map(l =>
-    HEATMAP_ONTOLOGIES.map(ont => {
-      if (l.ontology_counts[ont] != null) return l.ontology_counts[ont]
-      const match = Object.keys(l.ontology_counts).find(k => k.startsWith(ont))
-      return match ? l.ontology_counts[match] : 0
-    })
-  )
-
-  // Normalize each column independently to 0-1 so all ontologies show variation
-  const colMins = HEATMAP_ONTOLOGIES.map((_, ci) => Math.min(...heatmapRaw.map(r => r[ci])))
-  const colMaxs = HEATMAP_ONTOLOGIES.map((_, ci) => Math.max(...heatmapRaw.map(r => r[ci])))
-  const heatmapZ = heatmapRaw.map(row =>
-    row.map((val, ci) => {
-      const range = colMaxs[ci] - colMins[ci]
-      return range > 0 ? (val - colMins[ci]) / range : 0
-    })
-  )
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
       {/* Hero */}
@@ -189,43 +170,45 @@ export default function Overview() {
         />
       </section>
 
-      {/* Layer x ontology heatmap */}
+      {/* Layer x ontology grouped bar chart */}
       <section className="bg-gray-900/50 rounded-xl border border-gray-800 p-6">
         <h2 className="text-lg font-semibold text-gray-200 mb-4">
           Ontology Coverage by Layer
         </h2>
         <Plot
-          data={[
-            {
-              z: heatmapZ,
-              x: HEATMAP_ONTOLOGIES.map(o => ONTOLOGY_LABELS[o] || o),
-              y: layerNumbers.map(l => `L${l}`),
-              type: 'heatmap',
-              colorscale: [
-                [0, '#111827'],
-                [0.25, '#1e3a5f'],
-                [0.5, '#2563eb'],
-                [0.75, '#60a5fa'],
-                [1, '#dbeafe'],
-              ],
-              customdata: heatmapRaw,
-              hovertemplate:
-                '%{y} &mdash; %{x}<br>Count: %{customdata}<extra></extra>',
-              showscale: false,
-            },
-          ]}
+          data={HEATMAP_ONTOLOGIES.map(ont => ({
+            x: layerNumbers.map(l => `L${l}`),
+            y: layers.map(l => {
+              if (l.ontology_counts[ont] != null) return l.ontology_counts[ont]
+              const match = Object.keys(l.ontology_counts).find(k => k.startsWith(ont))
+              return match ? l.ontology_counts[match] : 0
+            }),
+            type: 'bar' as const,
+            name: ONTOLOGY_LABELS[ont] || ont,
+            marker: { color: ONTOLOGY_COLORS[ont] || '#6b7280' },
+            hovertemplate: `${ONTOLOGY_LABELS[ont] || ont}<br>%{x}: %{y:,}<extra></extra>`,
+          }))}
           layout={{
             ...PLOTLY_LAYOUT_BASE,
             height: 500,
-            margin: { t: 40, r: 30, b: 100, l: 60 },
+            margin: { t: 40, r: 30, b: 50, l: 70 },
+            barmode: 'group',
             xaxis: {
               ...PLOTLY_LAYOUT_BASE.xaxis,
-              tickangle: -35,
+              title: { text: 'Layer', standoff: 10 },
               tickfont: { size: 11, color: '#d1d5db' },
             },
             yaxis: {
               ...PLOTLY_LAYOUT_BASE.yaxis,
-              autorange: 'reversed' as const,
+              title: { text: 'Enrichment Count', standoff: 10 },
+            },
+            legend: {
+              font: { color: '#d1d5db', size: 11 },
+              bgcolor: 'transparent',
+              orientation: 'h' as const,
+              x: 0.5,
+              xanchor: 'center' as const,
+              y: -0.15,
             },
           }}
           config={{ responsive: true, displayModeBar: false }}
@@ -233,19 +216,8 @@ export default function Overview() {
           useResizeHandler
           style={{ width: '100%' }}
         />
-        <div className="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
-          {HEATMAP_ONTOLOGIES.map(ont => (
-            <span key={ont} className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-3 rounded-sm"
-                style={{ backgroundColor: ONTOLOGY_COLORS[ont] || '#6b7280' }}
-              />
-              {ONTOLOGY_LABELS[ont] || ont}
-            </span>
-          ))}
-        </div>
         <p className="mt-2 text-xs text-gray-600 italic">
-          Colors are normalized per ontology column to show within-ontology variation. Hover for raw annotation counts.
+          Raw annotation counts per ontology database. Hover for exact values.
         </p>
       </section>
 

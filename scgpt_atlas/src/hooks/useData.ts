@@ -83,7 +83,13 @@ export function useSvdComparison() {
 }
 
 export function useCrossLayerTracking() {
-  return useAsync(() => fetchJson<{ adjacent_persistence: Array<Record<string, unknown>>; long_range_persistence?: Array<Record<string, unknown>> }>('cross_layer_tracking.json'), [])
+  return useAsync(async () => {
+    try {
+      return await fetchJson<{ adjacent_persistence: Array<Record<string, unknown>>; long_range_persistence?: Array<Record<string, unknown>> }>('cross_layer_tracking.json')
+    } catch {
+      return null  // optional — persistence chart will be skipped
+    }
+  }, [])
 }
 
 export function useNovelClusters() {
