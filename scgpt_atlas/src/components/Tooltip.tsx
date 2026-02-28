@@ -1,11 +1,11 @@
 /**
- * Tooltip + InfoIcon — hover tooltip with smart viewport-aware positioning.
- * Auto-flips vertically and adjusts horizontal alignment to stay on-screen.
+ * Tooltip + InfoIcon — hover tooltip with fixed positioning.
+ * Uses position:fixed so tooltips escape parent overflow/clipping (e.g. narrow sidebars).
+ * Auto-flips vertically and clamps horizontally to stay within the viewport.
  */
 import { useState, useRef, useCallback } from 'react'
 
 type Position = 'top' | 'bottom' | 'left' | 'right'
-type HAlign = 'center' | 'left' | 'right'
 
 interface TooltipProps {
   tip: string
@@ -13,62 +13,68 @@ interface TooltipProps {
   children: React.ReactNode
 }
 
-const TOOLTIP_WIDTH = 288 // w-72 = 18rem = 288px
+const TW = 288 // tooltip width: w-72 = 18rem = 288px
+const GAP = 8  // spacing between trigger and tooltip
 
-/**
- * Wraps any element with a hover tooltip.
- * Auto-flips top↔bottom and shifts horizontally to stay within viewport.
- */
 export function Tooltip({ tip, position = 'top', children }: TooltipProps) {
-  const [pos, setPos] = useState<Position>(position)
-  const [hAlign, setHAlign] = useState<HAlign>('center')
+  const [coords, setCoords] = useState<React.CSSProperties>({ top: -9999, left: -9999 })
   const ref = useRef<HTMLSpanElement>(null)
 
   const handleMouseEnter = useCallback(() => {
     if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
+    const r = ref.current.getBoundingClientRect()
 
-    // Vertical: flip top↔bottom if too close to edge
-    if (position === 'top' && rect.top < 100) {
-      setPos('bottom')
-    } else if (position === 'bottom' && window.innerHeight - rect.bottom < 100) {
-      setPos('top')
-    } else {
-      setPos(position)
+    // Determine effective vertical position (flip if near edge)
+    let vPos = position
+    if (position === 'top' && r.top < 100) vPos = 'bottom'
+    else if (position === 'bottom' && window.innerHeight - r.bottom < 100) vPos = 'top'
+
+    let top: number, left: number, transform: string
+
+    switch (vPos) {
+      case 'top':
+        top = r.top - GAP
+        left = r.left + r.width / 2
+        transform = 'translate(-50%, -100%)'
+        break
+      case 'bottom':
+        top = r.bottom + GAP
+        left = r.left + r.width / 2
+        transform = 'translateX(-50%)'
+        break
+      case 'left':
+        top = r.top + r.height / 2
+        left = r.left - GAP
+        transform = 'translate(-100%, -50%)'
+        break
+      default: // right
+        top = r.top + r.height / 2
+        left = r.right + GAP
+        transform = 'translateY(-50%)'
+        break
     }
 
-    // Horizontal: adjust alignment for top/bottom tooltips
-    if (position === 'top' || position === 'bottom') {
-      const centerX = rect.left + rect.width / 2
-      if (centerX - TOOLTIP_WIDTH / 2 < 8) {
-        setHAlign('left')
-      } else if (centerX + TOOLTIP_WIDTH / 2 > window.innerWidth - 8) {
-        setHAlign('right')
-      } else {
-        setHAlign('center')
+    // Clamp horizontally for top/bottom so tooltip stays in viewport
+    if (vPos === 'top' || vPos === 'bottom') {
+      const tooltipLeft = left - TW / 2
+      if (tooltipLeft < GAP) {
+        left = GAP
+        transform = vPos === 'top' ? 'translateY(-100%)' : ''
+      } else if (tooltipLeft + TW > window.innerWidth - GAP) {
+        left = window.innerWidth - TW - GAP
+        transform = vPos === 'top' ? 'translateY(-100%)' : ''
       }
     }
-  }, [position])
 
-  // Build position classes
-  let posClass: string
-  if (pos === 'top' || pos === 'bottom') {
-    const vertical = pos === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
-    const horizontal =
-      hAlign === 'center' ? 'left-1/2 -translate-x-1/2' :
-      hAlign === 'left' ? 'left-0' : 'right-0'
-    posClass = `${vertical} ${horizontal}`
-  } else if (pos === 'left') {
-    posClass = 'right-full top-1/2 -translate-y-1/2 mr-2'
-  } else {
-    posClass = 'left-full top-1/2 -translate-y-1/2 ml-2'
-  }
+    setCoords({ top, left, transform })
+  }, [position])
 
   return (
     <span className="relative inline-flex group" ref={ref} onMouseEnter={handleMouseEnter}>
       {children}
       <span
-        className={`absolute ${posClass} z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 delay-150 w-72 px-3 py-2 text-xs leading-relaxed text-gray-200 bg-gray-800 border border-gray-700 rounded-lg shadow-xl whitespace-normal`}
+        className="fixed z-[100] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 delay-150 w-72 px-3 py-2 text-xs leading-relaxed text-gray-200 bg-gray-800 border border-gray-700 rounded-lg shadow-xl whitespace-normal"
+        style={coords}
       >
         {tip}
       </span>
