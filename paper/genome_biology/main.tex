@@ -163,7 +163,7 @@ To test whether the superposition and biological organization observed in Genefo
 
 We extracted per-position residual stream activations from all 12 layers, processing 3,000 diverse Tabula Sapiens cells (1,000 immune across 43 cell types, 1,000 kidney, 1,000 lung) and obtaining 3,561,832 token positions per layer. For each layer, we trained a TopK SAE with 4$\times$ overcomplete dictionary (2,048 features from 512 input dimensions) and $k{=}32$ sparsity.
 
-Table~\ref{tab:scgpt_full12} presents complete training statistics for all 12 scGPT layers (Additional file~1: Fig.~S1). Reconstruction quality is notably higher than Geneformer: variance explained ranges from 85.7\% (L7) to 93.5\% (L4), with a mean of 90.2\% versus Geneformer's mean of 81.7\%. Dead features are near-zero: only 49 across all 12 layers (0.2\%), compared to 419 in Geneformer (0.5\%). The total atlas comprises \textbf{24,527 alive features}, with \textbf{7,595 features} (31.0\%) annotated against the same five ontology databases.
+Table~\ref{tab:scgpt_full12} presents complete training statistics for all 12 scGPT layers. Reconstruction quality is notably higher than Geneformer: variance explained ranges from 85.7\% (L7) to 93.5\% (L4), with a mean of 90.2\% versus Geneformer's mean of 81.7\%. Dead features are near-zero: only 49 across all 12 layers (0.2\%), compared to 419 in Geneformer (0.5\%). The total atlas comprises \textbf{24,527 alive features}, with \textbf{7,595 features} (31.0\%) annotated against the same five ontology databases.
 
 \begin{table}[t]
 \centering
@@ -233,7 +233,7 @@ Module coverage & 96.0--99.5\% & 96.3\% mean \\
 
 Annotation of each feature's top-20 genes against five databases (Fisher's exact test, Benjamini--Hochberg FDR $< 0.05$) revealed a striking U-shaped profile across layers (Fig.~\ref{fig:ushape}). Annotation rates are highest at layers 0--1 (57--59\%), decline to a minimum at layer~8 (45.4\%), recover to 55--56\% at layers 10--11, and decrease again at layers 16--17 (47--55\%). Per-ontology counts are detailed in Additional file~1: Table~S1.
 
-The scGPT atlas shows a weaker but qualitatively similar pattern across its 12 layers (Additional file~1: Fig.~S2): annotation rates range from 28.7\% (L2) to 33.9\% (L9). Lower annotation rates cluster at L2 (28.7\%), L5 (29.6\%), L6 (28.9\%), and L8 (28.9\%), interspersed with higher rates at L7 (32.4\%) and L9--L11 (31.7--33.9\%).
+The scGPT atlas shows a weaker but qualitatively similar pattern across its 12 layers (Fig.~\ref{fig:cross_model}): annotation rates range from 28.7\% (L2) to 33.9\% (L9). Lower annotation rates cluster at L2 (28.7\%), L5 (29.6\%), L6 (28.9\%), and L8 (28.9\%), interspersed with higher rates at L7 (32.4\%) and L9--L11 (31.7--33.9\%).
 
 For Geneformer, this pattern admits a functional interpretation organized into four zones:
 
@@ -358,7 +358,7 @@ Despite near-zero decoder-weight similarity across layers, functional connectivi
 
 Biologically meaningful cascades emerge among the strongest cross-layer connections (Additional file~1: Table~S7). The mTORC1~regulation $\to$ autophagy connection (L0$\to$L5, PMI~=~9.55) recapitulates a well-known signaling axis. Protein modification features at L11 connect to angiogenesis regulation at L17 (PMI~=~10.62).
 
-\paragraph{scGPT cross-layer graph.} scGPT reveals a progressive concentration pattern (Additional file~1: Table~S6, Fig.~S3): upstream connectivity is consistently high (86.6--95.5\%), but downstream connectivity drops from 95.7\% (L0$\to$L4) to 62.9\% (L8$\to$L11). This suggests that scGPT progressively bottlenecks information toward later layers---a pattern not observed in Geneformer, where downstream connectivity remains near-complete (97.4--99.8\%).
+\paragraph{scGPT cross-layer graph.} scGPT reveals a progressive concentration pattern (Additional file~1: Table~S6, Fig.~S1): upstream connectivity is consistently high (86.6--95.5\%), but downstream connectivity drops from 95.7\% (L0$\to$L4) to 62.9\% (L8$\to$L11). This suggests that scGPT progressively bottlenecks information toward later layers---a pattern not observed in Geneformer, where downstream connectivity remains near-complete (97.4--99.8\%).
 
 \begin{figure}[t]
 \centering
@@ -486,7 +486,7 @@ Cross-layer tracking & $\geq$50\% & 97--99.8\% highways & Exceeded \\
 
 To visualize SAE feature organization, we projected decoder weight vectors using UMAP with cosine distance. All projections produced structureless point clouds. Quantitative analysis confirmed the cause: SAE decoder vectors are quasi-orthogonal by design (mean pairwise cosine similarity = 0.0007; within-module vs.\ between-module Cohen's $d = 0.075$). This quasi-orthogonality is a geometric signature of superposition: 4,608 features pack into 1,152 dimensions by spreading nearly uniformly across the hypersphere.
 
-We therefore visualized the co-activation network directly using force-directed graph layout (Additional file~1: Figs.~S4--S6). Each module forms a spatially coherent community, with annotated features distributed across all communities while sparsely annotated features concentrate centrally. Annotation-based projections (TF-IDF weighted ontology vectors) provide independent validation that module structure reflects genuine biological similarity.
+We therefore visualized the co-activation network directly using force-directed graph layout (Additional file~1: Figs.~S2--S4). Each module forms a spatially coherent community, with annotated features distributed across all communities while sparsely annotated features concentrate centrally. Annotation-based projections (TF-IDF weighted ontology vectors) provide independent validation that module structure reflects genuine biological similarity.
 
 
 \subsection{Cell type enrichment mapping}
