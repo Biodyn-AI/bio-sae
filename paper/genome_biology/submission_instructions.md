@@ -22,8 +22,10 @@
 
 ## Step 1: Create Account / Log In
 
-1. Go to **https://www.editorialmanager.com/gbiomed/** (Genome Biology submission portal via Editorial Manager)
-2. Create an account if you don't have one, or log in
+1. Go to the [Genome Biology homepage](https://genomebiology.biomedcentral.com/) and click **"Submit manuscript"**
+   - This will route you to the current submission system (Springer Nature has been migrating journals from Editorial Manager to their new **Snapp** platform at `submission.springernature.com`)
+   - Alternatively, check the [submission guidelines page](https://genomebiology.biomedcentral.com/submission-guidelines) for the latest submission link
+2. Create an account if you don't have one, or log in with your Springer Nature account
 3. Complete your profile (affiliation, ORCID, etc.)
 
 ---
@@ -198,7 +200,9 @@ Genome Biology is an open access journal published by BioMed Central (Springer N
 
 ## Useful Links
 
+- Genome Biology homepage (Submit manuscript button): https://genomebiology.biomedcentral.com/
 - Genome Biology author guidelines: https://genomebiology.biomedcentral.com/submission-guidelines
-- Editorial Manager portal: https://www.editorialmanager.com/gbiomed/
+- Research article format: https://genomebiology.biomedcentral.com/submission-guidelines/preparing-your-manuscript/research
+- Snapp submission platform tips: https://submission.springernature.com/guidelines
 - Springer Nature APC page: https://www.springernature.com/gp/open-research/journals-books/journals
 - Zenodo: https://zenodo.org
