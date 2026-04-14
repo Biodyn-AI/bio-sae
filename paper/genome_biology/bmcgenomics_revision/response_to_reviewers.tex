@@ -1,0 +1,147 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumitem}
+% Note: section, table, and figure references below are hard-coded as plain
+% text ("\S2.9", "Table S16") rather than \ref{} calls, because those labels
+% live in main.tex and supplementary.tex, which are shipped as separate PDFs.
+% Hyperlinks to targets that are not inside this PDF would be broken.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8em}
+
+\newcommand{\reviewercomment}[1]{\textit{\color{gray}#1}}
+\newcommand{\response}[1]{\textbf{Response:} #1}
+
+\title{Point-by-Point Response to Reviewers\\[6pt]
+\large ``Sparse autoencoders reveal organized biological knowledge\\but minimal regulatory logic in single-cell foundation models:\\a comparative atlas of Geneformer and scGPT''}
+\author{Ihor Kendiukhov}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+We are grateful to all three reviewers for their detailed, constructive comments. In this revision we have fixed several factual errors regarding model architecture and training objectives, softened over-reaching claims, added a hyperparameter-sensitivity analysis, re-computed the perturbation specificity under two additional regulatory priors (DoRothEA A+B+C and DoRothEA all), added a permutation null for the cross-layer PMI ``information highway'' claim with a consecutive-layer sweep, added a non-tautological characterization of unannotated features using cell-type and CRISPRi tests, added a matched-input cross-model snapshot, added a batch/assay-proxy confound analysis for scGPT, labeled the preliminary scGPT causal-patching result explicitly as preliminary, added justifications for the SVD cosine threshold and Leiden resolution choices, and included graph dimensions, peak memory, and software/hardware versions in Methods. All new analyses are reported in the main text with supporting detail in Additional file~1. The main scientific conclusion is unchanged but now framed more cautiously.
+
+\bigskip
+
+\section*{Reviewer 1}
+
+\subsection*{R1.1 --- TRRUST coverage and cell-type scope of CRISPRi}
+\reviewercomment{The perturbation specificity test relies solely on TRRUST covering only 48 TFs, which represents a small and literature-mining-biased subset of known human TF-target relationships. [...] The authors should discuss whether using more comprehensive regulatory network resources (e.g., DoRothEA, ChIP-Atlas, or CellOracle priors) would alter this conclusion. Furthermore, the CRISPRi validation is performed exclusively in K562.}
+
+\response{We have re-run the specificity test using DoRothEA (A+B+C confidence and all confidence levels) and adopted a hypergeometric-based ``specific'' definition (BH-FDR$<0.05$, universe~=~20{,}000 human protein-coding genes) so that the numerical comparison is not inflated by DoRothEA's larger per-TF target sets. Under this stricter definition, specificity rates are 0/28 (0.00\%) for TRRUST, 1/12 (8.33\%) for DoRothEA~A+B+C, and 1/18 (5.56\%) for DoRothEA all. The ``$\geq$1-overlap'' definition used in the main-text 6.2\% climbs with database size (3.57\% TRRUST, 33.33\% DoRothEA~A+B+C, 38.89\% DoRothEA all) but this is an artifact of the statistical test, removed by the hypergeometric correction. The single-digit rate is therefore robust to database choice. New Results paragraph in \S2.9 and new Additional file~1: Table~S16. We also explicitly note the K562-only limitation in the Limitations paragraph and in the softened Discussion (\S3). A second-cell-line experiment (e.g.\ RPE1) is listed as the natural next step but is beyond the scope of this revision.}
+
+\subsection*{R1.2 --- Hyperparameter ablation (expansion $\times$ $k$)}
+\reviewercomment{The entire analysis uses a uniform 4$\times$ overcomplete dictionary with TopK sparsity $k{=}32$ across all layers and both models, yet no justification for these specific values is provided. [...] The authors should conduct an ablation study on at least one representative layer.}
+
+\response{We added a 9-cell grid of SAEs at Geneformer L11 over expansion $\in \{2\times, 4\times, 8\times\}$ and $k \in \{16, 32, 64\}$, reporting variance explained, dead-feature count, mean decoder cosine similarity, and Leiden module count for each configuration. Results are in new \S2.12 of the main text and Additional file~1: Table~S14. The qualitative conclusions (substantial superposition, organized biological structure, stable module count) are preserved across the grid; full TF-specificity recomputation per grid cell was beyond the revision's compute budget.}
+
+\subsection*{R1.3 --- scGPT causal patching proxy values}
+\reviewercomment{As acknowledged in Section 2.7, causal patching for scGPT uses proxy expression values (uniform 1.0 for all genes) rather than true expression inputs, yielding a specificity of only 0.98$\times$. This fundamentally undermines fair comparison [...] The authors should either describe a technical path to recover true expression-value inputs for scGPT's causal analysis, or explicitly label the scGPT causal results as preliminary/inconclusive rather than presenting them in parallel with Geneformer's results.}
+
+\response{We have re-labeled the scGPT causal-patching number in \S2.7 as \emph{preliminary / exploratory} and explicitly flagged that the input distribution was substantially out-of-distribution relative to training. We have also dropped it from the side-by-side cross-model presentation. The path to recover true per-cell binned value inputs is described in the new Methods ``Input handling for each model'' paragraph, and the updated results are reported in new \S2.11 of the main text and Additional file~1: Table~S17.}
+
+\subsection*{R1.4 --- Cross-layer PMI permutation null and consecutive-layer sweep}
+\reviewercomment{Under a TopK constraint with $k{=}32$, co-activation across layers has a non-trivial statistical baseline, and the current analysis does not adequately rule out that these cross-layer connections are simply artifacts of the sparsity constraint. A permutation-based null model for PMI thresholding is needed. Additionally, the analysis examines only three layer-pair jumps [...] a consecutive layer-by-layer analysis would better demonstrate whether information propagation is truly continuous or concentrated at specific transitions.}
+
+\response{We added a permutation null on the three long-range pairs (20 column-shuffle rounds each) and recomputed the highway fraction at the data-driven threshold $\tau = \max(3.0, \tau_{\text{null}}^{p99})$. We also added a consecutive-layer sweep for all $L_i \to L_{i+1}$ pairs at a fixed $\tau{=}3.0$. The null threshold $\tau_{\text{null}}^{p99}$ was below 3.0 for every long-range pair tested, so the fixed threshold is already conservative and the null correction leaves the highway fractions unchanged (this is a \emph{negative} null result). We cite Wang et al.\ (scDrugMap, 2025) in the cross-layer section. New Figure panel and Additional file~1: Tables~S18 and~S19.}
+
+\subsection*{R1.5 --- Unannotated feature tests beyond module co-membership}
+\reviewercomment{Section 2.11 attempts to address unannotated features through guilt-by-association analysis, but merely showing that they reside within co-activation modules (which cover 96\% of all features) is nearly tautological. The authors should further characterize these features by asking: how many exhibit consistent cell-type specificity? How many show significant responses in the CRISPRi perturbation data?}
+
+\response{We agree the module-membership test is nearly tautological and now say so in \S2.14. We replaced it with two non-tautological tests at Geneformer L0, L5, L11, L17: (i)~cell-type specificity in Tabula Sapiens; (ii)~perturbation responsiveness against the 100 Replogle CRISPRi targets. The cell-type test did not separate the two populations (both are at the $\sim$90--95\% any-feature ceiling). The perturbation test does separate them: at layer~11, 2.32\% of unannotated features ($\sim$47 features) appear in at least one perturbation target's top-20 responding-features list with $|$effect$|>0.5$, versus only 0.15\% of annotated features ($\sim$4 features)---a $\sim$15$\times$ gap, providing non-tautological evidence that a subset of unannotated features carry real perturbation-response signal. We name Wang et al.\ (HECLIP, 2025) as a recommended orthogonal future validation in the main text. New Additional file~1: Table~S20.}
+
+\bigskip
+
+\section*{Reviewer 2}
+
+\subsection*{R2 Major 1 --- scGPT proxy values}
+\reviewercomment{The author should provide a rigorous justification for using 1.0 as a substitute, or rerun the experiments to compare these results with those obtained using the actual continuous expression levels.}
+
+\response{See response to R1.3. The scGPT causal-patching number with the uniform-1.0 proxy is now explicitly labeled preliminary and excluded from the cross-model comparison.}
+
+\subsection*{R2 Major 2 --- SVD cosine threshold}
+\reviewercomment{The author should clarify the rationale behind selecting $>$ 0.7 as the threshold. Please provide relevant references to support this choice, or include a brief ablation study.}
+
+\response{We discovered that the paper text quoted $\tau{=}0.7$ while the pipeline actually used $\tau{=}0.5$; we have corrected the main text accordingly. We added a sensitivity analysis over $\tau \in \{0.3, 0.5, 0.7, 0.9\}$ at all 18 Geneformer layers (new Additional file~1: Table~S11). At the correct $\tau{=}0.5$, 0.3\% of features on average are SVD-aligned, reproducing the per-layer counts in Table~1. Across the whole range of $\tau$, $>$98\% of ontology enrichments live exclusively in the non-aligned set, so the headline conclusion that SAE features carry the biological signal is robust.}
+
+\subsection*{R2 Major 3 --- PMI graph dimensions, memory, and Leiden resolution}
+\reviewercomment{I suggest the author explicitly state the dimensions of the constructed graphs and detail the memory/VRAM consumption required for this step. Furthermore, please explain the biological or computational rationale for using the default parameter of 1.0 for the Leiden community detection resolution.}
+
+\response{We now report $N_\text{feat}$, number of edges after the significance threshold, coactivation-matrix memory, and peak resident set size per layer in Additional file~1: Table~S12 (new). For Leiden resolution, we followed the \texttt{leidenalg} / \texttt{scanpy} default $\gamma{=}1.0$; to quantify sensitivity, we swept $\gamma \in \{0.5, 0.75, 1.0, 1.5, 2.0\}$ at Geneformer L0 and L11 and report module count, mean module size, coverage, and ARI vs.\ the $\gamma{=}1.0$ baseline (new Additional file~1: Table~S13). The partition is nested rather than uniquely stable (ARI between $\gamma{=}1.0$ and $\gamma{=}0.75$/$1.5$ is 0.17--0.26), but the qualitative module identities (cell cycle, translation, metabolism, \ldots) are preserved across the range. We have rewritten the main-text wording to reflect this accurately.}
+
+\subsection*{R2 Major 4 --- scGPT perturbation mapping}
+\reviewercomment{I suggest the author supplement this study by performing the same perturbation response mapping experiments on scGPT to verify whether it exhibits similarly low specificity.}
+
+\response{We ran a lean scGPT perturbation response mapping on Replogle K562 at layer~7 (50 targets, 10 cells per target, 100 non-targeting controls, per-cell binned expression values re-tokenized from the Replogle source h5ad). scGPT exhibits the same qualitative regime as Geneformer: single-digit loose overlap (2/28 = 7.14\% TRRUST, 2/12 = 16.67\% DoRothEA~A+B+C), and 0/28 / 0/12 under hypergeometric FDR correction. Reported in \S2.9 and Additional file~1: Table~S15. This cross-validates the central Geneformer finding across both architecturally distinct scFMs.}
+
+\subsection*{R2 Minor 1 --- Language polish}
+\response{We have done a language pass, tightening Background and Conclusions.}
+
+\subsection*{R2 Minor 2 --- Force-directed figure captions}
+\response{Additional file~1: Figures~S2 and~S3 captions now explicitly state ``Fruchterman--Reingold force-directed layout of the intra-module co-activation graph; this is \emph{not} a UMAP or t-SNE projection''.}
+
+\subsection*{R2 Minor 3 --- Software and hardware details}
+\response{We added a new Methods subsection ``Computational environment'' listing software stack (PyTorch + MPS, NumPy, scanpy, leidenalg, decoupler-py, \ldots), the Apple Silicon hardware, macOS version, and wall-clock time for the longest steps (extraction, SAE training, PMI + Leiden, perturbation mapping). Exact package versions are pinned in the code repository \texttt{requirements.txt}.}
+
+\subsection*{R2 Minor 4 --- Single-command reproducibility}
+\response{We added \texttt{run\_all.sh} and \texttt{notebooks/walkthrough.ipynb} to the code repository. The shell script chains the Phase 1 $\to$ Phase 2 $\to$ Phase 3 steps; the notebook runs one layer end-to-end on a small subsample for reviewers who do not want to commit 400~GB of disk.}
+
+\bigskip
+
+\section*{Reviewer 3}
+
+\subsection*{R3.1 --- Factual inaccuracies about scGPT architecture}
+\reviewercomment{scGPT uses binned gene expression values, not continuous expression values during pretraining (line 111) [...] In Table 3, ``continuous expression'' should be ``binned expression,'' and the training objectives are swapped.}
+
+\response{Corrected in all locations. Line 162 now reads ``dual input of gene-identity tokens plus binned expression-value embeddings (51 bins by default)''; Table~3 now reads ``Gene token + binned value'' / ``Generative (causal attention)'' for scGPT and ``Rank-value tokens'' / ``Masked-gene modelling'' for Geneformer. A new Methods paragraph ``Input handling for each model'' gives the full description of how each model ingests a cell.}
+
+\subsection*{R3.2 --- Cross-model comparison confound}
+\reviewercomment{The cross-model comparison does not seem well controlled. Geneformer activations are extracted from baseline K562 cells, while scGPT activations are extracted from Tabula Sapiens cells.}
+
+\response{We have added an explicit caveat to \S2.3 and to the caption of Figure~3, now stating that the observed cross-model differences conflate architecture with input distribution and should be read qualitatively. We also added a partial matched-input control (\S2.13, Additional file~1: Table~S21) in which K562-trained Geneformer SAEs are applied to 3{,}000 Tabula Sapiens cells. Variance explained drops by 18--23 percentage points at L0, L5, and L11 when Geneformer sees Tabula Sapiens data instead of K562 data, so the 9-percentage-point Geneformer-vs.-scGPT gap in Table~3 is a lower bound on the true architectural gap; under matched input, Geneformer trails scGPT by $\sim$27 percentage points. A fully matched retraining is noted as the natural follow-up.}
+
+\subsection*{R3.3 --- SAEs trained on control/baseline data}
+\reviewercomment{I am not convinced that SAEs trained on normal or control-state data are the right setup for probing transcription factor regulatory logic. [...] If the training data are not perturbed [...] it is unclear why one should expect the learned features to recover TF-target regulatory logic in a strong sense.}
+
+\response{We agree this is a fundamental caveat and have added a dedicated Discussion paragraph \S3 that states this explicitly: SAEs trained on unperturbed K562 controls and unperturbed Tabula Sapiens tissue are structurally biased toward cell-state / co-expression features, and it is \emph{a priori} unclear that such SAEs should recover TF$\to$target regulatory wiring in a strong sense. We now describe, as the clearest single next experiment, training SAEs directly on pooled perturbed + control activations with perturbation identity as an auxiliary signal.}
+
+\subsection*{R3.4 --- ``Minimal regulatory logic'' overclaim}
+\reviewercomment{I also do not think the K562+TabSap control is sufficient to isolate the model itself as the bottleneck. [...] the claims that the models encode only ``minimal regulatory logic'' are too strong as currently written.}
+
+\response{We have softened the claims across the Abstract, \S2.10, Discussion (\S3), and Conclusions. The multi-tissue result is now framed as ``consistent with, but not proving, a model-level limitation,'' and three alternative explanations are listed: (i)~the pooling strategy is too simple, (ii)~baseline-only SAE training biases away from TF wiring, (iii)~a different SAE objective (perturbation-supervised) could behave differently. The title and headline number remain but their scope is now explicitly ``under the conditions tested.''}
+
+\subsection*{R3.5 --- Batch / assay features}
+\reviewercomment{Do the SAEs recover batch specific or assay specific features? This seems especially relevant for Tabula Sapiens, which includes multiple sequencing assays and cross donor variations.}
+
+\response{We added a dedicated ``Batch and assay confounds'' subsection (\S2.18) and a new Additional file~1: Table~S22. For the scGPT atlas at layers \{0, 4, 7, 11\} we compute, per feature, the mutual information between its activation and (a)~the tissue label (our proxy for sample-level batch, because the cached scGPT extraction metadata carries only \{tissue, cell\_type\}, not donor or assay IDs) and (b)~the cell-type label. Mean MI with cell type is $\sim$2.5$\times$ larger than mean MI with tissue across all four layers, and essentially zero features are tissue-dominant (0/1990 at L0, 0/2038 at L4, 0/1999 at L7, 1/1766 at L11). A full donor-level / assay-level analysis requires joining the Tabula Sapiens source h5ad on \texttt{cell\_idx} and is listed as a follow-up.}
+
+\subsection*{R3.6 --- Finetuned scGPT on Replogle}
+\reviewercomment{Would model finetuning help? In particular, it would be interesting to test a perturbation task tuned scGPT checkpoint on Replogle dataset to see if it recovers more signal.}
+
+\response{We agree that a perturbation-finetuned scGPT checkpoint is the single most promising next experiment, and have named it explicitly in the Discussion as a follow-up. We have not run it in this revision because it requires both the fine-tuned checkpoint and a re-run of the full SAE pipeline; it is flagged as the clearest test of the bottleneck question.}
+
+\bigskip
+
+\section*{Summary of changes}
+
+\begin{enumerate}[leftmargin=1.5em]
+\item Factual corrections: scGPT input encoding (continuous $\to$ binned, 51 bins); Geneformer/scGPT training objectives swapped (Geneformer is masked-token, scGPT is generative); SVD threshold text ($0.7 \to 0.5$, matching the pipeline).
+\item New Results subsections: \S2.11~scGPT causal patching with true binned values; \S2.12~hyperparameter ablation at L11; \S2.13~matched-input cross-model snapshot; \S2.18~batch and assay confounds.
+\item New Additional file~1 tables: Tables~S11 (SVD sensitivity), S12 (PMI graph / memory), S13 (Leiden sweep), S14 (hyperparameter ablation), S15 (scGPT perturbation test), S16 (multi-database perturbation), S17 (scGPT causal, true values), S18 and~S19 (null-corrected and consecutive highways), S20 (unannotated feature tests), S21 (matched-input comparison), and~S22 (batch / assay). The original Tables~S1--S10 are retained.
+\item Softened claims in Abstract, \S2.10, Discussion, Conclusions; new explicit ``bottleneck'' caveat paragraph (\S3).
+\item New Methods subsections: input handling per model; SVD threshold justification + sweep; PMI graph dimensions + memory; Leiden resolution justification + sweep; computational environment.
+\item Figure S2--S3 captions updated to explicitly state force-directed layout.
+\item Code repository additions: \texttt{run\_all.sh}, \texttt{notebooks/walkthrough.ipynb}, and all new revision-phase analysis scripts under \texttt{src\_revision/}.
+\end{enumerate}
+
+We trust this revision addresses all three reviewers' concerns. We are happy to provide any additional analysis needed.
+
+\vspace{1em}
+Sincerely,\\
+Ihor Kendiukhov
+
+\end{document}

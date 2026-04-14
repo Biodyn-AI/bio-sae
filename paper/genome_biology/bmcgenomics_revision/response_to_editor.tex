@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8em}
+
+\title{Point-by-Point Response to Editorial Comments\\[6pt]
+\large Submission ID: 56a673e2-8283-420f-8d42-99529c8173d8\\[4pt]
+\large ``Sparse autoencoders reveal organized biological knowledge\\but minimal regulatory logic in single-cell foundation models:\\a comparative atlas of Geneformer and scGPT''}
+\author{Ihor Kendiukhov}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Response to Editor}
+
+Dear Editor Sarolkar,
+
+Thank you for your assessment and for the opportunity to revise the manuscript. Below we address the editorial request regarding data deposition and availability.
+
+\subsection*{Editor's comment: Data deposition and availability}
+
+\textit{``BMC mandates data deposition for [...] DNA and RNA sequences, DNA and RNA sequencing data, [...] Microarray data, etc. [...] we ask that you please provide the relevant accession numbers if the data has been deposited into a database or the appropriate direct web links if the data has been uploaded into a repository.''}
+
+\textbf{Response:} We have revised the ``Availability of data and materials'' section in the manuscript to include explicit repository names, persistent web links, and accession information for every dataset used, as required by BMC policy. The revised statement now reads:
+
+\begin{quote}
+\small
+The datasets analysed during the current study are available in the following repositories:
+
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{K562 CRISPRi perturbation data} (Replogle et al., 2022): available at \url{https://plus.figshare.com/articles/dataset/Replogle_2022_K562_gwps/21452470} (Figshare, DOI: 10.6084/m9.figshare.21452470).
+\item \textbf{Tabula Sapiens} single-cell atlas (The Tabula Sapiens Consortium, 2022): available at \url{https://tabula-sapiens-portal.ds.czbiohub.org/} and via CZ CELLxGENE (\url{https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5}).
+\item \textbf{Geneformer V2-316M} pretrained model (Theodoris et al., 2023): available on HuggingFace at \url{https://huggingface.co/ctheodoris/Geneformer} (subfolder \texttt{Geneformer-V2-316M}).
+\item \textbf{scGPT whole-human checkpoint} (Cui et al., 2024): available at \url{https://github.com/bowang-lab/scGPT}.
+\item \textbf{TRRUST v2} transcriptional regulatory network (Han et al., 2018): available at \url{https://www.grnpedia.org/trrust/}.
+\item \textbf{Gene Ontology} annotations: available at \url{http://geneontology.org/}.
+\end{itemize}
+
+All analysis code, trained SAE models, and feature catalogs are available at \url{https://github.com/Biodyn-AI/bio-sae}. Interactive feature atlases: Geneformer (\url{https://biodyn-ai.github.io/geneformer-atlas/}) and scGPT (\url{https://biodyn-ai.github.io/scgpt-atlas/}).
+\end{quote}
+
+\textbf{Note on data types:} This study does not generate new DNA/RNA sequences, sequencing data, genetic polymorphisms, protein sequences, macromolecular structures, microarray data, or crystallographic data. All raw single-cell RNA-seq data used in this study were previously published and deposited by their original authors in the repositories listed above. Our study produces derived computational outputs (trained sparse autoencoder weights, feature annotations, and co-activation graphs), which are deposited in the GitHub repository listed above.
+
+\subsection*{Summary of changes}
+
+\begin{enumerate}[leftmargin=1.5em]
+\item The ``Availability of data and materials'' section has been expanded to include explicit repository names, persistent web links, and DOIs for all datasets analysed in this study.
+\item No changes were made to the scientific content, results, or conclusions of the manuscript.
+\end{enumerate}
+
+We trust this addresses the editorial request. We are happy to provide any additional information needed.
+
+\vspace{1em}
+Sincerely,\\
+Ihor Kendiukhov
+
+\end{document}
