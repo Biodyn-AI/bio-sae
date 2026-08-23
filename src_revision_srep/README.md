@@ -1,5 +1,7 @@
 # Analysis code for the Scientific Reports version
 
+Archived at Zenodo: [doi:10.5281/zenodo.22068864](https://doi.org/10.5281/zenodo.22068864)
+
 Every figure and every table reporting a new analysis is generated from a result file in
 `experiments/revision_srep/`, and the numbers quoted in the manuscript are checked against
 those files automatically. Nothing in the paper is transcribed by hand.
