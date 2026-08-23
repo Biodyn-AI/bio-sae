@@ -50,7 +50,7 @@ includes both rank-ordered gene identity and a binned magnitude for scGPT.
 For both models we performed forward passes with PyTorch hooks registered at each transformer
 layer's output (after the residual connection), collecting hidden states at every gene position.
 Activations were stored as memory-mapped NumPy arrays (float32). Extraction used Apple Silicon MPS
-acceleration. For Geneformer ($d{=}1{,}152$) this is 336.4~GB for 18 K562 layers (18.7~GB per
+acceleration. For Geneformer ($d{=}1{,}152$) this is 336.4~GB for the 18 control-cohort layers (18.7~GB per
 layer) and 103.6~GB for four Tabula Sapiens layers; for scGPT ($d{=}512$), approximately 82~GB for
 12 layers.
 
@@ -134,9 +134,8 @@ $d$-dimensional space can host.
 For each layer, pointwise mutual information (PMI~\cite{manning1999foundations}) was computed
 between all pairs of alive features across the layer's token positions; feature $i$ is active at
 position $j$ if it is among the top-$k$ activations there, and
-$\text{PMI}(i,j) = \log_2 P(i,j) / [P(i)P(j)]$. Edges were retained above a significance threshold
-($p < 0.001$ under a 1,000-sample permutation null in which feature activations were independently
-column-shuffled). Community detection used the Leiden algorithm~\cite{traag2019louvain} at
+$\text{PMI}(i,j) = \log_2 P(i,j) / [P(i)P(j)]$. Edges were retained where two features co-fired at
+a minimum of 50 positions with PMI at least 2.0 bits. Community detection used the Leiden algorithm~\cite{traag2019louvain} at
 resolution $\gamma = 1.0$, the \texttt{leidenalg} default. Because a single resolution is a choice
 rather than a ground truth, we swept $\gamma \in \{0.5, 0.75, 1.0, 1.5, 2.0\}$ at layers 0 and 11
 and report the resulting partition sizes and adjusted Rand indices; module counts in the main text
@@ -145,9 +144,11 @@ recognizable throughout the range.
 
 \subsection*{Causal feature patching}
 
-Single-feature ablation was performed with PyTorch forward hooks. At the target layer's output the
-hidden state was encoded through the SAE, one feature's activation was zeroed, the state was
-decoded and substituted, and the forward pass continued to the output logits. Disruption is the
+Single-feature ablation was performed with PyTorch forward hooks. At the target layer's output the hidden
+state was encoded through the SAE and the contribution of one feature, its activation times its
+decoder atom, was subtracted from the residual stream; the forward pass then continued to the
+output. Because the intervention is subtractive rather than a substitution of the reconstruction,
+no reconstruction error is introduced. The readout is the logit of each position's own gene token. Disruption is the
 mean change in output logits at a set of gene positions.
 
 Three properties of the design keep the evaluation independent of the annotation. First, features
@@ -155,8 +156,10 @@ are drawn from three arms: the most richly annotated features, a uniformly rando
 annotated features, and a uniformly random sample of all alive features. Second, for each feature we
 partition gene positions into those whose gene is in both the feature's top-20 activating genes and
 its annotated term, those in the annotated term but \emph{not} in the top-20 (the independent
-evaluation set), and all others. Third, for every feature we draw a random gene set matched in size
-and in mean-activation decile to the independent evaluation set, giving each feature its own null.
+evaluation set), and all others. Third, for every feature we draw a random gene set matched in size to the independent evaluation
+set and stratified on gene expression rank (ten bins) and detection frequency across the patched
+cells (three bins), drawn from outside both the annotated term and the feature's top-20 genes,
+giving each feature its own null.
 Specificity is the ratio of mean absolute disruption on a gene set to that on all other positions,
 and the held-out ratio is reported against the matched-random ratio for the same feature.
 
@@ -165,8 +168,9 @@ and the held-out ratio is reported against the matched-random ratio for the same
 For each perturbation target we sampled up to 200 CRISPRi cells and compared them against 600
 non-targeting control cells of the same line, encoding every cell through the layer-11 SAE as
 described above. A feature responds if its per-cell mean activation differs between perturbed and
-control cells (Mann--Whitney $U$ over cells, Benjamini--Hochberg across features, FDR $< 0.05$) with
-$|d| > 0.5$ (Cohen's $d$ over cells). The cell is the unit of replication throughout: gene positions
+control cells (Mann--Whitney $U$ over cells, Benjamini--Hochberg across features, FDR $< 0.05$) and
+the shift exceeds half a control standard deviation, the latter measured on the position-level
+scale so that the cell-level and position-level analyses differ only in the inference. The cell is the unit of replication throughout: gene positions
 within a cell are not independent observations, and we report the intraclass correlation of feature
 activation within cells together with the number of features that a position-pooled test would call
 significant on exactly the same cells.
@@ -208,15 +212,42 @@ residual stream, a model-internal baseline that uses no SAE. (vii)~Size-matched 
 \subsection*{Replication across cell lines}
 
 The perturbation analysis was repeated in RPE1, Jurkat and HepG2 cells from the same CRISPRi
-resource, which are independent screens in independent cell backgrounds processed identically. In
+resource, which are independent screens in independent cell backgrounds. These lines were run at
+100 cells per target against 400 non-targeting cells over 16 factors and 6 non-regulatory controls,
+against 200, 600, 20 and 10 respectively for the primary line. In
 every line, perturbed cells are compared against non-targeting cells of that same line. Each line
 was analysed with two dictionaries: the multi-line control atlas dictionary, and the dictionary
 additionally trained on Tabula Sapiens primary tissue, which asks whether widening the training
 distribution beyond immortalized lines changes what is recovered.
 
+\subsection*{Independent external perturbation datasets}
+
+The measurement was additionally repeated on two perturbation datasets generated by other groups.
+ECCITE-seq of THP-1 monocytes~\cite{papalexi2021eccite} measures 18,649 genes; its perturbation
+labels are guide-level and were reduced to the targeted gene. Perturb-seq of
+K562~\cite{norman2019exploring} measures 33,694 genes and is a CRISPR-activation screen, so it
+tests the same question under gene induction rather than repression; combinatorial perturbations
+were excluded. Counts were CP10K-normalized and log1p-transformed as for the primary resource, and
+genes were mapped to the model vocabulary by symbol, which covers 13,601 of 18,649 and 18,121 of
+33,694 genes respectively.
+
+Each dataset was analysed with the atlas dictionary at layer~11 under the pipeline described above:
+100 cells per target against 400 non-targeting cells, cell-level Mann--Whitney with
+Benjamini--Hochberg across features, and the same hypergeometric enrichment of a 100-gene predicted
+target set. Panels comprise the perturbed transcription factors with at least 50 cells and at least
+five curated targets among the measured genes.
+
+For the specificity control, ten perturbations of genes absent from every reference network were
+drawn at random from the same dataset and run through the identical pipeline. Their predicted sets
+were then tested against the \emph{same} regulons as the transcription factors, giving one
+enrichment test per control-gene-by-regulon pair, with Benjamini--Hochberg applied within each arm.
+Because a control gene contributes many tests, the comparison between arms is made at the level of
+independent perturbations---how many control genes enrich for at least one regulon against how many
+transcription factors enrich for their own---by Fisher's exact test.
+
 \subsection*{Run-to-run stability}
 
-The atlas SAE was retrained at layers 0, 5, 11 and 17 under five independent seeds with the
+The atlas SAE was retrained at layers 0 and 11 under five independent seeds with the
 training subsample held fixed, isolating initialization and batch-order stochasticity, plus one
 additional run per layer with a different 1M-position training subsample. Dictionaries were compared
 by decoder cosine similarity, reporting both the unconstrained best match for each atom and a greedy
@@ -230,7 +261,7 @@ confounded in any direct comparison of their statistics. We therefore trained Ge
 same Tabula Sapiens cells used for the scGPT atlas, with identical hyperparameters, and compared the
 two models on matched data at matched relative depth (layer index divided by depth minus one). For
 the Geneformer arm we additionally separate two effects by reporting the variance explained when the
-K562-trained SAE is applied to Tabula Sapiens activations against that of the SAE trained on those
+control-cohort SAE is applied to Tabula Sapiens activations against that of the SAE trained on those
 activations directly.
 
 \subsection*{Interactive web atlases}
@@ -258,6 +289,6 @@ an MPS implementation (Leiden community detection, ontology Fisher tests, tree-e
 Software stack: Python 3.11; PyTorch 2.x with MPS; NumPy, SciPy, scikit-learn, pandas, scanpy,
 anndata, leidenalg, python-igraph, networkx, umap-learn, statsmodels, h5py. Exact package versions
 are pinned in \texttt{requirements.txt} in the code repository. Wall-clock times for the longest
-steps are logged alongside the compute environment: Geneformer K562 activation extraction
+steps are logged alongside the compute environment: Geneformer control-cohort activation extraction
 $\sim$8~h, SAE training $\sim$3~min per layer, per-layer PMI and Leiden $\sim$20--60~min,
 per-cell perturbation encoding $\sim$0.9 cells~s$^{-1}$.

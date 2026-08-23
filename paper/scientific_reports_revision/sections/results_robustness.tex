@@ -15,11 +15,13 @@ quarter depth (0.7749 against 0.7729), and scGPT is ahead through the second hal
 against 0.7241 at the output end. The difference between the models is a depth-dependent crossover
 rather than a constant offset, and it is invisible unless the inputs are matched.
 
-Input distribution accounts for a difference of the same order. The same Geneformer dictionaries
-reconstruct their own CRISPRi-like data 5--8 percentage points better than Tabula Sapiens at every
-depth---0.8444 against 0.7731 at layer~0, for example. Both dictionaries sit close to the packing
+Input distribution accounts for a difference of the same order. Each Geneformer dictionary
+evaluated on the distribution it was trained on reconstructs the CRISPRi-derived control cohort
+4.7--7.8 percentage points better than the Tabula Sapiens dictionary reconstructs Tabula
+Sapiens---0.8444 against 0.7731 at layer~0, for example---so a difference of this size between two
+models is what differing inputs alone can produce. Both dictionaries sit close to the packing
 limit for their dimensionality: mean absolute decoder coherence is 0.030--0.036 for Geneformer and
-0.039--0.047 for scGPT, against Welch bounds of 0.0255 and 0.0362 respectively.
+0.039--0.047 for scGPT, against Welch bounds of 0.0255 and 0.0383 respectively.
 
 \subsection*{Robustness to training choices}
 \label{sec:robustness}
@@ -66,7 +68,7 @@ least one cell type against 94.5--95.8\% of annotated ones, and a matched random
 at 91.9--94.7\%, so essentially every feature at these layers is cell-type selective and the test
 has no discriminating power. Perturbation responsiveness does: at layer~11, 2.32\% of unannotated
 features appear in a perturbation response list against 0.15\% of annotated features, a fifteenfold
-difference, with unannotated features equal or more responsive at the other three layers as well.
+difference, with unannotated features more responsive at layers 0 and 5 and indistinguishable at layer 17.
 
 A cautious reading is that some unannotated features carry perturbation-response signal the
 ontology databases do not describe. Being non-random is not the same as being biologically

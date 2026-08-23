@@ -68,6 +68,20 @@ FIGURES = [
 ]
 
 FIXUPS = [
+    ("The value $\\tau{=}0.5$ reproduces the per-layer SVD-aligned counts in Table~1 of the main text (the pipeline actually used $\\tau{=}0.5$; we have corrected the main text). Across the full range, $>98\\%$ of ontology enrichments live exclusively in the novel set, so the headline conclusion is robust.",
+     "Single-axis alignment is low at every threshold; the capacity-matched comparison in Table~S14 is the interpretive reference."),
+    ("we have corrected the main text", "the pipeline threshold is $\\tau{=}0.5$"),
+    ("so the headline conclusion is robust", "at every threshold tested"),
+    ("novel set", "non-aligned set"),
+    ("\\% enrich in novel", "\\% enrich.\\ from non-aligned"),
+    ("is retained here only for completeness. The more informative tests appear in Table~\\ref{tab:unannotated_new}.",
+     "is not diagnostic, because modules cover 96--99.5\\% of all features; the tests in Table~S24 are the informative ones."),
+    ("A full donor-level analysis would require joining the Tabula Sapiens source h5ad on cell\\_idx; we flag this as a follow-up.", ""),
+    ("This disagreement is expected given the parameter change and should not be read as instability.", ""),
+    ("we do not re-run the permutation null on every consecutive pair.", "the permutation null was computed for the three long-range pairs."),
+    ("module count is within 7--12 across the entire grid", "module count is within 6--12 across the entire grid"),
+    ("Bold row: main-atlas baseline used in Table~1 of the main text and throughout the paper.",
+     "Bold row: the grid cell matching the atlas hyperparameters, independently retrained under the grid protocol; the atlas dictionary itself is reported in Table~1."),
     ("Additional file~1: Table~", "Supplementary Table~"),
     ("Additional file~1: ", "Supplementary "),
     ("of the main text", "of the main text"),

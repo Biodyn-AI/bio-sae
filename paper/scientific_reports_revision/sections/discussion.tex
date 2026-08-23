@@ -2,9 +2,9 @@ We have presented a systematic application of sparse autoencoders to single-cell
 producing feature atlases for two architecturally distinct models: 82,525 features across 18 layers
 of Geneformer V2-316M and 24,527 features across 12 layers of scGPT whole-human. Both atlases
 reveal models that have organized biological knowledge into modular, interconnected internal
-representations. Against that organization stands a specific negative result: the features do not
-carry transcription-factor-to-target regulatory logic at a rate distinguishable from what the
-underlying measurements support.
+representations. Against that organization stands a specific negative result: the evidence that they carry
+transcription-factor-to-target regulatory logic is bounded above by what the available perturbation
+assays can measure, and on the assay this atlas was built from that bound is close to zero.
 
 \paragraph{Superposition is real but is not invisibility.}
 Comparing thousands of dictionary atoms with a handful of principal axes cannot establish that a
@@ -73,7 +73,8 @@ examination. What can be done is to state which representations have been examin
 instruments, and what was found. Attention weights, individual components, the causal graph
 connecting them, gene-embedding geometry, in-silico perturbation responses, and now a sparse
 decomposition of the residual stream have each been examined; none yields transcription
-factor-to-target structure above what the underlying measurements support. That is the sense in
+factor-to-target structure above what the underlying measurements support on the assays where each
+was applied. That is the sense in
 which we take the finding to be a property of these models rather than of any one instrument.
 
 The important qualification is what that boundary can be attributed to, and here the evidence is
@@ -84,25 +85,26 @@ recoverable from the same measurements. On the CRISPRi resource the atlas was bu
 ceiling is very low: the assay measures 6,546 genes and the median perturbed transcription factor
 has a single curated target among them. Differential expression computed directly on the knockdown
 recovers curated targets for a minority of factors, established network inference recovers no more,
-and the sparse features recover none, in any of four cell lines. The correct reading of that panel
+and the sparse features recover targets for 1 of 66 factors across four cell lines. The correct reading of that panel
 is not that the models lack regulatory structure but that the measurement cannot decide the
 question.
 
-On perturbation data that measure the transcriptome, the same features do recover targets. In a
+On perturbation data that measure the transcriptome the flat null does not reproduce. In a
 CRISPR-activation screen with 33,694 genes measured and strong induction, a factor's predicted
-target set is enriched for its own high-confidence regulon in 15\% of cases, against 1\% for
-perturbations of genes that are not in any reference network --- a fifteenfold separation from a
-matched control, and therefore specific rather than a generic perturbation signature. Against
-low-confidence regulons of several hundred genes the separation collapses and the apparent
-enrichment is not specific, which is why we report the two confidence tiers separately.
+target set is enriched for its own high-confidence regulon in 3 of 13 cases, against 1 of 9
+perturbations of genes absent from every reference network. That is the direction specificity
+predicts, and the panel is too small to establish it ($p = 0.62$). Against low-confidence regulons
+of several hundred genes the comparison reverses outright---8 of 9 controls enrich---so that tier
+measures breadth of the predicted set rather than regulatory recovery.
 
-The claim this study can support is therefore narrower than the absence of regulatory logic, and
-wider than a null result confined to one assay. Sparse features of these models carry a small
-amount of genuinely transcription-factor-specific target information, detectable only where the
-assay measures the targets and the perturbation is strong, and negligible under the conditions in
-which such analyses are usually run. Fifteen percent of a thirteen-factor panel is a modest signal
-by any standard; it is also not nothing, and an interpretability method that reports zero on a
-6,546-gene panel is measuring the panel as much as the model.
+What this study can support is therefore bounded on both sides. It is not the absence of regulatory
+information: the assay the atlas was built on cannot detect such information if it is present, and
+on data that can, the null does not hold. Neither is it the presence of a factor-specific signal:
+the one comparison capable of demonstrating that rests on thirteen factors in a single screen and
+does not reach significance. Settling the question needs a perturbation panel substantially larger
+than any single published screen provides. What we can state without qualification is that an
+interpretability result reported on a 6,546-gene assay is measuring the assay as much as the
+model.
 
 \paragraph{Where the unit of analysis matters, and by how much.}
 A perturbation is applied to a cell, but a per-position statistic treats every gene position in
@@ -137,13 +139,15 @@ qualitatively consistent results, demonstrates that these tools transfer to any 
 biological model.
 
 \paragraph{What would settle it.}
-The decisive experiment is now clear and is not the one we set out to run. Regulatory structure in
-these representations should be assessed on perturbation atlases that measure the whole
-transcriptome, against high-confidence regulons, with perturbations of non-regulatory genes as a
-matched control, and with the recoverable ceiling computed on the same cells. Applied to a
-6,546-gene panel, any interpretability method will report a null result whose cause cannot be
-identified. We would encourage the field to report the evaluability of the assay alongside any
-claim about what a model does or does not encode.
+Regulatory structure in these representations should be assessed on perturbation atlases that
+measure the whole transcriptome, against high-confidence regulons, with perturbations of
+non-regulatory genes as a matched control, and with the recoverable ceiling computed on the same
+cells. We apply that design here, and its limitation is scale rather than construction: thirteen
+evaluable factors in one screen cannot separate a modest specific signal from none. A panel several
+times larger, or several screens combined under a common evaluation, would. Applied instead to a
+6,546-gene assay, any interpretability method returns a null whose cause cannot be identified, and
+we would encourage reporting the evaluability of the assay alongside any claim about what a model
+encodes.
 
 \paragraph{Limitations.}
 Several bounds apply to what we report. The regulatory analysis is limited by the gene panel of the

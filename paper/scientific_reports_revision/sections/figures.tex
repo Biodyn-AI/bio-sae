@@ -12,6 +12,22 @@
 V2-316M.} TopK sparse autoencoders trained on all 18 layers yield 82,525 alive features.
 Reconstruction quality declines with depth while dead features increase.}{fig:overview}{}
 
+\reviewfig{gb_fig4_ontology_heatmap.pdf}{\textbf{Biological annotation follows a U-shaped profile
+across layers.} Early layers encode molecular programs, middle layers develop more abstract
+representations, later layers re-specialize before becoming prediction-focused. Enrichment uses
+Gene Ontology, KEGG (Kanehisa Laboratories), Reactome, STRING and TRRUST gene
+sets.}{fig:ushape}{}
+
+\reviewfig{gb_fig5_coactivation.pdf}{\textbf{Co-activation module structure across layers.}
+(A)~Modules per layer. (B)~Fraction of alive features covered by a module. (C)~Co-activation edge
+density.}{fig:modules}{}
+
+\reviewfig{fig_highways.pdf}{\textbf{Cross-layer information flow is continuous.} (a)~Highway
+fraction for the three long-range layer pairs after permutation-null correction; the
+99th-percentile null threshold sits below the applied threshold for every pair, so the correction
+does not shift the fractions. (b)~The same quantity for all 17 consecutive layer pairs, with no
+sharp drop at any transition.}{fig:highways}{}
+
 \reviewfig{fig_svd_capacity.pdf}{\textbf{The dictionary re-parameterizes the principal subspace
 rather than reaching past it.} (a)~Cumulative projection $\rho_k$ of each decoder direction onto
 the rank-$k$ principal subspace, median over features, against the random-direction expectation
@@ -23,24 +39,15 @@ annotated with the protocol used for SAE features. Enrichment uses Gene Ontology
 
 \reviewfig{fig_concepts.pdf}{\textbf{Dictionary atoms and the distinct programs they express.}
 (a)~Atoms and distinct gene-level programs per layer. (b)~Aggregate across all 18 dictionaries.
-(c)~Mean absolute decoder coherence against the Welch bound, the smallest achievable maximum
-coherence for that many unit vectors in 1,152 dimensions.}{fig:concepts}{}
+(c)~Mean absolute coherence between unit-normalized decoder atoms against the Welch bound, the
+smallest achievable maximum coherence for that many unit vectors in 1,152
+dimensions.}{fig:concepts}{}
 
-\reviewfig{gb_fig4_ontology_heatmap.pdf}{\textbf{Biological annotation follows a U-shaped profile
-across layers.} Early layers encode molecular programs, middle layers develop more abstract
-representations, later layers re-specialize before becoming prediction-focused. Enrichment uses
-Gene Ontology, KEGG (Kanehisa Laboratories), Reactome, STRING and TRRUST gene
-sets.}{fig:ushape}{}
-
-\reviewfig{gb_fig5_coactivation.pdf}{\textbf{Co-activation modules and how their identity changes
-with depth.} Module themes shift from molecular machinery at layer~0 to integrative cellular
-programs at layer~11.}{fig:modules}{}
-
-\reviewfig{fig_highways.pdf}{\textbf{Cross-layer information flow is continuous.} (a)~Highway
-fraction for the three long-range layer pairs after permutation-null correction; the
-99th-percentile null threshold sits below the applied threshold for every pair, so the correction
-does not shift the fractions. (b)~The same quantity for all 17 consecutive layer pairs, with no
-sharp drop at any transition.}{fig:highways}{}
+\reviewfig{fig_causal.pdf}{\textbf{Causal feature ablation with an independent evaluation set.}
+Distribution of specificity ratios across features, for three feature-selection rules and three
+evaluation gene sets: the feature's top-20 genes intersected with its annotated term; the annotated
+term's genes excluding that top-20; and a size-matched random gene set stratified on expression rank
+and detection frequency, drawn per feature. The dotted line marks a ratio of one.}{fig:causal}{}
 
 \reviewfig{fig_ceiling.pdf}{\textbf{What these data can support.} (a)~Fraction of transcription
 factors whose predicted target set is enriched for its curated targets, at matched prediction-set
@@ -49,13 +56,10 @@ transcription factors have enough curated targets among the measured genes to be
 all.}{fig:ceiling}{}
 
 \reviewfig{fig_power_replication.pdf}{\textbf{Unit of replication, sample size, and replication
-across cell lines.} (a)~Responding features under a cell-level test against a position-pooled test
-on the same cells. (b)~Target enrichment and the positive control (detection of the knockdown
-itself) as a function of perturbed cells per target, with bootstrap intervals. (c)~Regulatory
-specificity in each of the four cell lines, with perturbed and control cells drawn from the same
+across cell lines.} (a)~Responding features per target under a cell-level test against a
+position-pooled test on the same cells; the dashed line is equality. (b)~Detection of the
+knocked-down gene itself, and the number of responding features, as a function of perturbed cells
+per target, restricted to the 14 factors with at least 100 cells so that sample size is not
+confounded with which factors are available. (c)~Fraction of evaluable transcription factors with
+target enrichment in each cell line, with perturbed and control cells drawn from the same
 line.}{fig:power}{}
-
-\reviewfig{fig_causal.pdf}{\textbf{Causal feature ablation with an independent evaluation set.}
-Specificity ratios when the evaluated genes are those of the annotated term that are excluded from
-the feature's own top-20 genes, against the confounded definition and against a size- and
-activation-matched random gene set drawn per feature.}{fig:causal}{}

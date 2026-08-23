@@ -41,6 +41,7 @@ plt.rcParams.update({
 })
 
 BLUE, ORANGE, GREEN, GREY, RED = "#2c6fbb", "#e08214", "#2e8b57", "#8a8a8a", "#b2182b"
+LINE_LABEL = {"k562": "K562", "rpe1": "RPE1", "jurkat": "Jurkat", "hepg2": "HepG2"}
 
 
 def save(fig, name):
@@ -259,8 +260,8 @@ def fig_ceiling():
 # Figure: cell-level statistics, power, and cross-cell-line replication
 # ---------------------------------------------------------------------------
 
-def _load_cell_level(tag):
-    p = RES / f"E3_cell_level/{tag}/per_target.json"
+def _load_cell_level(tag, dictionary="k562sae"):
+    p = RES / f"E3_cell_level/{tag}/{dictionary}/per_target.json"
     return json.load(open(p))["per_target"] if p.exists() else None
 
 
@@ -273,55 +274,58 @@ def fig_power_and_replication(lines=("k562", "rpe1", "jurkat", "hepg2")):
         tf = [r for r in rows if r["role"] == "tf"]
         cell = [r["n_responding_cell_level"] for r in tf]
         pos = [r["n_responding_position_fdr"] for r in tf]
-        ax.scatter(cell, pos, s=18, color=BLUE, alpha=0.8)
-        lim = max(max(cell + [1]), max(pos + [1])) * 1.1
-        ax.plot([0, lim], [0, lim], color=GREY, ls="--", lw=1.2)
-        ax.set_xlim(0, lim)
-        ax.set_ylim(0, lim)
+        jitter = np.random.RandomState(0).uniform(-0.12, 0.12, len(cell))
+        ax.scatter(np.array(cell) + jitter, np.array(pos) + jitter, s=20, color=BLUE,
+                   alpha=0.75, edgecolors="none")
+        lim = max(max(cell + [1]), max(pos + [1])) * 1.12
+        ax.plot([0, lim], [0, lim], color=GREY, ls="--", lw=1.2, zorder=0)
+        ax.set_xlim(-0.4, lim)
+        ax.set_ylim(-0.4, lim)
         ax.set_xlabel("responding features, cell-level test")
         ax.set_ylabel("responding features,\nposition-pooled test")
         ax.set_title("a  Unit of replication", loc="left")
 
     ax = axes[1]
-    sweep_path = RES / "E3_cell_level/k562_main/sweep.json"
+    sweep_path = RES / "E3_cell_level/k562_main/k562sae/sweep.json"
     if sweep_path.exists():
-        sweep = json.load(open(sweep_path))["rows"]
+        sweep = [r for r in json.load(open(sweep_path))["rows"] if r["role"] == "tf"]
         ns = sorted({r["n"] for r in sweep})
-        spec, self_det, lo, hi = [], [], [], []
+        present = {}
+        for r in sweep:
+            present.setdefault(r["gene"], set()).add(r["n"])
+        balanced = {g for g, v in present.items() if set(ns) <= v}
+        sweep = [r for r in sweep if r["gene"] in balanced]
+
+        self_det, resp = [], []
         for n in ns:
-            sub = [r for r in sweep if r["n"] == n and r["role"] == "tf"]
-            by_gene = {}
-            for r in sub:
-                by_gene.setdefault(r["gene"], []).append(r)
-            frac = []
-            for reps in by_gene.values():
-                vals = [1.0 if rr.get("DoRothEA_all_p", 1.0) < 0.05 else 0.0
-                        for rr in reps if "DoRothEA_all_p" in rr]
-                if vals:
-                    frac.append(np.mean(vals))
-            spec.append(100 * np.mean(frac) if frac else np.nan)
-            boot = [100 * np.mean(np.random.RandomState(i).choice(frac, len(frac)))
-                    for i in range(200)] if frac else [np.nan]
-            lo.append(np.percentile(boot, 2.5))
-            hi.append(np.percentile(boot, 97.5))
-            self_det.append(100 * np.mean([r["self_detected"] for r in sub]))
-        ax.plot(ns, self_det, "o-", color=GREEN, ms=4, lw=1.5,
-                label="knockdown detected (positive control)")
-        ax.plot(ns, spec, "o-", color=BLUE, ms=4, lw=1.5, label="target enrichment")
-        ax.fill_between(ns, lo, hi, color=BLUE, alpha=0.15, lw=0)
-        ax.set_xscale("log")
-        ax.set_xticks(ns)
+            sub = [r for r in sweep if r["n"] == n]
+            self_det.append(100.0 * float(np.mean([r["self_detected"] for r in sub])))
+            resp.append(float(np.mean([r["n_responding"] for r in sub])))
+        x = np.arange(len(ns))
+        ax.plot(x, self_det, "o-", color=GREEN, ms=5, lw=1.6,
+                label="detects the knockdown itself")
+        ax.set_ylim(0, max(max(self_det) * 1.9, 12))
+        ax.set_ylabel("percent of transcription factors", color=GREEN)
+        ax.tick_params(axis="y", colors=GREEN)
+        ax2 = ax.twinx()
+        ax2.plot(x, resp, "s--", color=BLUE, ms=4.5, lw=1.5,
+                 label="responding features")
+        ax2.set_ylabel("responding features per factor", color=BLUE)
+        ax2.tick_params(axis="y", colors=BLUE)
+        ax2.spines["right"].set_visible(True)
+        ax2.set_ylim(0, max(resp) * 1.9)
+        ax.set_xticks(x)
         ax.set_xticklabels([str(n) for n in ns])
         ax.set_xlabel("perturbed cells per target")
-        ax.set_ylabel("percent of TFs")
-        ax.set_title("b  Sample size", loc="left")
-        ax.legend(frameon=False, loc="upper left")
-        ax.set_ylim(0, 105)
+        ax.set_title(f"b  Sample size ({len(balanced)} factors)", loc="left")
+        h1, l1 = ax.get_legend_handles_labels()
+        h2, l2 = ax2.get_legend_handles_labels()
+        ax.legend(h1 + h2, l1 + l2, frameon=False, fontsize=7.5, loc="upper left")
 
     ax = axes[2]
     names, vals, texts = [], [], []
     for line in lines:
-        rows = _load_cell_level(f"{line}_main") or _load_cell_level(f"{line}_k562sae")
+        rows = _load_cell_level(f"{line}_main")
         if not rows:
             continue
         tf = [r for r in rows if r["role"] == "tf" and "DoRothEA_all_cell_p" in r]
@@ -329,7 +333,7 @@ def fig_power_and_replication(lines=("k562", "rpe1", "jurkat", "hepg2")):
             continue
         q = common.bh_fdr([r["DoRothEA_all_cell_p"] for r in tf])
         n_sig = int((q < 0.05).sum())
-        names.append(line.upper())
+        names.append(LINE_LABEL.get(line, line))
         vals.append(100 * n_sig / len(tf))
         texts.append(f"{n_sig}/{len(tf)}")
     if names:
@@ -355,9 +359,7 @@ def fig_causal():
         return
     s = json.load(open(path))
     arms = s.get("aggregates", {})
-    fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.6))
-
-    ax = axes[0]
+    fig, ax = plt.subplots(1, 1, figsize=(7.4, 4.0))
     labels, data, colors = [], [], []
     ARM_LABEL = {"top_annotated": "richly annotated", "random_annotated": "random annotated",
                  "random_any": "random feature"}
@@ -369,12 +371,9 @@ def fig_causal():
                               ("matched_random", GREY, "matched random")):
             vals = []
             for f in members:
-                block = (f.get("all_positions") or {}).get("ratios_abs") or {}
+                block = (f.get("all_positions") or {}).get("specificity_ratio_abs") or {}
                 v = block.get(key)
-                if v is None:
-                    ratios = (f.get("all_positions") or {}).get("specificity_ratio_abs") or {}
-                    v = ratios.get(key)
-                if v is not None and np.isfinite(v):
+                if v is not None and np.isfinite(v) and v > 0:
                     vals.append(v)
             if vals:
                 labels.append(f"{ARM_LABEL[arm_name]}\n{tag}")
@@ -386,10 +385,17 @@ def fig_causal():
             patch.set_facecolor(c)
             patch.set_alpha(0.65)
         ax.axhline(1.0, color="k", lw=0.9, ls=":")
-        ax.set_xticklabels(wrap_labels(labels, 16), fontsize=7)
+        ax.set_xticklabels(wrap_labels(labels, 13), fontsize=6.8)
+        ax.axhline(1.0, color="k", lw=0.9, ls=":")
         ax.set_yscale("log")
         ax.set_ylabel("specificity ratio")
-        ax.set_title("a  Evaluation-gene definition", loc="left")
+        ax.set_title("Ablation effect by evaluation gene set and feature-selection rule",
+                     loc="left")
+        from matplotlib.patches import Patch
+        ax.legend(handles=[Patch(facecolor=ORANGE, alpha=0.65, label="top-20 $\\cap$ term"),
+                           Patch(facecolor=BLUE, alpha=0.65, label="held-out term genes"),
+                           Patch(facecolor=GREY, alpha=0.65, label="matched random")],
+                  frameon=False, fontsize=7.5, ncol=3, loc="upper center")
 
     fig.tight_layout()
     save(fig, "fig_causal.pdf")

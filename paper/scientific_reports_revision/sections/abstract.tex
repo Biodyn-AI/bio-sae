@@ -2,13 +2,15 @@ Whether single-cell foundation models encode causal regulatory logic, rather tha
 co-expression, remains unclear. We trained TopK sparse
 autoencoders on residual-stream activations from every layer of Geneformer V2-316M and scGPT
 whole-human, producing atlases of 82,525 and 24,527 features, released as interactive platforms. The features are biologically organized: 29--59\% annotate to standard ontologies and form
-co-activation modules with coherent identity across the stack. Under a capacity-matched comparison they are not hidden from linear
-decomposition---truncated SVD needs rank 250--403 to match their reconstruction quality---but give
-a sparse parameterization supporting per-feature annotation and intervention. Ablating one feature disrupts the genes it fires on by 35--67$\times$,
-though not the wider process it is annotated with. Against CRISPRi perturbation in four cell lines,
+co-activation modules. Under a capacity-matched comparison they are not hidden from linear decomposition---truncated SVD
+needs rank 250--403 to match their reconstruction quality---but give a sparse parameterization
+supporting per-feature intervention. Ablating one feature disrupts the genes it fires on by 35--67$\times$, but not the wider
+process it is annotated with. Against CRISPRi perturbation in four cell lines,
 only 1 of 66 transcription factors shows target-specific responses. Benchmarking against differential expression on the same cells, established network inference and
 random controls explains why: that assay measures 6,546 genes and the median perturbed factor has
-one curated target among them, so no method can demonstrate specificity. On perturbation data covering
-the transcriptome the features do recover targets, for 15\% of factors against 1\% for
-perturbations of non-regulatory genes. Sparse features therefore carry a small amount of genuinely
-factor-specific regulatory information, detectable only where the assay measures the targets.
+one curated target among them, so target-specific recovery is undefined for most of the panel. On perturbation data covering the transcriptome the
+features do enrich for curated regulons, for 3 of 13 factors against 1 of 9 perturbations of
+non-regulatory genes---the direction specificity predicts, on a panel too small to establish it
+($p = 0.62$). Whether these representations carry a small amount of factor-specific
+regulatory information is therefore not settled by currently available assays, and how much of a
+regulon a screen can measure is essential to interpreting any claim about what a model encodes.

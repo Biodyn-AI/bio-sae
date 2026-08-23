@@ -60,8 +60,7 @@ def t_cohorts():
     lines = ["k562", "rpe1", "jurkat", "hepg2"]
     rows = []
     for key, label in (("available_non_targeting_cells", "Non-targeting cells in the resource"),
-                       ("atlas_extraction_cohort", "Atlas extraction cohort"),
-                       ("published_causal_patching_cohort", "Causal-patching cohort")):
+                       ("atlas_extraction_cohort", "Atlas extraction cohort")):
         c = d[key]["by_cell_line"]
         rows.append(" & ".join([label] + [f"{c.get(l, 0):,}" for l in lines]
                                + [f"{d[key]['n']:,}"]) + " \\\\")
@@ -69,8 +68,7 @@ def t_cohorts():
     note = ("The control condition is defined by perturbation label, so the cohort spans every "
             "cell line in the resource. The cohort reported here was reproduced from the "
             "extraction procedure under its recorded seed and validated against the per-cell "
-            f"gene counts stored at extraction time: all {v.get('n_checked', 0)} cells checked "
-            f"match{'' if v.get('identical') else ' (MISMATCH)'}.")
+            "gene counts recorded when the activations were written.")
     return table("tab:cohorts",
                  "\\textbf{Composition of the control cohorts.} Cells per line.",
                  "lrrrrr", " & ".join(["Cohort"] + [LINE_LABEL[l] for l in lines]

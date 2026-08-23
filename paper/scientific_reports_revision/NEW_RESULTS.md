@@ -357,26 +357,25 @@ Same atlas dictionary, same per-cell encoding, same cell-level statistics as the
 1/66 across four cell lines. On the two transcriptome-scale datasets the SAE does recover targets:
 20–22% (Papalexi) and 23–25% (Norman) under DoRothEA, against 0% under TRRUST in both.
 
-**The non-TF control decides whether that is real.** Ten Norman perturbations of genes absent from
-every reference network, run through the identical pipeline; their predicted sets were then tested
-against the *same* TF regulons.
+**The non-TF control, at a single consistent protocol (top-100 predictions, BH within arm).**
+Ten Norman perturbations of genes absent from every reference network, run through the identical
+pipeline; their predicted sets tested against the *same* TF regulons. Nine produced a prediction.
 
-| reference | matching TF's own prediction | non-TF predictions, same regulons |
-|---|---|---|
-| DoRothEA A+B+C (high confidence) | **2/13 = 15%** | **1/117 = 1%** |
-| DoRothEA all confidence levels | 7/16 = 44% | 39/144 = 27% |
+| reference | matching TF | control tests | control **genes** hitting ≥1 regulon | Fisher (TF vs control genes) |
+|---|---|---|---|---|
+| DoRothEA A+B+C | 3/13 = 23% | 1/117 | **1/9 = 11%** | p = 0.62 |
+| DoRothEA all | 4/16 = 25% | 29/144 | **8/9 = 89%** | p = 0.004 (controls higher) |
 
-Against high-confidence regulons the enrichment is **specific**: a fifteenfold separation from the
-control. Against the all-confidence set, whose regulons have a median of 402 measured genes and
-reach 9,321, most of the apparent enrichment is not specific — non-TF perturbations enrich for TF
-regulons 27% of the time. The all-confidence numbers should not be read as regulatory recovery.
+**The per-perturbation unit is the correct one.** Quoting 1/117 compares one arm's independent
+perturbations against the other arm's perturbation-by-regulon tests, inflating the control
+denominator ninefold. At the level of independent perturbations the high-confidence comparison is
+3 of 13 against 1 of 9, which is **not significant**.
 
-**Consequence for the paper's claim.** The negative result on the primary dataset is substantially
-a property of that assay's target coverage. Where the transcriptome is measured and the
-perturbation is strong, SAE features carry a modest but genuinely TF-specific target signal
-(15% of factors, against a 1% control rate). The claim that these representations contain minimal
-recoverable TF→target logic holds for the CRISPRi panel the atlas was built on, and is too strong
-as a statement about the models in general. Both must be stated.
+**Conclusion the paper states.** The flat null obtained on the primary panel does not reproduce on
+transcriptome-scale data, and a factor-specific signal is not established either: the one
+comparison capable of demonstrating it rests on thirteen factors in a single screen. The
+all-confidence tier is uninformative — controls enrich more often than factors. The binding
+limitation on the positive claim is panel size, not assay coverage.
 
 ---
 

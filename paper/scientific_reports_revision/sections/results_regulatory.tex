@@ -27,16 +27,18 @@ genes as the universe (Fig.~\ref{fig:ceiling}a, \suptab{ceiling}).
 Differential expression of the knockdown itself is the perturbation-aware reference: it uses the
 same cells and the actual intervention, and therefore bounds what any observational method can
 achieve here. It recovers curated targets for 1/9 factors against TRRUST (11.1\%), 3/13 against
-DoRothEA A+B+C (23.1\%) and 8/18 against DoRothEA at all confidence levels (44.4\%). Established
-network inference does not approach this bound: GENIE3 reaches 12.5\%, 10.0\% and 0.0\% under the
-three references, GRNBoost2 12.5\%, 10.0\% and 7.1\%, and simple co-expression 25.0\%, 20.0\% and
-14.3\%. Contextual gene embeddings taken directly from the model, without any sparse decomposition,
-reach 12.5\%, 10.0\% and 0.0\%. Size-matched random gene sets recover nothing under any reference,
-confirming that the test is calibrated.
+DoRothEA A+B+C (23.1\%) and 8/18 against DoRothEA at all confidence levels (44.4\%). GENIE3 reaches
+11.1\%, 7.7\% and 0.0\% under the three references, GRNBoost2 11.1\%, 7.7\% and 5.6\%, Pearson
+co-expression 22.2\%, 15.4\% and 11.1\%, and Spearman 22.2\%, 15.4\% and 5.6\%. Contextual gene
+embeddings taken directly from the model, without any sparse decomposition, reach 11.1\%, 7.7\% and
+0.0\%, and the SAE feature response recovers targets for no factor under any reference (0/9, 0/13,
+0/18). Size-matched random gene sets recover nothing either, confirming that the test is
+calibrated.
 
-Two things follow. The ceiling on these data is low---even the intervention itself identifies
-curated targets for fewer than half of the factors---and no observational method, whether a
-purpose-built network-inference algorithm or a foundation-model representation, comes close to it.
+Two things follow. On the best-powered reference no observational method approaches the
+intervention: 44.4\% against 0--11.1\%. Under the sparser references the ceiling is itself so
+low---11.1\% under TRRUST---that co-expression matches or exceeds it, which is what a median of one
+measurable target per factor produces: the reference is too thin to rank methods at all.
 The choice of universe matters for this calibration: scoring against a nominal 20,000-gene universe
 rather than the 6,546 measured genes makes random gene sets appear significant for 16.7\% of
 factors, because predictions can only be drawn from what is measured.
@@ -46,7 +48,8 @@ factors, because predictions can only be drawn from what is measured.
 
 We mapped perturbation responses at layer~11 using up to 200 CRISPRi cells per target against 600
 non-targeting cells of the same line, encoding every cell through the atlas dictionary (Methods).
-The panel comprises 20 evaluable transcription factors and, as a negative control, ten
+The panel comprises 20 perturbed transcription factors, 18 of them evaluable, and as a
+negative control ten
 perturbations of genes that are not transcription factors under any reference.
 
 \paragraph{The unit of replication.} A perturbation is applied per cell, but a per-position
@@ -61,8 +64,9 @@ positions of one cell close to independent.
 exceeding half a control standard deviation, with no correction for testing 4,608 features---the
 panel yields a mean of 3.20 responding features per factor, with 15 of 20 factors showing at least
 one. Correcting for multiple testing across features collapses this to two of twenty, so most of
-what a per-feature threshold registers does not survive the number of features being tested.
-Assessed over cells at the same effect threshold, the mean is 1.90 responding features per factor (\suptab{cell_level}). The ten non-transcription-factor controls yield
+what a per-feature threshold registers does not survive the number of features being tested. Under
+that correction the like-for-like comparison of the two units of replication gives 1.60 responding
+features per factor pooling positions and 1.90 assessing over cells (\suptab{cell_level}). The ten non-transcription-factor controls yield
 \emph{more} responding features than the transcription factors (2.30 versus 1.90), so what the
 features register is not specific to transcription-factor perturbation.
 
@@ -79,9 +83,9 @@ is limited, and it is a property of what the dictionary encodes.
 is not confounded with which factors are available, the responding-feature count is flat across a
 tenfold increase in cells (0.56 at $n{=}10$, 0.65 at $n{=}20$, 0.65 at $n{=}50$, 0.61 at
 $n{=}100$). Detection of the knockdown rises from 5.0\% to 7.1\% and saturates. Nominal target
-enrichment improves from $n{=}10$ to $n{=}50$ (7.7\% to 27.5\%) and then plateaus, so the earlier
-choice of 20 cells was somewhat under-powered, but the gain saturates well before the effect becomes
-substantial, and under correction across the panel no sample size yields a significant factor
+enrichment improves from $n{=}10$ to $n{=}50$ (7.7\% to 27.5\%) and then plateaus, the gain
+saturates well before the effect becomes substantial, and under correction across the panel no
+sample size yields a significant factor
 (\suptab{sweep}).
 
 \paragraph{Widening the training distribution.} A dictionary trained on the same control cells
@@ -121,23 +125,32 @@ in the THP-1 data and 23--25\% in the Perturb-seq data, where on the primary pan
 Against TRRUST it reaches none in either, while differential expression on the same cells reaches
 18\% and 30\%.
 
-Whether that recovery is transcription-factor-specific depends on the reference, and a control
-settles which part of it to believe. We ran ten perturbations of genes absent from every reference
-network through the identical pipeline and tested their predicted sets against the \emph{same}
-regulons as the transcription factors. Against the high-confidence DoRothEA subset, a factor's own
-predicted set is enriched for its own regulon in 2 of 13 cases (15\%) while the
-non-transcription-factor predictions are enriched for those same regulons in 1 of 117 (1\%) --- a
-fifteenfold separation, so this signal is specific. Against the union of all confidence levels the
-separation largely disappears: 7 of 16 (44\%) for the matching factors against 39 of 144 (27\%) for
-the controls. Those regulons have a median of 402 measured genes and reach 9,321, and a broad
-expression signature enriches for them regardless of which gene was perturbed. The
-all-confidence numbers therefore do not measure regulatory recovery, and we do not read them as
+Whether that recovery is transcription-factor-specific requires a control, and we ran one: ten
+perturbations of genes absent from every reference network, put through the identical pipeline,
+with their predicted sets tested against the \emph{same} regulons as the transcription factors.
+
+Against the high-confidence DoRothEA subset, a factor's own predicted set is enriched for its own
+regulon in 3 of 13 cases (23\%). Of the nine control perturbations that produced any prediction,
+one is enriched for at least one factor's regulon (11\%), giving 1 significant test in 117
+factor-by-regulon comparisons. The difference is in the direction specificity would predict, but a
+13-factor panel cannot establish it: Fisher's exact test on 3 of 13 against 1 of 9 gives
+$p = 0.62$.
+
+Against the union of all confidence levels the comparison is decisive in the other direction. The
+matching factors reach 4 of 16 (25\%) while 8 of the 9 control perturbations enrich for at least
+one regulon ($p = 0.004$, controls higher). Those regulons have a median of 402 measured genes and
+reach 9,321, and a broad expression signature enriches for them regardless of which gene was
+perturbed. The all-confidence tier does not measure regulatory recovery and we do not read it as
 such.
 
-Two conclusions follow, and they pull in different directions. The absence of detectable
-transcription-factor specificity in the primary CRISPRi panel is substantially a property of that
-assay: with a median of one measurable target per factor, neither these features nor differential
-expression on the same cells nor established network inference can demonstrate specificity there.
-Where the transcriptome is measured and the perturbation is strong, the features carry a modest but
-genuinely factor-specific target signal. Fifteen percent of factors, against a one percent control
-rate, is a small fraction of a small panel; it is also clearly not zero.
+Two conclusions follow. The absence of detectable transcription-factor specificity in the primary
+CRISPRi panel is substantially a property of that assay: with a median of one measurable target per
+factor, neither these features nor differential expression on the same cells nor established
+network inference can demonstrate specificity there. On perturbation data that measure the
+transcriptome the features do produce enrichment for curated regulons, at a rate above the
+non-regulatory controls under the high-confidence reference and below them under the permissive
+one. The high-confidence comparison is the interpretable one and it is under-powered: three factors
+against one control gene, on a panel of thirteen. What can be stated is that these data do not
+reproduce the flat null obtained on the primary panel, and that establishing whether a small
+factor-specific signal exists would require a substantially larger panel than any single published
+screen currently supports.

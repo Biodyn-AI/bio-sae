@@ -37,11 +37,10 @@ Cohort & K562 & RPE1 & Jurkat & HepG2 & Total \\
 \midrule
 Non-targeting cells in the resource & 10,691 & 11,485 & 12,013 & 4,976 & 39,165 \\
 Atlas extraction cohort & 581 & 567 & 591 & 261 & 2,000 \\
-Causal-patching cohort & 0 & 0 & 0 & 200 & 200 \\
 \bottomrule
 \end{tabular}
 \\[2pt]
-\footnotesize The control condition is defined by perturbation label, so the cohort spans every cell line in the resource. The cohort reported here was reproduced from the extraction procedure under its recorded seed and validated against the per-cell gene counts stored at extraction time: all 25 cells checked match.
+\footnotesize The control condition is defined by perturbation label, so the cohort spans every cell line in the resource. The cohort reported here was reproduced from the extraction procedure under its recorded seed and validated against the per-cell gene counts recorded when the activations were written.
 \end{table}
 
 \begin{table}[H]
@@ -165,7 +164,7 @@ L11 & L17 & 4.77 & 2.85 & 3.00 & 99.02\% & 99.02\% \\
 
 \begin{table}[H]
 \centering
-\caption{\textbf{Consecutive-layer highway fractions L$_i$$\to$L$_{i+1}$ (Geneformer, fixed-$\tau$).} Same protocol as Table~\ref{tab:highways_null} (100K gene positions per layer, fixed $\tau{=}3.0$). Because the permutation null's 99th percentile PMI is below 3.0 for every long-range pair tested in Table~\ref{tab:highways_null}, we do not re-run the permutation null on every consecutive pair. The curve is near-flat in the 94.7--99.1\% range with no sharp drop at any single transition, supporting continuous cross-layer information flow rather than concentrated bottlenecks. The slight dip at the final layer pair (L16$\to$L17) is consistent with the terminal-layer specialization reported in the section on layer-wise annotation in the main text.}
+\caption{\textbf{Consecutive-layer highway fractions L$_i$$\to$L$_{i+1}$ (Geneformer, fixed-$\tau$).} Same protocol as Table~\ref{tab:highways_null} (100K gene positions per layer, fixed $\tau{=}3.0$). Because the permutation null's 99th percentile PMI is below 3.0 for every long-range pair tested in Table~\ref{tab:highways_null}, the permutation null was computed for the three long-range pairs. The curve is near-flat in the 94.7--99.1\% range with no sharp drop at any single transition, supporting continuous cross-layer information flow rather than concentrated bottlenecks. The slight dip at the final layer pair (L16$\to$L17) is consistent with the terminal-layer specialization reported in the section on layer-wise annotation in the main text.}
 \label{tab:highways_consecutive}
 \smallskip
 \small
@@ -253,7 +252,7 @@ Layer & $N_\text{feat}$ & Subsampled positions & $|E|$ (after thresh.) & Coact m
 
 \begin{table}[H]
 \centering
-\caption{\textbf{Leiden resolution sweep at Geneformer layers 0 and 11.} Module count ($\geq$3 features), mean module size, coverage (fraction of graph nodes in $\geq$3-feature modules), and Adjusted Rand Index vs.\ the baseline $\gamma{=}1.0$ partition for $\gamma \in \{0.5, 0.75, 1.0, 1.5, 2.0\}$. \textbf{Note on comparison with Table~\ref{tab:modules_full}:} this sweep is run on a deterministic 500K-position subsample with $\texttt{MIN\_COACTIVATION}{=}20$ (see caption of Table~\ref{tab:pmi_memory}), whereas the main-text module counts in Table~\ref{tab:modules_full} use the full 4{,}056{,}351 positions with $\texttt{MIN\_COACTIVATION}{=}50$. The different PMI significance thresholds produce slightly different partition sizes; at $\gamma{=}1.0$ the sweep gives 8 modules at L0 and 9 at L11, versus 6 and 8 in Table~\ref{tab:modules_full}. This disagreement is expected given the parameter change and should not be read as instability. The partition is \emph{not} stable in a strong ARI sense (ARI between $\gamma{=}1.0$ and its immediate neighbors is in the 0.17--0.26 range); instead, the co-activation graph exhibits a nested hierarchy in which low $\gamma$ collapses the graph into $\sim$2 very large communities and high $\gamma$ fragments each main community into finer subcommunities. The qualitative biological identities of modules (cell cycle, translation, metabolism, etc.) are preserved across the range; our main-text module counts correspond to the resolution-1.0 cut of this hierarchy.}
+\caption{\textbf{Leiden resolution sweep at Geneformer layers 0 and 11.} Module count ($\geq$3 features), mean module size, coverage (fraction of graph nodes in $\geq$3-feature modules), and Adjusted Rand Index vs.\ the baseline $\gamma{=}1.0$ partition for $\gamma \in \{0.5, 0.75, 1.0, 1.5, 2.0\}$. \textbf{Note on comparison with Table~\ref{tab:modules_full}:} this sweep is run on a deterministic 500K-position subsample with $\texttt{MIN\_COACTIVATION}{=}20$ (see caption of Table~\ref{tab:pmi_memory}), whereas the main-text module counts in Table~\ref{tab:modules_full} use the full 4{,}056{,}351 positions with $\texttt{MIN\_COACTIVATION}{=}50$. The different PMI significance thresholds produce slightly different partition sizes; at $\gamma{=}1.0$ the sweep gives 8 modules at L0 and 9 at L11, versus 6 and 8 in Table~\ref{tab:modules_full}.  The partition is \emph{not} stable in a strong ARI sense (ARI between $\gamma{=}1.0$ and its immediate neighbors is in the 0.17--0.26 range); instead, the co-activation graph exhibits a nested hierarchy in which low $\gamma$ collapses the graph into $\sim$2 very large communities and high $\gamma$ fragments each main community into finer subcommunities. The qualitative biological identities of modules (cell cycle, translation, metabolism, etc.) are preserved across the range; our main-text module counts correspond to the resolution-1.0 cut of this hierarchy.}
 \label{tab:leiden_sweep}
 \smallskip
 \small
@@ -278,7 +277,7 @@ Layer & $\gamma$ & Modules ($\geq$3) & Mean size & Coverage & ARI vs $\gamma{=}1
 
 \begin{table}[H]
 \centering
-\caption{\textbf{SAE hyperparameter ablation at Geneformer layer~11.} Grid over expansion ratio $\in \{2\times, 4\times, 8\times\}$ and TopK sparsity $k \in \{16, 32, 64\}$, trained on the same 1M-position K562 subsample used in the main atlas (Methods), evaluated on 100K held-out positions. Columns: expansion, $k$, total features, variance explained on held-out positions, number of dead features (no activation on the 100K hold-out), mean absolute decoder--decoder cosine similarity on a 5{,}000-pair sample (a proxy for quasi-orthogonality), and Leiden module count ($\geq$3 features, $\gamma{=}1.0$) on a 200K-position co-activation graph. The baseline configuration ($4\times$, $k{=}32$) sits at the center of the grid and does not produce an unusual point: variance explained increases monotonically with both expansion and $k$, module count is within 7--12 across the entire grid, and quasi-orthogonality is preserved everywhere ($\langle|\cos|\rangle \lesssim 0.05$). The main-text qualitative conclusions---substantial superposition, organized biological structure, modular co-activation---are preserved across the grid. We report the structural metrics here; full downstream annotation rate and TF specificity per grid cell are not reported here (see the Methods of the main text).}
+\caption{\textbf{SAE hyperparameter ablation at Geneformer layer~11.} Grid over expansion ratio $\in \{2\times, 4\times, 8\times\}$ and TopK sparsity $k \in \{16, 32, 64\}$, trained on the same 1M-position K562 subsample used in the main atlas (Methods), evaluated on 100K held-out positions. Columns: expansion, $k$, total features, variance explained on held-out positions, number of dead features (no activation on the 100K hold-out), mean absolute decoder--decoder cosine similarity on a 5{,}000-pair sample (a proxy for quasi-orthogonality), and Leiden module count ($\geq$3 features, $\gamma{=}1.0$) on a 200K-position co-activation graph. The baseline configuration ($4\times$, $k{=}32$) sits at the center of the grid and does not produce an unusual point: variance explained increases monotonically with both expansion and $k$, module count is within 6--12 across the entire grid, and quasi-orthogonality is preserved everywhere ($\langle|\cos|\rangle \lesssim 0.05$). The main-text qualitative conclusions---substantial superposition, organized biological structure, modular co-activation---are preserved across the grid. We report the structural metrics here; full downstream annotation rate and TF specificity per grid cell are not reported here (see the Methods of the main text).}
 \label{tab:hyperparam}
 \smallskip
 \small
@@ -303,13 +302,13 @@ $8\times$ & 64 & 9{,}216 & 0.884 &   8 & 0.0329 &  6 \\
 
 \begin{table}[H]
 \centering
-\caption{\textbf{Sensitivity of the SAE-vs-SVD comparison to the cosine threshold (Geneformer, all 18 layers).} For each layer and each cosine threshold $\tau \in \{0.3, 0.5, 0.7, 0.9\}$: percentage of alive SAE features whose decoder column has maximum absolute cosine above $\tau$ with any of the top-50 SVD axes (columns ``aligned\%''), and percentage of ontology enrichments found exclusively in the non-aligned (``novel'') set (columns ``\%enrich novel''). The value $\tau{=}0.5$ reproduces the per-layer SVD-aligned counts in Table~1 of the main text (the pipeline actually used $\tau{=}0.5$; we have corrected the main text). Across the full range, $>98\%$ of ontology enrichments live exclusively in the novel set, so the headline conclusion is robust.}
+\caption{\textbf{Sensitivity of the SAE-vs-SVD comparison to the cosine threshold (Geneformer, all 18 layers).} For each layer and each cosine threshold $\tau \in \{0.3, 0.5, 0.7, 0.9\}$: percentage of alive SAE features whose decoder column has maximum absolute cosine above $\tau$ with any of the top-50 SVD axes (columns ``aligned\%''), and percentage of ontology enrichments found exclusively in the non-aligned (``novel'') set (columns ``\%enrich novel''). The value $\tau{=}0.5$ reproduces the per-layer SVD-aligned counts in Table~1 of the main text (the pipeline actually used $\tau{=}0.5$; the pipeline threshold is $\tau{=}0.5$). Across the full range, $>98\%$ of ontology enrichments live exclusively in the non-aligned set, at every threshold tested.}
 \label{tab:svd_sweep}
 \smallskip
 \small
 \begin{tabular}{r|rrrr|rrrr}
 \toprule
-& \multicolumn{4}{c|}{Aligned \%} & \multicolumn{4}{c}{\% enrich in novel} \\
+& \multicolumn{4}{c|}{Aligned \%} & \multicolumn{4}{c}{\% enrich.\ from non-aligned} \\
 Layer & $\tau{=}0.3$ & $\tau{=}0.5$ & $\tau{=}0.7$ & $\tau{=}0.9$ & $\tau{=}0.3$ & $\tau{=}0.5$ & $\tau{=}0.7$ & $\tau{=}0.9$ \\
 \midrule
 0  & 4.19 & 0.89 & 0.02 & 0.00 & 98.88 & 99.98 & 100.00 & 100.00 \\
@@ -604,7 +603,7 @@ Layer & \#unann & CT\% unann & CT\% ann & CT\% null & Pert\% unann & Pert\% ann 
 
 \begin{table}[H]
 \centering
-\caption{\textbf{Unannotated feature analysis (gene-set clustering).} Co-activate = unannotated feature belongs to a co-activation module containing annotated features. Isolated = no module membership. A small number of features (3 at L11, 17 at L17) belong to modules containing only unannotated features and are excluded from both columns. Clusters = standalone gene-set clusters among unannotated features. The co-activate/isolated column is weak evidence (modules cover 96--99.5\% of all features so co-membership is nearly unavoidable) and is retained here only for completeness. The more informative tests appear in Table~\ref{tab:unannotated_new}.}
+\caption{\textbf{Unannotated feature analysis (gene-set clustering).} Co-activate = unannotated feature belongs to a co-activation module containing annotated features. Isolated = no module membership. A small number of features (3 at L11, 17 at L17) belong to modules containing only unannotated features and are excluded from both columns. Clusters = standalone gene-set clusters among unannotated features. The co-activate/isolated column is weak evidence (modules cover 96--99.5\% of all features so co-membership is nearly unavoidable) and is not diagnostic, because modules cover 96--99.5\% of all features; the tests in Table~S24 are the informative ones.}
 \label{tab:novel}
 \smallskip
 \begin{tabular}{rrrcrr}
@@ -621,7 +620,7 @@ Layer & Annotated & Unannotated & Clusters & Co-activate w/ Annotated & Isolated
 
 \begin{table}[H]
 \centering
-\caption{\textbf{scGPT feature mutual-information with tissue vs.\ cell type.} 150K-position subsample at each of scGPT layers \{0, 4, 7, 11\}. ``Tissue-dominant'' = feature whose per-feature MI with tissue (3-way: immune/kidney/lung) exceeds its MI with cell type (56-way). Tissue here is a proxy for sample-level batch because the cached scGPT extraction metadata records only \{tissue, cell\_type\}, not donor ID or sequencing assay. Across all four layers, mean MI with cell type is $\sim$2.5$\times$ larger than mean MI with tissue, and essentially zero features are tissue-dominant. A full donor-level analysis would require joining the Tabula Sapiens source h5ad on cell\_idx; we flag this as a follow-up.}
+\caption{\textbf{scGPT feature mutual-information with tissue vs.\ cell type.} 150K-position subsample at each of scGPT layers \{0, 4, 7, 11\}. ``Tissue-dominant'' = feature whose per-feature MI with tissue (3-way: immune/kidney/lung) exceeds its MI with cell type (56-way). Tissue here is a proxy for sample-level batch because the cached scGPT extraction metadata records only \{tissue, cell\_type\}, not donor ID or sequencing assay. Across all four layers, mean MI with cell type is $\sim$2.5$\times$ larger than mean MI with tissue, and essentially zero features are tissue-dominant. }
 \label{tab:batch}
 \smallskip
 \small

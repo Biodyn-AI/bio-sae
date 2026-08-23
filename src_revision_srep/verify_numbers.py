@@ -70,6 +70,22 @@ for line in ("k562", "rpe1", "jurkat", "hepg2"):
 check("cross-line significant", 1, tot_sig)
 check("cross-line panel", 66, tot_tf)
 
+# external datasets: the control comparison the paper's positive claim rests on
+from scipy.stats import fisher_exact
+norman = jget("E10_external/norman/results.json")["per_target"]
+tf = [r for r in norman if r.get("role", "tf") == "tf"]
+nt = [r for r in norman if r.get("role") == "non_tf_control"]
+check("norman TF panel", 16, len(tf))
+check("norman control panel", 10, len(nt))
+in_text("3 of 13 cases (23\\%)")
+in_text("$p = 0.62$")
+in_text("8 of the 9 control perturbations")
+# the paper must not still claim the superseded separation
+for banned in ("15\\% of factors against 1\\%", "fifteenfold separation",
+               "genuinely factor-specific target signal"):
+    if banned in text:
+        problems.append(f"superseded claim still present: {banned!r}")
+
 print(f"{sum(1 for c in checks if c[3])}/{len(checks)} numeric checks passed")
 for n, s, a, ok in checks:
     if not ok:

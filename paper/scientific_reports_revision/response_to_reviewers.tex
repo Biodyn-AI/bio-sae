@@ -208,17 +208,22 @@ factor-specific depends on the reference network, and we added the control that 
 perturbations of genes absent from every reference network, run through the identical pipeline,
 with their predicted sets tested against the \emph{same} regulons as the transcription factors.
 Against the high-confidence DoRothEA subset a factor's own prediction is enriched for its own
-regulon in 2 of 13 cases (15\%) while the non-factor predictions are enriched for those same
-regulons in 1 of 117 (1\%). Against the union of all confidence levels, whose regulons have a
-median of 402 measured genes, the separation largely disappears (44\% against 27\%), so those
-numbers do not measure regulatory recovery and we do not report them as such.
+regulon in 3 of 13 cases (23\%); of the nine control genes that produced a prediction, one enriches
+for at least one regulon, giving 1 significant test in 117 factor-by-regulon comparisons. The
+direction is what specificity predicts, but the panel cannot establish it: Fisher's exact test on
+3 of 13 against 1 of 9 gives $p = 0.62$. Against the union of all confidence levels the comparison
+reverses --- 4 of 16 factors against 8 of 9 control genes ($p = 0.004$, controls higher) --- because
+those regulons have a median of 402 measured genes and a broad predicted set enriches for them
+regardless of what was perturbed. That tier does not measure regulatory recovery and we do not
+report it as such.
 
-We think this is the most important outcome of the revision, and it qualifies our original claim.
+This qualifies our original claim in both directions, and we have been careful not to overcorrect.
 The absence of detectable specificity in the primary CRISPRi panel is substantially a property of
 that assay rather than of the models: with a median of one measurable target per factor, no method
-can demonstrate specificity there. Where the transcriptome is measured and the perturbation is
-strong, the features do carry a modest but genuinely factor-specific signal. The manuscript now
-states both, in the abstract, the Results and the Discussion. We are grateful for the push that led
+can demonstrate specificity there. On data that can detect it, the flat null does not reproduce ---
+but the one comparison capable of demonstrating a factor-specific signal rests on thirteen factors
+in a single screen and does not reach significance. The manuscript now states exactly this, in the
+abstract, the Results and the Discussion, and identifies panel size as the binding limitation. We are grateful for the push that led
 us to run these datasets; the paper is more accurate for it.
 
 \point{R1, Minor 1. The random seed used for SAE training is not reported, and run-to-run
