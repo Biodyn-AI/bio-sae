@@ -1,0 +1,12 @@
+{
+  "seed": 3,
+  "data_seed": 42,
+  "variance_explained": 0.820128350993796,
+  "dead_features": 27,
+  "alive_features": 4581,
+  "mean_abs_cos_decoder": 0.03625855594873428,
+  "training_seconds": 104.7,
+  "annotation_rate": 0.9425,
+  "annotation_sample": 400,
+  "module_count": 10
+}

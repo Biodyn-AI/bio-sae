@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Cross-model comparison on matched inputs at matched relative depth.}}
+\label{tab:crossmodel}
+\smallskip
+\small
+\begin{tabular}{llrrrr}
+\toprule
+Rel.\ depth & GF / scGPT layer & Geneformer/TS & scGPT/TS & scGPT/TS matched & Geneformer/K562 \\
+\midrule
+0.00 & L0 / L0 & 0.7731 & 0.7258 & 0.7676 & 0.8444 \\
+0.29 & L5 / L3 & 0.7749 & 0.7729 & 0.7827 & 0.8528 \\
+0.65 & L11 / L7 & 0.7596 & 0.8515 & 0.8171 & 0.8187 \\
+1.00 & L17 / L11 & 0.7241 & 0.8862 & 0.8552 & 0.7713 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Variance explained on held-out positions. The two models are compared on the same Tabula Sapiens cells at matched relative depth (layer index divided by depth minus one). The matched-protocol column retrains the scGPT dictionaries under the same 1M-position subsample used for Geneformer. The final column gives the Geneformer dictionaries on their own training distribution, which bounds how much of any cross-model difference is attributable to input distribution.
+\end{table}

@@ -1,0 +1,30 @@
+% Scientific Reports research article.
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+% Supplementary Information is a separate document; the main text refers to it by explicit
+% item number, and check_refs.py verifies every such reference before submission.
+\documentclass[onecolumn,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[numbers]{natbib}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{lineno}
+\linenumbers
+\tolerance=1000
+\emergencystretch=1em
+\input{sections/supp_numbers}
+\bibliographystyle{unsrtnat}
+
+\title{\textbf{Sparse autoencoders reveal organized biological knowledge but minimal
+regulatory logic in single-cell foundation models}}
+\author{Ihor Kendiukhov\textsuperscript{1,*}\\[6pt]
+\textsuperscript{1}Institute of Medical Genetics and Applied Genomics, University of T\"ubingen, T\"ubingen, Germany\\
+\textsuperscript{*}Correspondence: \texttt{ihor.kendiukhov@student.uni-tuebingen.de}}
+\date{}

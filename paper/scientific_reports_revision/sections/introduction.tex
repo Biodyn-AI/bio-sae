@@ -1,0 +1,52 @@
+Single-cell foundation models (scFMs) such as Geneformer~\cite{theodoris2023transfer} and
+scGPT~\cite{cui2024scgpt} are used for cell-type annotation, perturbation-response prediction, and
+gene-network inference. They are trained on millions of transcriptomic profiles and learn
+contextual gene representations without explicit supervision on regulatory relationships. A central
+question is whether these representations encode \emph{causal regulatory logic}---the directed
+relationships between transcription factors (TFs) and their target genes---or only the
+\emph{statistical co-expression} that correlates with, but does not constitute, regulation.
+
+At the level of attention weights this question has been addressed by a companion
+study~\cite{kendiukhov2025systematic}, which found that attention captures co-expression rather
+than regulatory signal: trivial gene-level baselines outperform attention edges, pairwise scores
+add zero incremental predictive value, and causal ablation of putatively regulatory heads produces
+no behavioural effect. Attention weights, however, are one view among several. The residual
+stream---the running sum of all layer outputs---may encode richer structure than attention patterns
+alone reveal.
+
+The superposition hypothesis~\cite{elhage2022superposition} offers a framework for this richer
+structure. When a model must represent more concepts than it has dimensions, it encodes features as
+nearly-orthogonal directions in activation space and activates only a sparse subset of them per
+input. Sparse autoencoders
+(SAEs)~\cite{olshausen1997sparse,sharkey2022taking,cunningham2023sparse,bricken2023monosemanticity}
+resolve superposition by learning an overcomplete dictionary with a sparsity constraint,
+decomposing dense activations into interpretable features. In large language models, SAE pipelines
+have scaled to billions of features~\cite{gao2024scaling,templeton2024scaling}; they have not been
+systematically applied to biological foundation models, where the ``concepts'' are genes, pathways,
+and regulatory programs rather than linguistic entities.
+
+Here we present a systematic SAE-based interpretability analysis of single-cell foundation models.
+We train TopK SAEs~\cite{makhzani2013ksparse} on per-position residual-stream activations from all
+18 layers of Geneformer V2-316M and all 12 layers of scGPT whole-human~\cite{cui2024scgpt},
+producing atlases of 82,525 and 24,527 features respectively. The two models differ substantially
+in architecture (Geneformer's rank-value tokenization vs.\ scGPT's dual gene-ID plus binned-value
+embeddings, 18 vs.\ 12 layers, $d{=}1{,}152$ vs.\ $d{=}512$, bidirectional masked-token vs.\
+specialized causal-attention generative training) and training data (30M vs.\ 33M cells), yet we
+apply an identical analytical pipeline to both.
+
+Two questions organize the analysis. The first is descriptive: what biological structure do these
+dictionaries contain, how is it organized across layers, and how much of it is accessible to
+standard linear decomposition of the same activations? The second is causal: do the features
+encode which genes a transcription factor actually regulates? Answering the second question
+quantitatively requires a reference point, because a low recovery rate is uninformative unless one
+knows how much of the regulatory relationship is recoverable from the same measurements by any
+method. We therefore benchmark the SAE against a perturbation-aware empirical ceiling---
+differential expression of the CRISPRi knockdown itself---and against established
+regulatory-inference baselines evaluated in an identical framework, and we replicate the
+measurement in four cell lines.
+
+To make these results accessible to the community, we release both atlases as interactive web
+platforms---the Geneformer Feature Atlas
+(\url{https://biodyn-ai.github.io/geneformer-atlas/}) and scGPT Feature Atlas
+(\url{https://biodyn-ai.github.io/scgpt-atlas/})---enabling exploration of over 107,000 features
+across 30 layers of two leading single-cell foundation models.

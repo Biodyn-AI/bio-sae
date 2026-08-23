@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{How many perturbed transcription factors are evaluable.}}
+\label{tab:evaluability}
+\smallskip
+\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+Reference & TFs perturbed & $\geq$1 & $\geq$3 & $\geq$5 & $\geq$10 & $\geq$20 & Median \\
+\midrule
+TRRUST & 73 & 55 & 21 & 9 & 3 & 1 & 1.0 \\
+DoRothEA A+B+C & 21 & 17 & 14 & 13 & 13 & 10 & 15.0 \\
+DoRothEA (all) & 30 & 27 & 22 & 18 & 18 & 17 & 146.5 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Of the perturbation targets with at least 50 cells, the table counts how many are transcription factors in each reference network and, of those, how many have at least $n$ of their curated targets among the genes the assay measures. A factor whose curated targets are not measured cannot show target-specific behaviour under any method.
+\end{table}

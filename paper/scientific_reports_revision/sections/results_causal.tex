@@ -1,0 +1,43 @@
+\subsection*{Causal ablation: what a feature is necessary for}
+\label{sec:causal}
+
+Annotation and co-activation establish that features correspond to biology, but not that the model
+uses them. To test necessity we ablated single features at layer~11: the hidden state was encoded
+through the SAE, one feature's activation set to zero, the state decoded and substituted, and the
+forward pass continued to the output logits. Disruption is the mean absolute change in output
+logits at a set of gene positions, and specificity is that quantity on a gene set divided by the
+same quantity on all other positions (Fig.~\ref{fig:causal}, \suptab{causal_arms}).
+
+The design of this test determines what it can show. A feature's annotation is assigned from the
+genes it most strongly activates on, so evaluating disruption at those same genes asks whether
+ablating a feature affects the genes that define it---a question whose answer is close to
+tautological. We therefore partitioned the gene positions of each tested feature into three disjoint
+sets: genes that are both in the feature's top-20 activating genes and in its annotated term; genes
+of the annotated term that are \emph{not} among its top-20 (an evaluation set independent of the
+annotation evidence); and all remaining positions. Each feature additionally received its own null:
+a random gene set matched to its held-out set in size and in mean-activation decile. Features were
+drawn from three arms---the most richly annotated features, a uniformly random sample of annotated
+features, and a uniformly random sample of all alive features---so that the result cannot depend on
+how features were selected. All 119 tested features come from K562 cells.
+
+Ablation has a large and reproducible effect on the genes a feature activates on. Median
+specificity on the top-20 genes against all other positions is 35.5$\times$ in the richly annotated
+arm, 64.3$\times$ and 62.1$\times$ in the two random arms, with over 92\% of features exceeding
+2$\times$ in every arm. Restricted to the genes that are both in the top-20 and in the annotated
+term, the medians are 37.3$\times$, 56.9$\times$ and 66.9$\times$.
+
+On the independent evaluation set the effect disappears. Median specificity on annotated-term genes
+outside the feature's top-20 is \textbf{1.04}, \textbf{0.94} and \textbf{0.97} in the three arms.
+The matched random gene sets give 0.89, 0.91 and 0.89, so the held-out sets are statistically
+indistinguishable from gene sets chosen at random with the same size and activation level: a
+per-feature Wilcoxon signed-rank test of held-out against matched random gives $p = 0.76$ and
+$p = 0.34$ in the two unbiased arms, and $p = 0.006$ with a median difference of 0.13 in the richly
+annotated arm. Fourteen of the 119 features admit no independent evaluation at all, because every
+gene of their annotated term already lies within their own top-20.
+
+The conclusion is narrower than the ablation magnitudes alone suggest. Single-feature ablation
+produces a specific, reproducible, gene-level effect, and that effect is confined to the genes on
+which the feature fires. It does not extend to the remainder of the biological process the feature
+is annotated with. Feature-level interventions therefore reveal genuine computational structure
+that component-level ablation misses~\cite{kendiukhov2025systematic}, but the structure they reveal
+is the feature's own support rather than the pathway it is labelled with.

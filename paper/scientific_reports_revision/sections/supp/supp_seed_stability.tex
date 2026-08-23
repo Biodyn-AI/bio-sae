@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Run-to-run stability of the dictionaries.}}
+\label{tab:seed_stability}
+\smallskip
+\small
+\begin{tabular}{rrlllrl}
+\toprule
+Layer & Runs & Variance explained & Dead features & Mean best $|\cos|$ & $|\cos| > 0.9$ (\%) & Modules \\
+\midrule
+0 & 6 & 0.8454 $\pm$ 0.0003 & 2 $\pm$ 1 & 0.282 & 0.8 & 7.2 $\pm$ 0.4 \\
+11 & 6 & 0.8200 $\pm$ 0.0003 & 32 $\pm$ 4 & 0.294 & 0.6 & 8.3 $\pm$ 1.0 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Runs differ in weight initialisation and batch order with the training subsample held fixed, plus one run per layer with a different subsample. Dictionary agreement is the mean over atoms of the best decoder cosine to any atom of the other run.
+\end{table}

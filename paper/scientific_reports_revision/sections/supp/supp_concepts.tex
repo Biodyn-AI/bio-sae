@@ -1,0 +1,35 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Dictionary atoms and distinct gene-level programs.}}
+\label{tab:concepts}
+\smallskip
+\small
+\begin{tabular}{rrrrrr}
+\toprule
+Layer & Atoms & Distinct programs & Atoms/program & Mean $|\cos|$ & Welch bound \\
+\midrule
+0 & 4,608 & 1,301 & 3.54 & 0.0321 & 0.0255 \\
+1 & 4,606 & 1,290 & 3.57 & 0.0334 & 0.0255 \\
+2 & 4,601 & 1,276 & 3.61 & 0.0344 & 0.0255 \\
+3 & 4,595 & 1,114 & 4.12 & 0.0343 & 0.0255 \\
+4 & 4,583 & 999 & 4.59 & 0.0344 & 0.0255 \\
+5 & 4,576 & 814 & 5.62 & 0.0351 & 0.0255 \\
+6 & 4,580 & 774 & 5.92 & 0.0351 & 0.0255 \\
+7 & 4,591 & 811 & 5.66 & 0.0353 & 0.0255 \\
+8 & 4,586 & 817 & 5.61 & 0.0354 & 0.0255 \\
+9 & 4,595 & 975 & 4.71 & 0.0359 & 0.0255 \\
+10 & 4,602 & 1,241 & 3.71 & 0.0360 & 0.0255 \\
+11 & 4,598 & 1,252 & 3.67 & 0.0361 & 0.0255 \\
+12 & 4,592 & 1,332 & 3.45 & 0.0370 & 0.0255 \\
+13 & 4,583 & 1,179 & 3.89 & 0.0384 & 0.0255 \\
+14 & 4,568 & 1,133 & 4.03 & 0.0390 & 0.0255 \\
+15 & 4,543 & 1,199 & 3.79 & 0.0366 & 0.0255 \\
+16 & 4,538 & 2,048 & 2.22 & 0.0366 & 0.0255 \\
+17 & 4,580 & 1,360 & 3.37 & 0.0379 & 0.0255 \\
+\midrule
+\textbf{All} & \textbf{82,525} & \textbf{18,711} & \textbf{4.41} &  &  \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Programs are communities of the top-20 gene-set similarity graph at Leiden resolution 1.0; the total is 18,711 and varies by less than 0.3\% over resolutions 0.5--2.0. The Welch bound is the smallest achievable maximum coherence for that many unit vectors in $d$ dimensions.
+\end{table}

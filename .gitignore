@@ -67,3 +67,19 @@ PLAN_interactive_atlas.md
 # Figure PNG duplicates (PDFs are canonical)
 paper/figures/*.png
 paper/figures/diag_*
+
+# Revision result files: the JSON outputs every figure and table is generated from are
+# tracked so that each reported number can be traced to its source. The bulk intermediates
+# they were computed from (cached activations, per-cell feature matrices, SAE checkpoints)
+# stay out of the repository.
+!experiments/
+experiments/*
+!experiments/revision_srep/
+experiments/revision_srep/*
+!experiments/revision_srep/*/
+experiments/revision_srep/*/*
+!experiments/revision_srep/*/*.json
+!experiments/revision_srep/*/*.txt
+!experiments/revision_srep/E6_svd_capacity/*.npz
+experiments/revision_srep/cell_features/
+experiments/revision_srep/*/sae_models/

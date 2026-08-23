@@ -1,0 +1,126 @@
+{
+  "seed": 42,
+  "available_non_targeting_cells": {
+    "n": 39165,
+    "by_cell_line": {
+      "jurkat": 12013,
+      "rpe1": 11485,
+      "k562": 10691,
+      "hepg2": 4976
+    },
+    "fraction": {
+      "jurkat": 0.3067,
+      "rpe1": 0.2932,
+      "k562": 0.273,
+      "hepg2": 0.1271
+    }
+  },
+  "atlas_extraction_cohort": {
+    "n": 2000,
+    "by_cell_line": {
+      "jurkat": 591,
+      "k562": 581,
+      "rpe1": 567,
+      "hepg2": 261
+    },
+    "fraction": {
+      "jurkat": 0.2955,
+      "k562": 0.2905,
+      "rpe1": 0.2835,
+      "hepg2": 0.1305
+    }
+  },
+  "published_causal_patching_cohort": {
+    "n": 200,
+    "by_cell_line": {
+      "hepg2": 200
+    },
+    "fraction": {
+      "hepg2": 1.0
+    }
+  },
+  "cell_line_row_ranges": {
+    "k562": [
+      281086,
+      469675,
+      188590
+    ],
+    "rpe1": [
+      469676,
+      643412,
+      173737
+    ],
+    "jurkat": [
+      96616,
+      281085,
+      184470
+    ],
+    "hepg2": [
+      0,
+      96615,
+      96616
+    ]
+  },
+  "validation_against_extraction_metadata": {
+    "checked": true,
+    "n_checked": 25,
+    "stored_genes_per_cell": [
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      1720,
+      2046
+    ],
+    "reproduced_genes_per_cell": [
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      2046,
+      1720,
+      2046
+    ],
+    "identical": true,
+    "stored_n_cells": 2000,
+    "stored_mean_genes_per_cell": 2028.1755
+  },
+  "note": "The atlas cohort is a random sample of non-targeting cells across all four lines. The causal-patching cohort is the first 200 of that cohort after sorting by row index, and the matrix is ordered by cell line, so it falls entirely within the line occupying the lowest row indices."
+}

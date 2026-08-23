@@ -1,0 +1,306 @@
+{
+  "seed": 42,
+  "n_features_total": 82525,
+  "n_layers": 18,
+  "features_per_layer": {
+    "0": 4608,
+    "1": 4606,
+    "2": 4601,
+    "3": 4595,
+    "4": 4583,
+    "5": 4576,
+    "6": 4580,
+    "7": 4591,
+    "8": 4586,
+    "9": 4595,
+    "10": 4602,
+    "11": 4598,
+    "12": 4592,
+    "13": 4583,
+    "14": 4568,
+    "15": 4543,
+    "16": 4538,
+    "17": 4580
+  },
+  "gene_vocabulary": 6332,
+  "n_edges": 519329,
+  "min_intersection": 5,
+  "min_jaccard": 0.14,
+  "exact_duplicate_gene_sets": {
+    "n_distinct_signatures": 82442,
+    "n_signatures_shared_by_more_than_one_feature": 56,
+    "n_features_in_shared_signatures": 139,
+    "largest_signature_multiplicity": 5
+  },
+  "resolutions": {
+    "0.5": {
+      "n_programs": 18695,
+      "n_singleton_programs": 17690,
+      "n_multi_feature_programs": 1005,
+      "median_program_size": 1.0,
+      "largest_program_size": 6026,
+      "mean_layers_spanned_per_program": 2.9034825870646768,
+      "frac_programs_spanning_ge2_layers": 0.9701492537313433,
+      "atoms_per_program": 4.414281893554426
+    },
+    "1.0": {
+      "n_programs": 18711,
+      "n_singleton_programs": 17690,
+      "n_multi_feature_programs": 1021,
+      "median_program_size": 1.0,
+      "largest_program_size": 3221,
+      "mean_layers_spanned_per_program": 3.158667972575906,
+      "frac_programs_spanning_ge2_layers": 0.970617042115573,
+      "atoms_per_program": 4.410507188284966
+    },
+    "2.0": {
+      "n_programs": 18748,
+      "n_singleton_programs": 17690,
+      "n_multi_feature_programs": 1058,
+      "median_program_size": 1.0,
+      "largest_program_size": 1919,
+      "mean_layers_spanned_per_program": 3.612476370510397,
+      "frac_programs_spanning_ge2_layers": 0.9716446124763705,
+      "atoms_per_program": 4.401802858971624
+    }
+  },
+  "per_layer_programs_at_reference_resolution": {
+    "0": {
+      "n_features": 4608,
+      "n_distinct_programs": 1301
+    },
+    "1": {
+      "n_features": 4606,
+      "n_distinct_programs": 1290
+    },
+    "2": {
+      "n_features": 4601,
+      "n_distinct_programs": 1276
+    },
+    "3": {
+      "n_features": 4595,
+      "n_distinct_programs": 1114
+    },
+    "4": {
+      "n_features": 4583,
+      "n_distinct_programs": 999
+    },
+    "5": {
+      "n_features": 4576,
+      "n_distinct_programs": 814
+    },
+    "6": {
+      "n_features": 4580,
+      "n_distinct_programs": 774
+    },
+    "7": {
+      "n_features": 4591,
+      "n_distinct_programs": 811
+    },
+    "8": {
+      "n_features": 4586,
+      "n_distinct_programs": 817
+    },
+    "9": {
+      "n_features": 4595,
+      "n_distinct_programs": 975
+    },
+    "10": {
+      "n_features": 4602,
+      "n_distinct_programs": 1241
+    },
+    "11": {
+      "n_features": 4598,
+      "n_distinct_programs": 1252
+    },
+    "12": {
+      "n_features": 4592,
+      "n_distinct_programs": 1332
+    },
+    "13": {
+      "n_features": 4583,
+      "n_distinct_programs": 1179
+    },
+    "14": {
+      "n_features": 4568,
+      "n_distinct_programs": 1133
+    },
+    "15": {
+      "n_features": 4543,
+      "n_distinct_programs": 1199
+    },
+    "16": {
+      "n_features": 4538,
+      "n_distinct_programs": 2048
+    },
+    "17": {
+      "n_features": 4580,
+      "n_distinct_programs": 1360
+    }
+  },
+  "reference_resolution": "1.0",
+  "within_layer_packing": {
+    "0": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4606,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.0320950411260128,
+      "max_abs_coherence_sampled": 0.6667177677154541,
+      "welch_bound": 0.025518287215604018
+    },
+    "1": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4597,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03337452933192253,
+      "max_abs_coherence_sampled": 0.6867603659629822,
+      "welch_bound": 0.025518287215604018
+    },
+    "2": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4581,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.0343584381043911,
+      "max_abs_coherence_sampled": 0.7251916527748108,
+      "welch_bound": 0.025518287215604018
+    },
+    "3": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4566,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03432067111134529,
+      "max_abs_coherence_sampled": 0.7711033821105957,
+      "welch_bound": 0.025518287215604018
+    },
+    "4": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4552,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.034432899206876755,
+      "max_abs_coherence_sampled": 0.6911541223526001,
+      "welch_bound": 0.025518287215604018
+    },
+    "5": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4534,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03506001830101013,
+      "max_abs_coherence_sampled": 0.7474863529205322,
+      "welch_bound": 0.025518287215604018
+    },
+    "6": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4531,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.035060618072748184,
+      "max_abs_coherence_sampled": 0.6060275435447693,
+      "welch_bound": 0.025518287215604018
+    },
+    "7": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4512,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03529198095202446,
+      "max_abs_coherence_sampled": 0.5851399898529053,
+      "welch_bound": 0.025518287215604018
+    },
+    "8": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4517,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.035440120846033096,
+      "max_abs_coherence_sampled": 0.7210894823074341,
+      "welch_bound": 0.025518287215604018
+    },
+    "9": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4547,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.035888832062482834,
+      "max_abs_coherence_sampled": 0.7290225028991699,
+      "welch_bound": 0.025518287215604018
+    },
+    "10": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4575,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03596632182598114,
+      "max_abs_coherence_sampled": 0.6131056547164917,
+      "welch_bound": 0.025518287215604018
+    },
+    "11": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4568,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03613043203949928,
+      "max_abs_coherence_sampled": 0.4799765646457672,
+      "welch_bound": 0.025518287215604018
+    },
+    "12": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4570,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03698824718594551,
+      "max_abs_coherence_sampled": 0.6800536513328552,
+      "welch_bound": 0.025518287215604018
+    },
+    "13": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4564,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03844572231173515,
+      "max_abs_coherence_sampled": 0.4642564654350281,
+      "welch_bound": 0.025518287215604018
+    },
+    "14": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4547,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03902696445584297,
+      "max_abs_coherence_sampled": 0.5100048780441284,
+      "welch_bound": 0.025518287215604018
+    },
+    "15": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4468,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03664039447903633,
+      "max_abs_coherence_sampled": 0.43468233942985535,
+      "welch_bound": 0.025518287215604018
+    },
+    "16": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4368,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.03658966347575188,
+      "max_abs_coherence_sampled": 0.555589497089386,
+      "welch_bound": 0.025518287215604018
+    },
+    "17": {
+      "d_model": 1152,
+      "n_atoms": 4608,
+      "n_alive": 4480,
+      "atoms_per_dimension": 4.0,
+      "mean_abs_coherence": 0.037912990897893906,
+      "max_abs_coherence_sampled": 0.5591831207275391,
+      "welch_bound": 0.025518287215604018
+    }
+  }
+}

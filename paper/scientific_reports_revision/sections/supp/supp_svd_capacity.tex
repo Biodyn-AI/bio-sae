@@ -1,0 +1,33 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Capacity-matched comparison against the principal subspace.}}
+\label{tab:svd_capacity}
+\smallskip
+\small
+\begin{tabular}{rrrrrrrr}
+\toprule
+Layer & SAE VE & $k^{*}$ & $k_{50}$ & $k_{90}$ & $\rho_{100}$ & align.\ top-50 (\%) & align.\ full (\%) \\
+\midrule
+0 & 0.848 & 403 & 247 & 764 & 0.207 & 0.98 & 0.98 \\
+1 & 0.854 & 388 & 233 & 747 & 0.221 & 0.65 & 0.65 \\
+2 & 0.857 & 362 & 218 & 725 & 0.231 & 0.67 & 0.67 \\
+3 & 0.861 & 349 & 211 & 711 & 0.241 & 0.33 & 0.33 \\
+4 & 0.862 & 334 & 199 & 692 & 0.253 & 0.41 & 0.41 \\
+5 & 0.856 & 317 & 190 & 671 & 0.260 & 0.13 & 0.13 \\
+6 & 0.842 & 308 & 191 & 680 & 0.257 & 0.04 & 0.04 \\
+7 & 0.824 & 302 & 191 & 693 & 0.265 & 0.11 & 0.11 \\
+8 & 0.814 & 291 & 185 & 684 & 0.284 & 0.07 & 0.07 \\
+9 & 0.811 & 295 & 181 & 707 & 0.309 & 0.09 & 0.09 \\
+10 & 0.818 & 305 & 181 & 727 & 0.318 & 0.15 & 0.15 \\
+11 & 0.823 & 308 & 178 & 734 & 0.332 & 0.09 & 0.09 \\
+12 & 0.818 & 289 & 171 & 722 & 0.351 & 0.09 & 0.09 \\
+13 & 0.809 & 269 & 159 & 688 & 0.373 & 0.07 & 0.07 \\
+14 & 0.808 & 261 & 155 & 674 & 0.376 & 0.04 & 0.04 \\
+15 & 0.795 & 265 & 167 & 692 & 0.349 & 0.13 & 0.13 \\
+16 & 0.775 & 252 & 165 & 683 & 0.346 & 0.11 & 0.11 \\
+17 & 0.775 & 250 & 152 & 664 & 0.372 & 0.26 & 0.26 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize $k^{*}$ is the truncated-SVD rank whose cumulative eigenvalue mass equals the SAE's variance explained. $k_{50}$ and $k_{90}$ are the subspace sizes at which the median decoder direction reaches 50\% and 90\% of its norm; for a random direction these are 576 and 1{,}037. The last two columns give the percentage of features aligned above $|\cos| = 0.5$ with any of the leading 50 axes and with the complete basis.
+\end{table}

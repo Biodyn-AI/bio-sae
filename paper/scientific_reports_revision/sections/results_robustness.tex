@@ -1,0 +1,74 @@
+\subsection*{Cross-model comparison on matched inputs}
+\label{sec:crossmodel}
+
+The two atlases were built from different cells, so any direct comparison of their statistics
+confounds architecture with input distribution. To separate the two we trained Geneformer
+dictionaries on the same 3,000 Tabula Sapiens cells used for the scGPT atlas, with identical
+architecture and hyperparameters, and compared the models at matched relative depth
+(\suptab{crossmodel}). Because the scGPT dictionaries were originally trained on all available
+positions rather than a subsample, we also retrained them under the Geneformer protocol as a
+control.
+
+On matched inputs there is no uniform architectural advantage. Geneformer reconstructs better at
+the input end (0.7731 against 0.7258 at relative depth 0), the two are indistinguishable at about a
+quarter depth (0.7749 against 0.7729), and scGPT is ahead through the second half, reaching 0.8862
+against 0.7241 at the output end. The difference between the models is a depth-dependent crossover
+rather than a constant offset, and it is invisible unless the inputs are matched.
+
+Input distribution accounts for a difference of the same order. The same Geneformer dictionaries
+reconstruct their own CRISPRi-like data 5--8 percentage points better than Tabula Sapiens at every
+depth---0.8444 against 0.7731 at layer~0, for example. Both dictionaries sit close to the packing
+limit for their dimensionality: mean absolute decoder coherence is 0.030--0.036 for Geneformer and
+0.039--0.047 for scGPT, against Welch bounds of 0.0255 and 0.0362 respectively.
+
+\subsection*{Robustness to training choices}
+\label{sec:robustness}
+
+\paragraph{Architecture.} Grid-training at layer~11 over expansion ratio $\{2\times, 4\times,
+8\times\}$ and sparsity $k \in \{16, 32, 64\}$ gives variance explained rising monotonically with
+both, from 0.706 to 0.884, with the reported configuration in the middle at 0.819
+(\suptab{hyperparam}). Module count stays between 6 and 12 across the entire grid and mean decoder
+coherence between 0.033 and 0.042, so the reported structure is not a property of one corner of the
+hyperparameter space.
+
+\paragraph{Random seed.} The atlas dictionaries were trained with seed 42. Retraining at layers 0
+and 11 under six runs each---five differing only in initialisation and batch order, one with a
+different training subsample---separates what is a property of the model from what is a property of
+the run (\suptab{seed_stability}).
+
+Everything the atlas reports in aggregate is reproducible. Variance explained is
+$0.8454 \pm 0.0003$ at layer~0 and $0.8200 \pm 0.0003$ at layer~11, the annotation rate is
+$0.935 \pm 0.009$ and $0.933 \pm 0.010$, module counts are $7.2 \pm 0.4$ and $8.3 \pm 1.0$, and
+dead-feature counts are $2 \pm 1$ and $32 \pm 4$.
+
+Individual dictionary atoms are not. The mean best decoder cosine between runs is 0.282 at layer~0
+and 0.294 at layer~11, and fewer than 1\% of atoms have a counterpart above 0.9 in another run. The
+reference for these numbers is what a random direction achieves: the best match a random unit
+direction finds among 4,608 directions in 1,152 dimensions is $0.113 \pm 0.008$, and no random
+direction reaches 0.9. Cross-seed agreement is therefore well above chance and far below
+reproducibility. Independent runs learn different bases that explain the same variance and carry the
+same annotation. This bears on how the released atlases should be read: their aggregate structure
+is a property of the model, while the identity of any individual catalogued feature is partly a
+property of the training run---consistent with the gene-level analysis above, in which the recurring
+unit across layers is the program rather than the atom.
+
+\subsection*{Features without ontology annotation}
+\label{sec:unannotated}
+
+Between 41\% and 55\% of features carry no significant ontology annotation, and it matters whether
+these are structure the databases do not cover or noise. Clustering unannotated features by
+top-20 gene-set similarity places only 2--3\% into standalone gene-set clusters, among them
+ribosomal protein programs and mitochondrial complex assembly (\suptab{novel}).
+
+Two tests separate them from annotated features (\suptab{unannotated_new}). Cell-type specificity
+does not: at layers $\{0, 5, 11, 17\}$, 89.4--95.0\% of unannotated features are enriched for at
+least one cell type against 94.5--95.8\% of annotated ones, and a matched random-feature null sits
+at 91.9--94.7\%, so essentially every feature at these layers is cell-type selective and the test
+has no discriminating power. Perturbation responsiveness does: at layer~11, 2.32\% of unannotated
+features appear in a perturbation response list against 0.15\% of annotated features, a fifteenfold
+difference, with unannotated features equal or more responsive at the other three layers as well.
+
+A cautious reading is that some unannotated features carry perturbation-response signal the
+ontology databases do not describe. Being non-random is not the same as being biologically
+meaningful, however: a feature that is cell-type selective may equally be tracking donor or assay
+structure, which is why the batch analysis above is reported alongside.

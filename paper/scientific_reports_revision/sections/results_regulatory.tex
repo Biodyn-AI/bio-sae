@@ -1,0 +1,143 @@
+\subsection*{What the perturbation data can support}
+\label{sec:evaluability}
+
+The preceding sections establish that features are biologically annotated, modularly organized and
+causally specific. The question that remains is whether they encode regulatory logic: when a
+transcription factor is knocked down, do the features that respond correspond to that factor's
+known targets?
+
+A recovery rate answers that question only against a reference. Before measuring the atlas we
+therefore asked how much curated regulatory structure the assay can express at all. The CRISPRi
+resource measures 6,546 genes. Of the 73 perturbed transcription factors with at least 50 cells,
+only nine have five or more TRRUST targets among the measured genes, three have ten or more, and
+one has twenty or more; the median perturbed factor has exactly \textbf{one} measurable target
+(Fig.~\ref{fig:ceiling}b, \suptab{evaluability}). DoRothEA, whose regulons are larger, does
+better---13 factors with five or more measured targets at the A+B+C confidence tier, median 15---but
+the constraint is severe under every reference. For most of the panel, target-specific recovery is
+not merely difficult; it is undefined, for any method.
+
+\subsection*{A recoverability benchmark}
+\label{sec:ceiling}
+
+We therefore evaluated the SAE alongside methods that span the range of what is possible on these
+data, each emitting a ranked list of 100 putative targets per factor and each scored by the same
+hypergeometric enrichment with Benjamini--Hochberg correction across the panel and the measured
+genes as the universe (Fig.~\ref{fig:ceiling}a, \suptab{ceiling}).
+
+Differential expression of the knockdown itself is the perturbation-aware reference: it uses the
+same cells and the actual intervention, and therefore bounds what any observational method can
+achieve here. It recovers curated targets for 1/9 factors against TRRUST (11.1\%), 3/13 against
+DoRothEA A+B+C (23.1\%) and 8/18 against DoRothEA at all confidence levels (44.4\%). Established
+network inference does not approach this bound: GENIE3 reaches 12.5\%, 10.0\% and 0.0\% under the
+three references, GRNBoost2 12.5\%, 10.0\% and 7.1\%, and simple co-expression 25.0\%, 20.0\% and
+14.3\%. Contextual gene embeddings taken directly from the model, without any sparse decomposition,
+reach 12.5\%, 10.0\% and 0.0\%. Size-matched random gene sets recover nothing under any reference,
+confirming that the test is calibrated.
+
+Two things follow. The ceiling on these data is low---even the intervention itself identifies
+curated targets for fewer than half of the factors---and no observational method, whether a
+purpose-built network-inference algorithm or a foundation-model representation, comes close to it.
+The choice of universe matters for this calibration: scoring against a nominal 20,000-gene universe
+rather than the 6,546 measured genes makes random gene sets appear significant for 16.7\% of
+factors, because predictions can only be drawn from what is measured.
+
+\subsection*{Perturbation responses are detectable but not transcription-factor specific}
+\label{sec:perturbation}
+
+We mapped perturbation responses at layer~11 using up to 200 CRISPRi cells per target against 600
+non-targeting cells of the same line, encoding every cell through the atlas dictionary (Methods).
+The panel comprises 20 evaluable transcription factors and, as a negative control, ten
+perturbations of genes that are not transcription factors under any reference.
+
+\paragraph{The unit of replication.} A perturbation is applied per cell, but a per-position
+statistic treats each gene position as an observation. The intraclass correlation of feature
+activation across positions within a cell is 0.000298, which at the observed 2,020 positions per
+cell gives a design effect of 1.61: the effective sample size is about 62\% of the nominal position
+count. The correction is worth making and we make it throughout---significance is assessed over
+cells---but its magnitude is bounded, because TopK sparsity leaves activations at different
+positions of one cell close to independent.
+
+\paragraph{Responses are weak and non-specific.} Thresholding on effect size alone---a shift
+exceeding half a control standard deviation, with no correction for testing 4,608 features---the
+panel yields a mean of 3.20 responding features per factor, with 15 of 20 factors showing at least
+one. Correcting for multiple testing across features collapses this to two of twenty, so most of
+what a per-feature threshold registers does not survive the number of features being tested.
+Assessed over cells at the same effect threshold, the mean is 1.90 responding features per factor (\suptab{cell_level}). The ten non-transcription-factor controls yield
+\emph{more} responding features than the transcription factors (2.30 versus 1.90), so what the
+features register is not specific to transcription-factor perturbation.
+
+\paragraph{Where the sensitivity ends.} The clearest measurement of the limit compares the two
+readouts on identical cells. Differential expression detects the knocked-down gene itself in 15 of
+16 targets, at FDR $< 0.05$ with a median Cohen's $d$ of $-1.19$ (range $-2.76$ to $-0.49$). The
+SAE feature response detects it in 1 of 20. The perturbation is therefore unambiguously present in
+the expression profile of the same cells and is not registered by the feature responses. The
+features are not insensitive because the data are thin; they track global cell-state shifts rather
+than the gene-level consequences of the intervention. This is the specific sense in which detection
+is limited, and it is a property of what the dictionary encodes.
+
+\paragraph{Sample size.} Restricting to the 14 factors with at least 100 cells, so that sample size
+is not confounded with which factors are available, the responding-feature count is flat across a
+tenfold increase in cells (0.56 at $n{=}10$, 0.65 at $n{=}20$, 0.65 at $n{=}50$, 0.61 at
+$n{=}100$). Detection of the knockdown rises from 5.0\% to 7.1\% and saturates. Nominal target
+enrichment improves from $n{=}10$ to $n{=}50$ (7.7\% to 27.5\%) and then plateaus, so the earlier
+choice of 20 cells was somewhat under-powered, but the gain saturates well before the effect becomes
+substantial, and under correction across the panel no sample size yields a significant factor
+(\suptab{sweep}).
+
+\paragraph{Widening the training distribution.} A dictionary trained on the same control cells
+pooled with 3,000 Tabula Sapiens cells from three primary tissues gives 2.55 responding features per
+factor against 1.90 for the atlas dictionary, with the same non-transcription-factor controls at
+2.30 and detection of the knockdown at 0 of 20. Diversifying the training distribution beyond
+immortalized lines does not make regulatory structure recoverable.
+
+\subsection*{Replication across cell lines and independent datasets}
+\label{sec:replication}
+
+The measurement was repeated in three further cell lines from the same resource, with perturbed and
+non-targeting cells drawn from the same line in every case, and on two perturbation datasets
+generated by other groups with other protocols and substantially larger gene panels
+(Fig.~\ref{fig:power}c, \suptab{crossline}).
+
+Across K562, RPE1, Jurkat and HepG2 the pattern is the same. Pooling the four lines,
+\textbf{1 of 66} evaluable transcription factors shows target enrichment at FDR $< 0.05$
+(1.5\%): none of 18 in K562, none of 16 in RPE1, one of 16 in Jurkat and none of 16 in HepG2. The
+knocked-down gene itself is detected in 2 of 68 factors across the four lines. Responding-feature
+counts are low throughout (means of 0.06--1.90 per factor) and do not separate transcription
+factors from the non-transcription-factor controls, which average 0.17--2.30 in the same lines. The
+design effect is 1.61--1.73 everywhere, so the correction for the unit of replication behaves
+consistently across backgrounds. RPE1 is a non-transformed retinal pigment epithelial line and
+HepG2 a hepatocyte line, so the result is not confined to the leukaemic backgrounds in which these
+models are most often probed.
+
+Both external datasets measure far more of the transcriptome than the primary resource, and the
+difference changes the result. In THP-1 monocytes 18,649 genes are measured and the median
+perturbed factor has 19.5 curated TRRUST targets among them; in the K562 Perturb-seq data 33,694
+genes are measured. The Perturb-seq screen is a CRISPR \emph{activation} experiment, so it also
+tests the question under gene induction rather than repression: the median perturbed factor is
+induced with a Cohen's $d$ of $+0.98$ and yields 405 differentially expressed genes.
+
+On these data the features do recover targets. Against DoRothEA the SAE reaches 20--22\% of factors
+in the THP-1 data and 23--25\% in the Perturb-seq data, where on the primary panel it reached none.
+Against TRRUST it reaches none in either, while differential expression on the same cells reaches
+18\% and 30\%.
+
+Whether that recovery is transcription-factor-specific depends on the reference, and a control
+settles which part of it to believe. We ran ten perturbations of genes absent from every reference
+network through the identical pipeline and tested their predicted sets against the \emph{same}
+regulons as the transcription factors. Against the high-confidence DoRothEA subset, a factor's own
+predicted set is enriched for its own regulon in 2 of 13 cases (15\%) while the
+non-transcription-factor predictions are enriched for those same regulons in 1 of 117 (1\%) --- a
+fifteenfold separation, so this signal is specific. Against the union of all confidence levels the
+separation largely disappears: 7 of 16 (44\%) for the matching factors against 39 of 144 (27\%) for
+the controls. Those regulons have a median of 402 measured genes and reach 9,321, and a broad
+expression signature enriches for them regardless of which gene was perturbed. The
+all-confidence numbers therefore do not measure regulatory recovery, and we do not read them as
+such.
+
+Two conclusions follow, and they pull in different directions. The absence of detectable
+transcription-factor specificity in the primary CRISPRi panel is substantially a property of that
+assay: with a median of one measurable target per factor, neither these features nor differential
+expression on the same cells nor established network inference can demonstrate specificity there.
+Where the transcriptome is measured and the perturbation is strong, the features carry a modest but
+genuinely factor-specific target signal. Fifteen percent of factors, against a one percent control
+rate, is a small fraction of a small panel; it is also clearly not zero.

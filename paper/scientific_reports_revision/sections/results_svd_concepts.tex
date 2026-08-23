@@ -1,0 +1,79 @@
+\subsection*{What the dictionary adds over the principal subspace}
+\label{sec:svd}
+
+A dictionary of 4,608 atoms and a basis of 50 principal axes are not comparable objects, so the
+observation that few features align with the leading axes cannot by itself establish that the
+information is inaccessible to linear decomposition. We therefore computed the exact
+eigendecomposition of the activation covariance at every layer and compared the two representations
+under matched conditions (Fig.~\ref{fig:svd}, \suptab{svd_sweep} and \suptab{svd_capacity}).
+
+\paragraph{Reconstruction-matched capacity.} Truncated SVD requires rank \textbf{250--403} to reach
+the variance the SAE explains on held-out positions---403 at layer~0 (SAE 0.848), 317 at layer~5
+(0.856), 308 at layer~11 (0.823) and 250 at layer~17 (0.775). A 50-axis basis is five- to eightfold
+short of the SAE's own reconstruction capacity, so it is the wrong reference for asking what the
+dictionary can see.
+
+\paragraph{Where SAE directions sit.} For each unit-normalized decoder direction we computed the
+cumulative projection $\rho_k$ onto the rank-$k$ principal subspace, for every $k$ up to the full
+1,152 dimensions, against the random-direction expectation $\rho_k = k/d$. SAE directions are
+systematically concentrated in the leading subspace: at $k{=}100$ the median direction has
+$\rho_k = 0.21$ at layer~0 and 0.33 at layer~11, against 0.087 for a random direction, a two- to
+fourfold excess. The median direction reaches half of its norm by $k = 247$ (L0), 190 (L5), 178
+(L11) and 152 (L17), where a random direction requires 576, and reaches 90\% by $k = 664$--764
+against 1,037. SAE features are not hidden from the principal subspace; they occupy its
+high-variance part preferentially.
+
+\paragraph{Low single-axis alignment is not a capacity artefact.} The fraction of features whose
+absolute cosine with at least one of the leading $k$ axes exceeds 0.5 saturates by $k \approx
+20$--50 and does not increase thereafter. Even against the \emph{complete} 1,152-dimensional basis
+it is 0.98\% at layer~0, 0.13\% at layer~5, 0.09\% at layer~11 and 0.26\% at layer~17. Offering more
+axes does not recruit more features, because each feature distributes its norm across many axes
+rather than concentrating on one. The same conclusion holds across cosine thresholds
+$\{0.3, 0.5, 0.7, 0.9\}$ (\suptab{svd_sweep}).
+
+\paragraph{Annotation yield per direction.} We annotated the leading 50 principal axes with the
+identical top-20-gene enrichment protocol used for SAE features, in both polarities, since a
+principal axis is signed whereas a TopK feature is one-sided. Per direction, principal axes are at
+least as annotatable as features: at layer~0, 98\% of axes carry at least one significant term with
+a mean of 159.5 terms per direction and 2,029 unique terms, against 90\%, 64.4 and 1,977 for 100
+randomly drawn SAE features; at layer~11 the corresponding numbers are 98\%, 178.8 and 2,083 against
+93\%, 71.3 and 2,045. Biological annotation is therefore not the exclusive property of
+non-aligned directions.
+
+Taken together, these three measurements locate what the dictionary contributes. It is not access to
+information that linear decomposition cannot reach---the leading principal subspace contains most of
+each feature's norm and annotates readily. It is a different \emph{parameterization} of that
+information: thousands of sparse, one-sided, individually interpretable directions in place of a few
+hundred dense, signed, polysemantic ones. That is the property the rest of this study relies on,
+because it is what makes per-feature annotation, per-feature co-activation structure, and
+per-feature causal intervention possible at all.
+
+\subsection*{How many distinct concepts the atlas contains}
+\label{sec:concepts}
+
+Dictionary atoms trained at different layers occupy different vector spaces, so their counts cannot
+be pooled into a number of concepts held simultaneously in one representation. What can be compared
+across layers is each feature's gene-level signature. We built a similarity graph over all 82,525
+Geneformer features from their top-20 gene sets and partitioned it (Methods; Fig.~\ref{fig:concepts},
+\suptab{concepts}).
+
+The 82,525 atoms resolve into \textbf{18,711 distinct gene-level programs}, that is 4.4 atoms per
+program. The count is insensitive to the clustering resolution: 18,695 at $\gamma{=}0.5$ and 18,748
+at $\gamma{=}2.0$. The distribution is strongly bimodal: 17,690 programs are singletons---features
+whose gene signature overlaps no other feature's---while 1,021 multi-atom programs absorb the
+remaining 64,835 atoms, the largest containing 3,221. Redundancy is therefore concentrated in a
+small number of heavily re-derived programs rather than spread evenly. As exact sets the signatures
+are nearly all distinct: 82,442 distinct signatures, with only 56 shared by more than one feature.
+
+Programs recur across depth. Of the multi-atom programs, 97.1\% appear at two or more layers, and
+the mean program spans 3.16 layers. Read together with the near-complete representational turnover
+between adjacent layers, this gives a consistent picture: each layer rebuilds a largely fresh
+dictionary, but the gene-level programs those dictionaries express are re-derived throughout the
+stack.
+
+Within a single layer---the only place a features-per-space ratio is defined---the dictionary is
+4$\times$ overcomplete (4,608 atoms in 1,152 dimensions, of which 4,568 are alive at layer~11) and
+resolves 814--1,360 distinct programs depending on depth (1,301 at L0, 814 at L5, 1,252 at L11,
+1,360 at L17). The packing is close to the geometric limit: mean absolute decoder coherence is
+0.036 at layer~11 against a Welch bound of 0.0255 for 4,608 unit vectors in 1,152 dimensions, so
+the dictionary is near-optimally spread rather than exploiting an unusually large capacity.

@@ -1,0 +1,35 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Unit of replication in the perturbation analysis.} Transcription factors with the largest cell-level response.}
+\label{tab:cell_level}
+\smallskip
+\small
+\begin{tabular}{lrrrrrc}
+\toprule
+Target & Cells & Responding (cell) & Responding (position) & Inflation & ICC & Self detected \\
+\midrule
+GATA1 & 95 & 30 & 28 & 0.9 & 0.000 & no \\
+MAX & 161 & 7 & 4 & 0.6 & 0.000 & yes \\
+MYBL2 & 81 & 1 & 0 & 0.0 & 0.000 & no \\
+TBP & 143 & 0 & 0 & 0.0 & 0.000 & no \\
+SRF & 120 & 0 & 0 & 0.0 & 0.000 & no \\
+THAP1 & 107 & 0 & 0 & 0.0 & 0.000 & no \\
+TFDP1 & 140 & 0 & 0 & 0.0 & 0.000 & no \\
+CEBPZ & 104 & 0 & 0 & 0.0 & 0.000 & no \\
+STAT5A & 170 & 0 & 0 & 0.0 & 0.000 & no \\
+E2F6 & 140 & 0 & 0 & 0.0 & 0.000 & no \\
+THAP11 & 60 & 0 & 0 & 0.0 & 0.000 & no \\
+TERF1 & 72 & 0 & 0 & 0.0 & 0.000 & no \\
+BRF2 & 170 & 0 & 0 & 0.0 & 0.000 & no \\
+ATF4 & 59 & 0 & 0 & 0.0 & 0.000 & no \\
+SP2 & 115 & 0 & 0 & 0.0 & 0.000 & no \\
+SETDB1 & 123 & 0 & 0 & 0.0 & 0.000 & no \\
+HINFP & 157 & 0 & 0 & 0.0 & 0.000 & no \\
+BRCA1 & 87 & 0 & 0 & 0.0 & 0.000 & no \\
+DNMT1 & 161 & 0 & 0 & 0.0 & 0.000 & no \\
+ERCC2 & 116 & 0 & 0 & 0.0 & 0.000 & no \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Responding features under a cell-level Mann--Whitney test against a position-pooled test on exactly the same cells. The intraclass correlation is the between-cell share of feature-activation variance (median across factors 0.000). Median inflation of the responding-feature count under position pooling: 0.0$\times$. The last column records whether the knocked-down gene itself appears in the predicted set, a positive control for detection power.
+\end{table}

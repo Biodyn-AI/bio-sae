@@ -1,0 +1,559 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+
+\definecolor{rcol}{RGB}{40,40,40}
+\newenvironment{reviewer}{\color{rcol}\itshape}{\par}
+\newcommand{\point}[1]{\vspace{0.7em}\noindent\textbf{#1}\par\vspace{0.15em}}
+\newcommand{\reply}{\par\vspace{0.3em}\noindent\textbf{Response.}\ }
+
+\title{Response to reviewers\\[4pt]
+\large \emph{Sparse autoencoders reveal organized biological knowledge but minimal regulatory
+logic in single-cell foundation models}\\[2pt]
+\normalsize Submission ID fbb71648-3418-4139-b1df-d7dd0b5456d6}
+\author{Ihor Kendiukhov}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+I thank the editor and both reviewers for a careful and constructive assessment. The central
+criticism---that the manuscript did not separate limitations of the learned representations from
+limitations of the input data, the statistical framework, and the evaluation---was well founded,
+and addressing it changed the paper substantially. Rather than tempering the wording, I ran the
+experiments needed to answer it.
+
+The revision adds twelve new analyses, including two independent external perturbation datasets. Three of them changed headline claims:
+
+\begin{itemize}[leftmargin=1.2em]
+\item A capacity-matched comparison against the principal subspace replaces the claim that 99.8\%
+of features are ``invisible to SVD''. Truncated SVD needs rank 250--403, not 50, to match the SAE's
+own reconstruction quality, and when the leading principal axes are annotated with the identical
+protocol they yield at least as many enriched terms per direction as SAE features. The defensible
+claim is about parameterization---many sparse, one-sided, individually interpretable directions
+rather than a few dense signed ones---not about inaccessible information.
+
+\item A recoverability benchmark establishes what the perturbation data can support at all. The
+assay measures 6,546 genes; the median perturbed TRRUST transcription factor has exactly one
+curated target among them. Differential expression computed directly on the knockdown---the
+strongest perturbation-aware signal these data admit---recovers curated targets for a minority of
+factors, and established network-inference methods recover no more. The negative result is now
+stated against that ceiling instead of against an implicit optimum of 100\%.
+
+
+\noindent
+\item The regulatory conclusion itself is now qualified. Repeated on perturbation data that measure
+the transcriptome, rather than the 6,546-gene panel the atlas was built on, the features recover
+targets for 15\% of transcription factors against 1\% for perturbations of non-regulatory genes.
+The negative result holds for the primary assay and is too strong as a claim about the models.
+\end{itemize}
+
+\noindent
+All analyses were also repeated with the cell, rather than the gene position, as the unit of
+replication, and the regulatory measurement was replicated in three further cell lines and two
+independent external datasets. A summary appears at the end of this letter.
+
+\section*{Editor}
+
+\point{E1. The title should have a clear, precise scientific meaning and should not contain a
+colon; it should read as one concise sentence.}
+\reply The subtitle has been removed. The title is now
+\emph{``Sparse autoencoders reveal organized biological knowledge but minimal regulatory logic in
+single-cell foundation models''}, which contains no colon and reads as a single statement.
+
+\point{E2. KEGG copyright permission.}
+\reply Permission has been obtained from Kanehisa Laboratories and is being supplied separately to
+the editorial office. No KEGG image, pathway map or diagram is reproduced; KEGG is used only as
+pathway-to-gene membership lists in the enrichment analysis, and the KEGG references are cited at
+every point of use, including in the legends of figures whose content derives in part from KEGG
+gene sets.
+
+\point{E3. Code must be deposited in a recognised DOI-assigning repository and linked from Methods
+or a dedicated Code Availability section.}
+\reply A \textbf{Code availability} section has been added. The complete analysis code, trained SAE
+checkpoints and feature catalogs are archived on Zenodo (DOI to be inserted on acceptance) and
+mirrored on GitHub.
+
+\point{E4. Key findings insufficiently supported; highlight additional analyses and matched
+controls, or tone the conclusions down.}
+\reply Both. The additional analyses are listed at the end of this letter; the claims that could
+not be supported at their previous strength---the SVD comparison, the cross-layer feature count,
+the cross-model comparison, and the scope of the regulatory conclusion---have been restated at the
+strength the new evidence supports.
+
+\section*{Reviewer 1}
+
+\point{R1, Major 1. The manuscript interprets low TF--target specificity as evidence of limited
+causal regulatory information, but provides no baseline showing how much such information is
+recoverable from the same scRNA-seq input.}
+\reply This was the most consequential comment and it has been addressed with a new benchmark rather
+than with wording.
+
+Every method is now scored in one framework: each emits a ranked list of 100 putative targets per
+transcription factor, and each list is tested for enrichment of that factor's curated targets by
+hypergeometric test with Benjamini--Hochberg correction across the panel, with the universe set to
+the genes the assay actually measures. The comparison includes a perturbation-aware upper bound
+(differential expression of the knockdown itself, computed on the same cells), the two standard
+network-inference methods the reviewer names in their published formulation (GENIE3 and GRNBoost2,
+fitted on the same control cells), Pearson and Spearman co-expression, contextual gene embeddings
+taken from the model without any sparse decomposition, the SAE, and size-matched random gene sets.
+
+Under the three reference networks, differential expression of the knockdown recovers targets for
+11.1\%, 23.1\% and 44.4\% of factors. GENIE3 reaches 12.5\%, 10.0\% and 0.0\%; GRNBoost2 12.5\%,
+10.0\% and 7.1\%; co-expression 25.0\%, 20.0\% and 14.3\%; model embeddings 12.5\%, 10.0\% and
+0.0\%. Random gene sets recover nothing, which confirms the test is calibrated.
+
+The benchmark also exposed why the ceiling is low, and this is now reported as a result in its own
+right. The assay measures 6,546 genes, and of the 73 perturbed TRRUST transcription factors with
+enough cells, only nine have five or more curated targets among them; the median factor has exactly
+\textbf{one}. For most of the panel, target-specific recovery is undefined for any method. The
+manuscript now states the negative finding against this measured ceiling instead of against an
+implicit optimum, and reports the evaluability diagnostics so a reader can see the constraint
+directly. Because that constraint is a property of the gene panel rather than of the model, the
+measurement was also repeated on two independent datasets with much larger panels (see R1 Major 4).
+
+\point{R1, Major 2. The definition of target genes in the causal-patching analysis is unclear, and
+it is not stated whether the evaluation gene set is independent of the genes used for annotation.}
+\reply The reviewer identified a real inconsistency, and following it up changed the result.
+
+First, the clarification asked for. The two sections described different things. Features were
+selected by an annotation-richness score among features with at least one significant enrichment,
+at least ten catalogued top genes and an activation frequency above 0.01; the ``target'' gene set
+was then \emph{all 20} of the feature's top activating genes, and ``other'' was every remaining
+active position. The evaluation set was therefore not independent of the evidence used to annotate
+the feature: ablating a feature was tested on the genes that define it. Both the selection rule and
+the gene-set definitions are now stated explicitly in Methods.
+
+Second, the consequence. We repeated the analysis with the evaluation set separated from the
+annotation evidence. For each feature the gene positions are partitioned into those both in its
+top-20 and in its annotated term; those in the annotated term but \emph{not} in its top-20; and all
+others. Each feature also receives its own null, a random gene set matched to its held-out set in
+size and mean-activation decile. To rule out the selection rule as a cause, features were drawn from
+three arms: the original annotation-richness rule, a uniformly random sample of annotated features,
+and a uniformly random sample of all alive features.
+
+On the confounded gene set the effect is large --- median specificity 37.3$\times$, 56.9$\times$
+and 66.9$\times$ across the three arms. On the independent evaluation set it is
+\textbf{1.04}, \textbf{0.94} and \textbf{0.97}, against matched-random values of 0.89, 0.91 and
+0.89. A per-feature Wilcoxon signed-rank test of held-out against matched random gives $p = 0.76$
+and $p = 0.34$ in the two unbiased arms. Fourteen of the 119 features tested admit no independent
+evaluation at all, because every gene of their annotated term already lies inside their own top-20.
+
+The manuscript now reports this directly: single-feature ablation produces a large, reproducible,
+gene-specific effect confined to the genes the feature fires on, and no detectable effect on the
+rest of the biological process the feature is annotated with. The previous claim of feature-level
+causal specificity for the annotated \emph{process} has been withdrawn, and the Discussion states
+the practical consequence for anyone intending to use SAE features as intervention targets.
+
+We note that the analysis also runs on a single stated cell line now (K562). The previously reported
+figures came from cells that were all HepG2, for the reason described in the cohort note below.
+
+\point{R1, Major 3. The analyses use only 20 perturbed cells per target for Geneformer and 10 for
+scGPT, without power or sample-size sensitivity analyses.}
+\reply A sample-size sweep has been added, and it partly vindicates the reviewer's concern while showing
+that it does not account for the result.
+
+Cells per target were varied over $n \in \{10, 20, 50, 100\}$ with 20 bootstrap draws each,
+restricted to the 14 factors that have at least 100 cells so that sample size is not confounded
+with which factors are available. The responding-feature count is flat across the tenfold range
+(0.56, 0.65, 0.65, 0.61). Detection of the knocked-down gene itself rises from 5.0\% to 7.1\% and
+saturates. Nominal target enrichment improves from 7.7\% at $n{=}10$ to 27.5\% at $n{=}50$ and then
+plateaus at 26.9\% for $n{=}100$.
+
+So $n{=}20$ was indeed somewhat under-powered relative to $n{=}50$, and the main analysis now uses
+up to 200 cells per target. But the gain saturates well before the effect becomes substantial, and
+under correction across the panel no sample size yields a significant transcription factor. The
+scGPT arm, which used ten cells per target with position-pooled statistics, has been removed rather
+than reported at that power (see the note on scope at the end of this letter).
+
+A positive control was added for the same reason. On identical cells, differential expression
+detects the knocked-down gene in 15 of 16 targets at FDR $< 0.05$, with a median Cohen's $d$ of
+$-1.19$, while the SAE feature response detects it in 1 of 20. The perturbation is therefore
+plainly present in the data and simply is not registered by the feature responses, which separates
+a power limitation from a representational one.
+
+\point{R1, Major 4. The regulatory-specificity analysis is limited to K562.}
+\reply The measurement has been extended to four cell lines and two independent external datasets.
+
+The CRISPRi resource used here contains four lines, and the analysis now covers all of them, with
+perturbed and non-targeting cells always drawn from the same line so that a difference between them
+cannot reflect cell-line composition. Pooling the four, \textbf{1 of 66} evaluable transcription
+factors shows target enrichment at FDR $< 0.05$: none of 18 in K562, none of 16 in RPE1, one of 16
+in Jurkat and none of 16 in HepG2. RPE1 is a non-transformed retinal pigment epithelial line and
+HepG2 a hepatocyte line, so the finding is not confined to the leukaemic backgrounds in which these
+models are usually probed. The design effect for the unit-of-replication correction is 1.61--1.73
+in every line, and in no line do the transcription factors separate from the
+non-transcription-factor controls.
+
+Because the gene panel rather than the cell type is the binding constraint on evaluability, the
+measurement was also repeated on two perturbation datasets from other groups with other protocols
+and much larger panels: ECCITE-seq of THP-1 monocytes~\cite{papalexi2021eccite} (18,649 genes) and
+Perturb-seq of K562~\cite{norman2019exploring} (33,694 genes). These raise the evaluability ceiling
+substantially --- in the THP-1 data the median perturbed factor has 19.5 measured TRRUST targets
+against one in the primary resource --- and therefore test the finding where detection is actually
+possible. And they change the answer.
+
+On the THP-1 data the SAE recovers targets for 20--22\% of factors under DoRothEA, and on the
+Perturb-seq data 23--25\%, where on the primary panel it recovered none. Whether that recovery is
+factor-specific depends on the reference network, and we added the control that decides it: ten
+perturbations of genes absent from every reference network, run through the identical pipeline,
+with their predicted sets tested against the \emph{same} regulons as the transcription factors.
+Against the high-confidence DoRothEA subset a factor's own prediction is enriched for its own
+regulon in 2 of 13 cases (15\%) while the non-factor predictions are enriched for those same
+regulons in 1 of 117 (1\%). Against the union of all confidence levels, whose regulons have a
+median of 402 measured genes, the separation largely disappears (44\% against 27\%), so those
+numbers do not measure regulatory recovery and we do not report them as such.
+
+We think this is the most important outcome of the revision, and it qualifies our original claim.
+The absence of detectable specificity in the primary CRISPRi panel is substantially a property of
+that assay rather than of the models: with a median of one measurable target per factor, no method
+can demonstrate specificity there. Where the transcriptome is measured and the perturbation is
+strong, the features do carry a modest but genuinely factor-specific signal. The manuscript now
+states both, in the abstract, the Results and the Discussion. We are grateful for the push that led
+us to run these datasets; the paper is more accurate for it.
+
+\point{R1, Minor 1. The random seed used for SAE training is not reported, and run-to-run
+variability is not assessed.}
+\reply The seed is now reported, and the stability analysis the reviewer asks for produced a result that
+we think belongs in the paper rather than only in this letter.
+
+The atlas dictionaries were trained with random seed 42, which also fixes the training subsample.
+This is now stated in Methods. Some care was needed in reporting it: the previous training script
+seeded NumPy before selecting the training subsample but did not seed the PyTorch generator that
+initialises the weights, so initialisation and batch order were not in fact controlled by that seed.
+The released code seeds both explicitly and records the seed in every output file.
+
+For the stability analysis we retrained at layers 0 and 11 under six runs each: five differing only
+in weight initialisation and batch order with the training subsample held fixed, and one with a
+different 1M-position subsample.
+
+Aggregate properties are highly reproducible. Variance explained is $0.8454 \pm 0.0003$ at layer~0
+and $0.8200 \pm 0.0003$ at layer~11; the annotation rate is $0.935 \pm 0.009$ and $0.933 \pm 0.010$;
+the module count is $7.2 \pm 0.4$ and $8.3 \pm 1.0$; dead-feature counts are $2 \pm 1$ and
+$32 \pm 4$. Every quantity the manuscript reports at the level of the atlas is stable to retraining.
+
+Individual dictionary atoms are not. The mean best decoder cosine between runs is 0.282 at layer~0
+and 0.294 at layer~11, and fewer than 1\% of atoms have a counterpart above 0.9 in another run. To
+make those numbers interpretable we computed the reference empirically: the best match a random
+unit direction finds among 4,608 directions in 1,152 dimensions is $0.113 \pm 0.008$, and no random
+direction reaches 0.9. Cross-seed agreement is therefore well above chance and far below
+reproducibility.
+
+We report this as a limitation in the manuscript rather than only here, because it bears directly on
+how the released atlas should be used: aggregate structure is a property of the model, while the
+identity of any individual catalogued feature is partly a property of the training run. It is also
+consistent with the gene-level program analysis added for R2 Major 1, in which 82,525 atoms resolve
+into 18,711 distinct programs --- the programs appear to be the level at which the representation is
+stable, not the atoms.
+
+\point{R1, Minor 2. The enrichment-term labels in Figure 6 are truncated and several axis labels
+overlap.}
+\reply Confirmed and fixed. In the previous version the enrichment labels in the causal-patching
+figure were hard-truncated at 20 characters, which cut four GO accessions mid-identifier and
+collapsed two label pairs into identical strings, and the neighbouring panel's tick labels
+overprinted. The figures have been regenerated: labels are wrapped rather than truncated, tick
+density is set per panel width, and no text in any figure is now clipped or overlapping. All
+figures are drawn directly from the result files by a single script included in the code archive,
+so a figure cannot drift from the numbers it depicts.
+
+\point{R1, Minor 3. Many internal cross-references remain unresolved and are displayed as
+``Table ??''.}
+\reply Fixed at the root cause. The previous submission split the main text and the supplementary
+information into two LaTeX documents that imported each other's labels, which resolves correctly
+only if the two files are compiled in a specific alternating order; a single-pass build renders
+every such reference as ``??''. The main text no longer depends on that mechanism: supplementary
+items are referenced by explicit number, and a check script included with the source verifies every
+such reference against the supplementary document and fails the build if any is missing or
+misnumbered. The compiled PDFs contain no unresolved references.
+
+\section*{Reviewer 2}
+
+\point{R2, Major 1. Summing 82,525 features across layers and inferring more than 70-fold
+compression into a 1,152-dimensional space is not conceptually justified: each layer has its own
+space and its own independently trained dictionary.}
+\reply The reviewer is correct, and the claim has been removed. Dictionary atoms trained at
+different layers occupy different vector spaces and cannot be summed into a count of concepts
+coexisting in one representation.
+
+To replace it with something measurable, features are now compared in the space they do share---the
+gene space---through their top-20 gene signatures. Clustering all 82,525 Geneformer features by
+gene-set similarity yields \textbf{18,711 distinct gene-level programs} (stable across Leiden
+resolutions 0.5--2.0), that is 4.4 atoms per program, with 97\% of multi-atom programs recurring in
+two or more layers. Within a single layer, which is the only place a features-per-space ratio is
+defined, the dictionary is \textbf{4$\times$ overcomplete} (4,608 atoms in 1,152 dimensions) and
+resolves roughly \textbf{1,250 distinct programs}. The manuscript now reports these quantities and
+the packing geometry that bounds them (mean decoder coherence 0.036 against a Welch bound of
+0.0255), and states the aggregate count explicitly as an aggregate over 18 separately trained
+dictionaries.
+
+\point{R2, Major 2. The SAE--SVD comparison is not capacity-matched: 4,608 features against 50
+singular directions, with an arbitrary cosine threshold. The comparison should be repeated under
+capacity- or reconstruction-matched conditions, ideally by quantifying the cumulative projection of
+each SAE direction onto the top-$k$ SVD subspace across a range of $k$.}
+\reply Done exactly as suggested, and the result changed the claim.
+
+For every layer we computed the exact eigendecomposition of the activation covariance and, for each
+unit-normalized decoder direction, the cumulative projection $\rho_k$ onto the rank-$k$ principal
+subspace for all $k$ up to the full dimension, against the random-direction reference
+$\mathbb{E}[\rho_k] = k/d$. Three findings follow.
+
+\emph{Reconstruction-matched capacity.} Truncated SVD requires rank \textbf{250--403} to match the
+SAE's variance explained (for example, rank 308 at layer 11 against the SAE's 0.823). The previous
+comparison was five- to eightfold under-capacity.
+
+\emph{Projection.} The median SAE direction places 50\% of its norm within the leading 152--247
+components and 90\% within the leading 664--764, compared with 576 and 1,037 for a random
+direction. SAE directions are two- to fourfold more concentrated in the leading principal subspace
+than chance---they are not hidden from it.
+
+\emph{Alignment is not a capacity artefact.} The fraction of features aligned with any single axis
+above a cosine of 0.5 saturates by $k \approx 20$--50 and does not rise thereafter: even against
+the \emph{complete} 1,152-dimensional basis it is 0.09--0.98\% depending on layer. Low single-axis
+alignment therefore reflects that the information is distributed over many axes, not that too few
+axes were offered.
+
+We also annotated the leading 50 principal axes with the identical top-20-gene enrichment protocol
+used for SAE features (both polarities, since a principal axis is signed whereas a TopK feature is
+one-sided). Per direction they are at least as annotatable as SAE features: 98\% annotated with
+159--179 enriched terms per direction, against 90--93\% and 64--71 terms for randomly drawn SAE
+features. The claim that biological signal is exclusive to non-aligned features does not survive a
+matched comparison and has been removed.
+
+The manuscript now states what the matched comparison does support: the dictionary provides a
+different parameterization of largely the same subspace---many sparse, one-sided, individually
+interpretable directions in place of a few dense, signed, polysemantic ones---which is what makes
+per-feature causal intervention and per-feature annotation possible.
+
+\point{R2, Major 3. Potentially serious pseudoreplication: roughly 20 cells per target, but tests
+against 100K control positions, treating gene positions from the same cell as independent
+replicates.}
+\reply The reviewer is right that the unit of replication was wrong, and the analysis has been redone with
+the cell as the unit throughout. We also measured how large the effect of the error was, rather than
+assuming it.
+
+The intraclass correlation of feature activation across gene positions within a cell is
+$2.98 \times 10^{-4}$. At the observed 2,020 positions per cell this gives a design effect of
+\textbf{1.61}, so the effective sample size is about 62\% of the nominal position count rather than
+smaller by three orders of magnitude. TopK sparsity leaves activations at different positions of one
+cell close to independent, which is why the inflation is bounded. The same quantity is 1.66--1.73 in
+the other three cell lines, so this is not particular to one dataset.
+
+The correction has been applied regardless. Significance is now assessed by a Mann--Whitney test
+over cells with Benjamini--Hochberg correction across features, and the effect-size definition is
+held fixed at the control position-level scale so that the cell-level and position-level results
+differ \emph{only} in what is treated as an independent observation. On that basis the two are
+close (a mean of 1.90 responding features per factor over cells against 1.60 over positions),
+consistent with the measured design effect.
+
+A larger statistical problem surfaced while making this correction. The previously reported response
+counts were thresholded on effect size without any correction for testing 4,608 features.
+Reproducing that criterion gives a mean of 3.20 responding features per factor with 15 of 20 factors
+showing at least one; applying Benjamini--Hochberg across features collapses it to 2 of 20. The
+manuscript now reports both, and a negative control has been added: ten perturbations of genes that
+are not transcription factors yield \emph{more} responding features (2.30) than the twenty
+transcription factors (1.90), so what the features register is not specific to
+transcription-factor perturbation at all.
+
+\point{R2, Major 4. Substantial confounding in the cross-model comparison: Geneformer activations
+from K562, scGPT activations from Tabula Sapiens.}
+\reply The confound was real, and removing it reversed the conclusion.
+
+We trained Geneformer dictionaries on the same 3,000 Tabula Sapiens cells used for the scGPT atlas,
+with identical architecture and hyperparameters, and compared the two models at matched relative
+depth (layer index divided by depth minus one). Because the published scGPT dictionaries were
+trained on all available positions rather than a 1M subsample, we also retrained them under the
+Geneformer protocol as a control; the conclusion is the same either way.
+
+Variance explained on held-out positions:
+
+\begin{center}
+\begin{tabular}{lccc}
+\hline
+relative depth & Geneformer / TS & scGPT / TS & scGPT / TS (matched protocol) \\
+\hline
+0.00 & \textbf{0.7731} & 0.7258 & 0.7676 \\
+0.28 & 0.7749 & 0.7729 & 0.7827 \\
+0.65 & 0.7596 & \textbf{0.8515} & 0.8171 \\
+1.00 & 0.7241 & \textbf{0.8862} & 0.8552 \\
+\hline
+\end{tabular}
+\end{center}
+
+The manuscript had reported a uniform scGPT advantage in reconstruction (means of 90.2\% against
+81.7\%) and read it as architectural. On matched inputs there is no uniform advantage: Geneformer
+reconstructs better at the input end, the two are indistinguishable at about a quarter depth, and
+scGPT is ahead through the second half. The difference is a depth-dependent crossover, which is not
+visible unless the inputs are matched.
+
+The size of the confound is easy to state. The same Geneformer dictionaries reconstruct their own
+CRISPRi-like data 5--8 percentage points better than Tabula Sapiens at every depth (0.8444 against
+0.7731 at layer~0, for example), which is the same order as the cross-model gap that had been
+attributed to architecture.
+
+The cross-model claims in the manuscript have been rewritten accordingly, and the comparison table
+now reports matched-input values at matched relative depth. Decoder coherence is 0.030--0.036 for
+Geneformer and 0.039--0.047 for scGPT against Welch bounds of 0.0255 and 0.0362, so both
+dictionaries sit close to the packing limit for their dimensionality and neither is exploiting
+unusual capacity.
+
+\point{R2, Major 5. The conclusions extend beyond the evidence; claims in the title, abstract and
+discussion should be restricted to the cellular context, perturbation dataset, SAE design and
+regulatory reference evaluated here, and the analysis extended to more cell types.}
+\reply We agree that a negative result obtained under one analytical framework cannot by itself establish
+a property of a model class, and the revision addresses this by widening the evidence rather than
+by qualifying the sentences.
+
+The regulatory measurement now spans four cell lines --- two of them non-leukaemic --- and two
+perturbation datasets generated by other groups with other protocols and much larger gene panels,
+with a perturbation-aware ceiling computed on every one so that the recovery rate is interpretable
+rather than merely low. The scope that genuinely constrains the claim is stated where the claim is
+made, in the abstract and the Discussion: what was tested, on which data, against which reference
+networks.
+
+On the specific question of whether the models lack regulatory logic or our pipeline fails to
+detect it, we have replaced argument with measurement. On identical cells, differential expression
+detects the knocked-down gene in 15 of 16 targets while the SAE feature response detects it in 1 of
+20. The signal is present and is not registered. That locates the limitation precisely --- the
+features track global cell-state shifts rather than gene-level consequences of the intervention ---
+and the Discussion states the conclusion in those terms.
+
+We would add one point of principle. No finite set of probes can establish that regulatory
+information is absent from a model, because the proposition that it resides in some representation
+not yet examined is not refutable by examination. What can be done is to enumerate the
+representations that have been examined and report what was found in each. The Discussion now does
+this explicitly, across attention-derived edge scores, causal circuit tracing, exhaustive circuit
+mapping, causal intervention, adversarial validation of in-silico perturbation profiles,
+representation geometry, and the sparse decomposition reported here.
+
+\point{R2, Minor 1. Incomplete cross-references.}
+\reply Addressed at the root cause; see R1 Minor 3 above.
+
+\point{R2, Minor 2. Several references appear inaccurate or incompletely formatted, including
+references 20 and 23.}
+\reply The reviewer is right about both, and about others. The full bibliography was re-verified
+entry by entry against publisher records.
+
+References 20 and 23 were the most serious: both carried a placeholder author field
+(``and others'') and an editorial note that was being typeset into the reference list itself, and
+both had the wrong venue and an inexact title. They are now
+Wang \emph{et al.}, \emph{Nature Communications} \textbf{17}, 730 (2025),
+doi:10.1038/s41467-025-67481-2, and
+Wang \emph{et al.}, \emph{Bioinformatics} \textbf{41}(7), btaf363 (2025),
+doi:10.1093/bioinformatics/btaf363, with complete author lists and the notes removed.
+
+The audit also corrected: the TRRUST page range (D199--D205 $\rightarrow$ D380--D386) and an author
+name; the STRING page range (D599--D610 $\rightarrow$ D638--D646) and a truncated author list; an
+author-name error in the Geneformer reference (Manber $\rightarrow$ Mantineo); an author-name error
+in the Replogle reference (Alexandra $\rightarrow$ Angela Pogson); the venue for the sparse-probing
+reference (arXiv $\rightarrow$ ICLR 2024) with the published author order; and author-name errors in
+two further entries. Web-only sources are now proper \texttt{@misc} entries with URLs and access
+years, and a DOI has been added to every one of the 19 entries that has one.
+
+\section*{A correction to the description of the data}
+
+While repeating the causal-ablation analysis we found an error in how the previous version
+described its own cohort, and we want to report it plainly.
+
+The manuscript stated that the atlas was built from ``2,000 K562 control cells''. It was not. The
+extraction selects control cells by perturbation label alone (\texttt{gene == "non-targeting"})
+across the whole processed Replogle matrix, which spans four cell lines, and applies no cell-line
+filter. The cohort is 591 Jurkat, 581 K562, 567 RPE1 and 261 HepG2 cells. We verified this rather
+than inferring it from the code: re-running the selection under its recorded seed reproduces the
+per-cell gene counts stored at extraction time exactly.
+
+Two consequences follow. The causal-ablation analysis took the first 200 cells of that cohort after
+sorting by row index, and because the matrix is ordered by cell line, those 200 cells were
+\emph{all HepG2}. And the perturbation analysis compared K562 perturbed cells against a control
+baseline drawn from all four lines, so a cell-line difference could contribute to an apparent
+perturbation response.
+
+Nothing about the atlas itself needed recomputing --- the dictionaries, annotations, modules,
+cross-layer structure and geometry are all properties of the cells that were actually processed,
+and they stand. What was wrong was the description. The manuscript now states the cohort
+composition explicitly, reports it in Supplementary Table~S1, and refers to the multi-line control
+atlas rather than attributing it to any single line. Every analysis that compares perturbed against
+control cells now draws both from the same line, and causal ablation is run within one stated line.
+
+We are grateful that the reviewers' scrutiny of the causal-ablation design led us to this.
+
+\section*{A note on scope}
+
+Two analyses present in the previous version have been removed rather than revised, and we want to
+be explicit about it.
+
+The scGPT causal-patching result was obtained by feeding the model a uniform value bin for every
+gene instead of the per-cell binned expression values, because the value-embedding inputs had not
+been retained alongside the hidden states. The scGPT perturbation-specificity result used ten cells
+per target with position-pooled statistics. Now that every other measurement in the paper is
+assessed over cells, uses the actual model inputs, and is corrected for multiple testing, reporting
+those two at their original standard would be inconsistent with the rest; and bringing them up to
+that standard would require re-extracting the scGPT activations, which the present software
+environment does not support alongside the rest of the pipeline.
+
+We have therefore confined the regulatory analysis to Geneformer and say so in the Limitations. The
+scGPT \emph{atlas} is unaffected and is reported in full: dictionary statistics, ontology
+annotation, co-activation modules, cross-layer connectivity, cell-type enrichment, and the batch
+and assay analysis. What changes is that no regulatory claim is now made on the basis of the scGPT
+arm.
+
+\section*{Summary of new analyses}
+
+\begin{center}
+\begin{tabular}{p{4.4cm}p{10.4cm}}
+\hline
+\textbf{Analysis} & \textbf{What it establishes} \\
+\hline
+Cohort composition &
+The control cohort spans all four cell lines in the resource, not one. Reported explicitly and
+verified against the extraction metadata. \\
+Capacity-matched principal-subspace comparison &
+Reconstruction-matched SVD rank, cumulative projection curves against a random-direction
+reference, alignment as a joint function of subspace size and threshold, and annotation yield per
+direction. \\
+Distinct-concept counting &
+Features compared in the shared gene space; distinct gene-level programs per layer and in
+aggregate; packing geometry against the Welch bound. \\
+Recoverability benchmark &
+Every method scored in one framework: differential expression of the knockdown, GENIE3, GRNBoost2,
+co-expression, model embeddings, the SAE, and random controls. \\
+Assay evaluability &
+How many perturbed transcription factors have enough curated targets among the measured genes to
+be evaluable at all. \\
+Cell-level statistics &
+Intraclass correlation and design effect measured rather than assumed; significance reassessed
+with the cell as the unit of replication at a fixed effect-size definition. \\
+Non-transcription-factor controls &
+Perturbations of genes that are not transcription factors, as a negative control for the
+specificity test. \\
+Sample-size sweep &
+Specificity and a positive control as a function of perturbed cells per target, with bootstrap
+intervals. \\
+Replication across cell lines &
+The regulatory measurement repeated in RPE1, Jurkat and HepG2, with perturbed and control cells
+drawn from the same line. \\
+Independent external datasets &
+The same measurement on ECCITE-seq of THP-1 monocytes and on a near-transcriptome-wide Perturb-seq
+of K562, which have far larger measured gene panels. \\
+Causal ablation with independent evaluation genes &
+Held-out term genes, per-feature expression-matched random controls, and unbiased feature
+selection alongside the original selection rule. \\
+Run-to-run stability &
+Five independent training seeds per layer plus a different training subsample; dictionary
+agreement and the spread of every reported quantity. \\
+Matched cross-model design &
+Geneformer dictionaries trained on the same cells as the scGPT atlas, compared at matched relative
+depth. \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{document}

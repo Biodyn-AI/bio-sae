@@ -1,0 +1,50 @@
+\section*{Data availability}
+All datasets analysed in this study are publicly available.
+
+\begin{itemize}\itemsep2pt
+\item \textbf{Genome-scale CRISPRi Perturb-seq} (K562, RPE1, Jurkat, HepG2)~\cite{replogle2022mapping}:
+Figshare+, \url{https://doi.org/10.25452/figshare.plus.20029387.v1}.
+\item \textbf{ECCITE-seq of THP-1 monocytes}~\cite{papalexi2021eccite}: available through the
+scPerturb collection, \url{https://doi.org/10.5281/zenodo.13350497}.
+\item \textbf{Perturb-seq of K562}~\cite{norman2019exploring}: available through the scPerturb
+collection, \url{https://doi.org/10.5281/zenodo.13350497}.
+\item \textbf{Tabula Sapiens}~\cite{tabula2022tabula}:
+\url{https://tabula-sapiens-portal.ds.czbiohub.org/} and CZ CELLxGENE.
+\item \textbf{Geneformer V2-316M}~\cite{theodoris2023transfer}:
+\url{https://huggingface.co/ctheodoris/Geneformer} (subfolder \texttt{Geneformer-V2-316M}).
+\item \textbf{scGPT whole-human}~\cite{cui2024scgpt}: \url{https://github.com/bowang-lab/scGPT}.
+\item \textbf{TRRUST v2}~\cite{han2018trrust}: \url{https://www.grnpedia.org/trrust/}.
+\item \textbf{DoRothEA}~\cite{garcia-alonso2019dorothea}: \url{https://saezlab.github.io/dorothea/}.
+\item \textbf{Gene Ontology}~\cite{ashburner2000go}: \url{http://geneontology.org/}.
+\item \textbf{KEGG}~\cite{kanehisa2000kegg}: \url{https://www.kegg.jp/}. KEGG pathway gene sets are
+used under permission from Kanehisa Laboratories.
+\item \textbf{Reactome}~\cite{jassal2020reactome}: \url{https://reactome.org/}.
+\item \textbf{STRING}~\cite{szklarczyk2023string}: \url{https://string-db.org/}.
+\end{itemize}
+
+\noindent
+The two feature atlases produced by this work are released as interactive web platforms:
+Geneformer (\url{https://biodyn-ai.github.io/geneformer-atlas/}) and scGPT
+(\url{https://biodyn-ai.github.io/scgpt-atlas/}).
+
+\section*{Code availability}
+All analysis code, trained sparse autoencoder checkpoints, feature catalogs, and the result files
+from which every figure and table in this article is generated are archived at Zenodo,
+\textbf{[Zenodo DOI to be inserted at acceptance]}, and are also available at
+\url{https://github.com/Biodyn-AI/bio-sae}. The archive includes the figure- and
+table-generation scripts, so each reported number can be traced to the result file that produced
+it, together with a reference-consistency check that verifies the correspondence between the main
+text and the Supplementary Information. Source for the interactive atlases is at
+\url{https://github.com/Biodyn-AI/geneformer-atlas} and
+\url{https://github.com/Biodyn-AI/scgpt-atlas}.
+
+\section*{Acknowledgements}
+Computations were performed on Apple Silicon hardware with MPS acceleration.
+
+\section*{Author contributions}
+I.K. is the sole author. I.K. conceptualized the study, developed the methodology, wrote all
+software, performed all computational experiments, built the interactive feature atlases,
+analysed and interpreted the results, and wrote the manuscript.
+
+\section*{Competing interests}
+The author declares no competing interests.

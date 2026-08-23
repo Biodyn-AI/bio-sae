@@ -1,0 +1,1322 @@
+% Scientific Reports research article.
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+% Supplementary Information is a separate document; the main text refers to it by explicit
+% item number, and check_refs.py verifies every such reference before submission.
+\documentclass[onecolumn,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[numbers]{natbib}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{lineno}
+\linenumbers
+\tolerance=1000
+\emergencystretch=1em
+\input{sections/supp_numbers}
+\bibliographystyle{unsrtnat}
+
+\title{\textbf{Sparse autoencoders reveal organized biological knowledge but minimal
+regulatory logic in single-cell foundation models}}
+\author{Ihor Kendiukhov\textsuperscript{1,*}\\[6pt]
+\textsuperscript{1}Institute of Medical Genetics and Applied Genomics, University of T\"ubingen, T\"ubingen, Germany\\
+\textsuperscript{*}Correspondence: \texttt{ihor.kendiukhov@student.uni-tuebingen.de}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Whether single-cell foundation models encode causal regulatory logic, rather than statistical
+co-expression, remains unclear. We trained TopK sparse
+autoencoders on residual-stream activations from every layer of Geneformer V2-316M and scGPT
+whole-human, producing atlases of 82,525 and 24,527 features, released as interactive platforms. The features are biologically organized: 29--59\% annotate to standard ontologies and form
+co-activation modules with coherent identity across the stack. Under a capacity-matched comparison they are not hidden from linear
+decomposition---truncated SVD needs rank 250--403 to match their reconstruction quality---but give
+a sparse parameterization supporting per-feature annotation and intervention. Ablating one feature disrupts the genes it fires on by 35--67$\times$,
+though not the wider process it is annotated with. Against CRISPRi perturbation in four cell lines,
+only 1 of 66 transcription factors shows target-specific responses. Benchmarking against differential expression on the same cells, established network inference and
+random controls explains why: that assay measures 6,546 genes and the median perturbed factor has
+one curated target among them, so no method can demonstrate specificity. On perturbation data covering
+the transcriptome the features do recover targets, for 15\% of factors against 1\% for
+perturbations of non-regulatory genes. Sparse features therefore carry a small amount of genuinely
+factor-specific regulatory information, detectable only where the assay measures the targets.
+\end{abstract}
+
+\section{Introduction}
+Single-cell foundation models (scFMs) such as Geneformer~\cite{theodoris2023transfer} and
+scGPT~\cite{cui2024scgpt} are used for cell-type annotation, perturbation-response prediction, and
+gene-network inference. They are trained on millions of transcriptomic profiles and learn
+contextual gene representations without explicit supervision on regulatory relationships. A central
+question is whether these representations encode \emph{causal regulatory logic}---the directed
+relationships between transcription factors (TFs) and their target genes---or only the
+\emph{statistical co-expression} that correlates with, but does not constitute, regulation.
+
+At the level of attention weights this question has been addressed by a companion
+study~\cite{kendiukhov2025systematic}, which found that attention captures co-expression rather
+than regulatory signal: trivial gene-level baselines outperform attention edges, pairwise scores
+add zero incremental predictive value, and causal ablation of putatively regulatory heads produces
+no behavioural effect. Attention weights, however, are one view among several. The residual
+stream---the running sum of all layer outputs---may encode richer structure than attention patterns
+alone reveal.
+
+The superposition hypothesis~\cite{elhage2022superposition} offers a framework for this richer
+structure. When a model must represent more concepts than it has dimensions, it encodes features as
+nearly-orthogonal directions in activation space and activates only a sparse subset of them per
+input. Sparse autoencoders
+(SAEs)~\cite{olshausen1997sparse,sharkey2022taking,cunningham2023sparse,bricken2023monosemanticity}
+resolve superposition by learning an overcomplete dictionary with a sparsity constraint,
+decomposing dense activations into interpretable features. In large language models, SAE pipelines
+have scaled to billions of features~\cite{gao2024scaling,templeton2024scaling}; they have not been
+systematically applied to biological foundation models, where the ``concepts'' are genes, pathways,
+and regulatory programs rather than linguistic entities.
+
+Here we present a systematic SAE-based interpretability analysis of single-cell foundation models.
+We train TopK SAEs~\cite{makhzani2013ksparse} on per-position residual-stream activations from all
+18 layers of Geneformer V2-316M and all 12 layers of scGPT whole-human~\cite{cui2024scgpt},
+producing atlases of 82,525 and 24,527 features respectively. The two models differ substantially
+in architecture (Geneformer's rank-value tokenization vs.\ scGPT's dual gene-ID plus binned-value
+embeddings, 18 vs.\ 12 layers, $d{=}1{,}152$ vs.\ $d{=}512$, bidirectional masked-token vs.\
+specialized causal-attention generative training) and training data (30M vs.\ 33M cells), yet we
+apply an identical analytical pipeline to both.
+
+Two questions organize the analysis. The first is descriptive: what biological structure do these
+dictionaries contain, how is it organized across layers, and how much of it is accessible to
+standard linear decomposition of the same activations? The second is causal: do the features
+encode which genes a transcription factor actually regulates? Answering the second question
+quantitatively requires a reference point, because a low recovery rate is uninformative unless one
+knows how much of the regulatory relationship is recoverable from the same measurements by any
+method. We therefore benchmark the SAE against a perturbation-aware empirical ceiling---
+differential expression of the CRISPRi knockdown itself---and against established
+regulatory-inference baselines evaluated in an identical framework, and we replicate the
+measurement in four cell lines.
+
+To make these results accessible to the community, we release both atlases as interactive web
+platforms---the Geneformer Feature Atlas
+(\url{https://biodyn-ai.github.io/geneformer-atlas/}) and scGPT Feature Atlas
+(\url{https://biodyn-ai.github.io/scgpt-atlas/})---enabling exploration of over 107,000 features
+across 30 layers of two leading single-cell foundation models.
+
+\section{Results}
+\subsection*{An SAE feature atlas of Geneformer}
+\label{sec:atlas}
+
+We extracted per-position residual stream activations from all 18 layers of Geneformer V2-316M,
+processing 2,000 non-targeting control cells from the Replogle genome-scale CRISPRi
+dataset~\cite{replogle2022mapping} and obtaining 4,056,351 token positions per layer (mean 2,028
+genes per cell; 336.4~GB in total). The control condition in this resource is defined by
+perturbation label rather than by cell line, so the cohort spans all four lines it contains---591
+Jurkat, 581 K562, 567 RPE1 and 261 HepG2 cells (\suptab{cohorts})---and the dictionaries
+below are learned from that multi-line control population. For each layer we trained a TopK sparse
+autoencoder with a
+4$\times$ overcomplete dictionary (4,608 features from 1,152 input dimensions) and $k{=}32$
+sparsity, subsampling 1~million positions per layer for training efficiency (Methods).
+
+Table~\ref{tab:full18} presents training and annotation statistics for all 18 layers
+(Fig.~\ref{fig:overview}). Variance explained peaks at layers 3--4 (85.2--85.3\%) and generally
+declines thereafter to 76.8\% at layer~17, with a brief recovery at layers 10--11, indicating that
+later-layer representations become progressively more distributed and harder to compress with a
+fixed-size dictionary. Dead features---those never activating on 100K held-out positions---increase
+from 0 at layer~0 to 70 at layer~16, with a trough at layers 9--11 (6--13 dead) suggesting a
+mid-stack revival of structured representations. Dictionary directions are well separated
+throughout: the mean absolute cosine similarity between decoder columns ranges from 0.033 to 0.040,
+close to the theoretical floor for this many unit vectors in 1,152 dimensions (Methods).
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Geneformer SAE training and annotation statistics.} Each SAE uses a 4$\times$ overcomplete dictionary (4,608 features) with TopK $k{=}32$ sparsity. VarExpl = variance explained. Dead = $4{,}608 - \text{Alive}$. Aligned = features with $|\cos| > 0.5$ against any of the leading 50 principal axes; see \suptab{svd_capacity} for the capacity-matched comparison. MeanCos = mean absolute pairwise cosine between decoder vectors. Ann\% = fraction of alive features with $\geq$1 significant enrichment (FDR $< 0.05$). Enrichments = unique (feature, term) pairs. Per-database breakdown in \suptab{perontology}.}
+\label{tab:full18}
+\smallskip
+\begin{tabular}{rccrcrccc}
+\toprule
+Layer & VarExpl & Alive & Dead & Aligned & Non-aligned & MeanCos & Ann\% & Enrichments \\
+\midrule
+0  & 83.9\% & 4,608 & 0   & 41 & 4,567 & 0.033 & 58.6\% & 23,959 \\
+1  & 84.6\% & 4,606 & 2   & 27 & 4,579 & 0.033 & 57.4\% & 23,131 \\
+2  & 84.8\% & 4,601 & 7   & 29 & 4,572 & 0.034 & 55.5\% & 23,383 \\
+3  & 85.2\% & 4,595 & 13  & 12 & 4,583 & 0.035 & 56.4\% & 21,922 \\
+4  & 85.3\% & 4,583 & 25  & 13 & 4,570 & 0.037 & 53.9\% & 19,910 \\
+5  & 84.6\% & 4,576 & 32  & 8  & 4,568 & 0.036 & 52.1\% & 17,865 \\
+6  & 83.3\% & 4,580 & 28  & 5  & 4,575 & 0.035 & 49.1\% & 16,716 \\
+7  & 81.4\% & 4,591 & 17  & 6  & 4,585 & 0.036 & 47.7\% & 15,470 \\
+8  & 80.4\% & 4,586 & 22  & 3  & 4,583 & 0.038 & 45.4\% & 15,679 \\
+9  & 80.2\% & 4,595 & 13  & 4  & 4,591 & 0.036 & 50.3\% & 16,925 \\
+10 & 81.0\% & 4,602 & 6   & 7  & 4,595 & 0.035 & 55.8\% & 19,587 \\
+11 & 81.6\% & 4,598 & 10  & 4  & 4,594 & 0.037 & 56.2\% & 19,943 \\
+12 & 81.0\% & 4,592 & 16  & 3  & 4,589 & 0.037 & 53.2\% & 19,105 \\
+13 & 80.1\% & 4,583 & 25  & 3  & 4,580 & 0.038 & 50.7\% & 17,338 \\
+14 & 80.0\% & 4,568 & 40  & 2  & 4,566 & 0.040 & 50.6\% & 17,719 \\
+15 & 78.8\% & 4,543 & 65  & 5  & 4,538 & 0.038 & 49.0\% & 15,571 \\
+16 & 76.9\% & 4,538 & 70  & 5  & 4,533 & 0.037 & 54.7\% & 16,080 \\
+17 & 76.8\% & 4,580 & 28  & 12 & 4,568 & 0.039 & 47.0\% & 15,764 \\
+\midrule
+\textbf{Total} & & \textbf{82,525} & \textbf{419} & \textbf{189} & \textbf{82,336} & & & \textbf{336,067} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The atlas comprises \textbf{82,525 alive features} across all 18 layers, of which \textbf{43,241}
+(52.4\%) receive at least one significant ontology annotation against five databases (Gene Ontology
+Biological Process~\cite{ashburner2000go}, KEGG~\cite{kanehisa2000kegg},
+Reactome~\cite{jassal2020reactome}, STRING~\cite{szklarczyk2023string}, and
+TRRUST~\cite{han2018trrust}).
+
+\subsection*{An SAE feature atlas of scGPT}
+\label{sec:scgpt_atlas}
+
+To test whether the organization observed in Geneformer generalizes across architectures, we
+applied an identical SAE pipeline to scGPT whole-human~\cite{cui2024scgpt}---a model trained on 33
+million cells with fundamentally different design choices: a dual input of gene-identity tokens plus
+binned expression-value embeddings (51 bins by default, in contrast to Geneformer's rank-value
+tokenization), 12 transformer layers rather than 18, $d_\text{model}{=}512$ rather than 1,152, and a
+generative causal-attention training objective rather than bidirectional masked-gene modelling.
+
+We extracted per-position residual-stream activations from all 12 layers, processing 3,000 diverse
+Tabula Sapiens cells (1,000 immune across 43 cell types, 1,000 kidney, 1,000 lung) and obtaining
+3,561,832 token positions per layer. For each layer we trained a TopK SAE with a 4$\times$
+overcomplete dictionary (2,048 features from 512 input dimensions) and $k{=}32$ sparsity.
+
+Table~\ref{tab:scgpt_full12} presents training statistics for all 12 scGPT layers. Reconstruction
+quality is higher than for Geneformer: variance explained ranges from 85.7\% (L7) to 93.5\% (L4),
+mean 90.2\% against Geneformer's 81.7\%. Dead features are near zero: 49 across all 12 layers
+(0.2\%), compared with 419 in Geneformer (0.5\%). The atlas comprises \textbf{24,527 alive
+features}, of which \textbf{7,595} (31.0\%) are annotated against the same five databases. These
+two atlases are built from different input distributions, so the comparison between them is
+addressed separately under matched inputs below.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{scGPT SAE training and annotation statistics.} 4$\times$ dictionary (2,048 features), TopK $k{=}32$, 3.56M positions/layer. Notation as in Table~\ref{tab:full18}.}
+\label{tab:scgpt_full12}
+\smallskip
+\begin{tabular}{rccrccc}
+\toprule
+Layer & VarExpl & Alive & Dead & MeanCos & Ann\% & Modules \\
+\midrule
+0  & 92.0\% & 2,027 & 21 & 0.038 & 32.7\% & 6 \\
+1  & 93.0\% & 2,035 & 13 & 0.041 & 30.8\% & 6 \\
+2  & 93.2\% & 2,038 & 10 & 0.040 & 28.7\% & 5 \\
+3  & 93.2\% & 2,045 & 3  & 0.041 & 31.6\% & 7 \\
+4  & 93.5\% & 2,048 & 0  & 0.041 & 30.4\% & 6 \\
+5  & 92.1\% & 2,048 & 0  & 0.042 & 29.6\% & 7 \\
+6  & 90.3\% & 2,048 & 0  & 0.046 & 28.9\% & 7 \\
+7  & 85.7\% & 2,048 & 0  & 0.049 & 32.4\% & 6 \\
+8  & 86.3\% & 2,048 & 0  & 0.046 & 28.9\% & 7 \\
+9  & 86.9\% & 2,047 & 1  & 0.045 & 33.9\% & 5 \\
+10 & 87.4\% & 2,047 & 1  & 0.044 & 31.7\% & 7 \\
+11 & 88.6\% & 2,048 & 0  & 0.043 & 32.0\% & 7 \\
+\midrule
+\textbf{Total} & & \textbf{24,527} & \textbf{49} & & & \textbf{76} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Biological annotation follows a U-shaped layer profile}
+\label{sec:ushape}
+
+Annotation of each feature's top-20 genes against five databases (Fisher's exact test,
+Benjamini--Hochberg FDR $< 0.05$) reveals a U-shaped profile across layers
+(Fig.~\ref{fig:ushape}). Annotation rates are highest at layers 0--1 (57--59\%), decline to a
+minimum at layer~8 (45.4\%), recover to 55--56\% at layers 10--11, and decrease again at layers
+16--17 (47--55\%). The scGPT atlas shows a weaker but qualitatively similar pattern across its 12
+layers, from 28.7\% (L2) to 33.9\% (L9).
+
+For Geneformer this pattern admits a functional reading in four zones.
+
+\paragraph{Early layers (0--4): molecular machinery.} Features map cleanly onto existing ontology
+terms, with the highest GO~BP (8,500--10,150 enrichments per layer), KEGG (2,050--2,650), and
+Reactome (9,200--11,000) counts. STRING protein--protein interaction associations peak here
+(248--302 per layer), as do TRRUST TF associations (133--164). Representative features encode
+textbook biological programs (Table~\ref{tab:examples}).
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Representative SAE features.} Top genes = highest mean activation magnitude. Databases = ontology sources with significant enrichments.}
+\label{tab:examples}
+\smallskip
+\small
+\begin{tabular}{cp{3.8cm}p{3.5cm}l}
+\toprule
+Feature & Top Genes & Biological Identity & Databases \\
+\midrule
+\multicolumn{4}{l}{\textit{Layer 0 --- Molecular Programs}} \\
+F3717 & CDK1, CDC20, DLGAP5, PBK & Cell cycle (G2/M) & GO, KEGG, React., STRING \\
+F3607 & RRM1, E2F1, MCM4, MCM6, RAD51 & DNA replication / repair & GO, KEGG, React., STRING, TRRUST \\
+F1116 & ARL6IP4, SQSTM1, JAK1 & B cell activation & GO, KEGG, Reactome \\
+F4536 & DYNC1H1, TLN1, MYH9, SPTAN1 & Cytoskeleton / focal adhesion & GO, KEGG, Reactome \\
+F2829 & TGFB1, PKN1, GADD45A, ZBTB7A & MAPK/TGF$\beta$ signaling & GO, KEGG, React., STRING, TRRUST \\
+F1573 & MKI67, CENPF, TOP2A, CDK1, AURKB & Mitosis / chr.\ segregation & GO, KEGG, React., STRING \\
+\midrule
+\multicolumn{4}{l}{\textit{Layer 11 --- Integrative Programs}} \\
+F2035 & \textit{(cell diff.\ genes)} & Cell diff.\ (neg.\ reg.) & GO, Reactome \\
+F3692 & \textit{(ERAD pathway genes)} & ER-associated degradation & GO, KEGG, Reactome \\
+F3933 & \textit{(signaling genes)} & Intracell.\ signaling (neg.\ reg.) & GO, Reactome \\
+F2936 & \textit{(mitochondrial genes)} & Mitochondrion organization & GO, KEGG, Reactome \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Middle layers (5--9): abstract computation.} Annotation rates drop below 50\% at layers
+6--8, consistent with intermediate representations that are harder to map onto a single ontology
+term. GO~BP falls to 6,600--7,700 and STRING associations to 181--216 per layer.
+
+\paragraph{Mid-late layers (10--12): re-specialization.} Annotation rates recover to 53--56\%, with
+GO~BP returning to 8,200--8,800 and KEGG to 1,750--2,100. Features shift from molecular processes
+to integrative cellular programs such as cell differentiation, intracellular signaling, and
+organelle organization.
+
+\paragraph{Terminal layers (15--17): prediction-focused.} A second annotation decline (47--55\%),
+the largest number of dead features (28--70), and the most distributed representations. Features at
+these layers respond broadly to perturbations but with less specificity than mid-layer features.
+
+\subsection*{Features are rebuilt at every layer rather than carried forward}
+\label{sec:crosslayer}
+
+To understand how features relate across layers, we tracked decoder weight vector similarity from
+layer~0 features to all subsequent layers. Features are overwhelmingly layer-specific: only 2--3\%
+of features at any layer match a feature at the adjacent layer. From layer~0 the decay is steep:
+114 matches at L1 (2.5\%), 67 at L4 (1.5\%), 10 at L8 (0.2\%), and effectively zero beyond L10
+(\suptab{persistence}). No
+layer~0 feature survives past layer~11.
+
+Feature persistence anti-correlates with biological content. Of layer~0 features, 98.2\% are
+transient (present in at most three layers), with 59.6\% annotated and a mean of 5.4 enrichment
+terms. The rare moderate-persistence features (1.8\%, present in 4--10 layers) have only a 3.7\%
+annotation rate and 0.1 mean enrichments. Biological content is carried by features rebuilt at
+every layer, not by a persistent scaffold.
+
+\subsection*{Features organize into co-activation modules}
+\label{sec:modules}
+
+To map the relational structure among features we constructed co-activation graphs at each of the
+18 layers using pointwise mutual information (PMI~\cite{manning1999foundations}) over the 4~million
+token positions, and identified communities with the Leiden algorithm~\cite{traag2019louvain}
+(Methods).
+
+Across all layers we identified \textbf{141 modules} (6--12 per layer) covering
+\textbf{96.0--99.5\%} of alive features (\suptab{modules_full}). This is not a trivial outcome: with $k{=}32$ sparsity out
+of 4,608 features, random co-activation would produce a connected but undifferentiated graph;
+instead the partition yields well-separated communities with distinct biological identity.
+
+Module count peaks at layer~5 (12 modules), suggesting maximal functional compartmentalization at
+early-to-mid processing, and PMI edge density declines with depth (446K at L0 to 328K at L16),
+paralleling the declining variance explained (Fig.~\ref{fig:modules}). At layer~0 six modules
+correspond to cell cycle and DNA replication, immune signaling, metabolism, translation, protein
+quality control, and cytoskeleton and adhesion. At layer~11 eight modules shift toward integrative
+cellular programs: cell differentiation, intracellular signaling, mitochondrial organization,
+vesicular transport, chromatin and transcription, protein modification, cell motility, and stress
+response.
+
+The scGPT atlas exhibits the same modular organization: 76 modules across 12 layers (5--7 per
+layer), with a mean coverage of 96.3\%. Despite the smaller dictionary (2,048 against 4,608),
+module count per layer is comparable (6.3 against 7.8 mean), suggesting that the number of
+biological programs an SAE resolves scales sub-linearly with dictionary size.
+
+Because a single Leiden resolution is a choice rather than a ground truth, we swept
+$\gamma \in \{0.5, 0.75, 1.0, 1.5, 2.0\}$ at layers 0 and 11 (\suptab{leiden_sweep}); the graph
+dimensions and memory footprint of the co-activation construction are in \suptab{pmi_memory}. The partition is not stable in a
+strong partition-agreement sense---at $\gamma{=}0.5$ the graph collapses into two large
+communities and at $\gamma{=}2.0$ it fragments into 48--56, with adjusted Rand indices of 0.17--0.26
+between neighbouring resolutions. What is stable is module \emph{identity}: the same biological
+themes are recognizable throughout the range, with larger $\gamma$ splitting one program into
+finer subprograms. Module counts should therefore be read as the resolution-1.0 cut of a
+hierarchical community structure.
+
+\subsection*{Cross-layer information highways}
+\label{sec:highways}
+
+Given that features are almost entirely layer-specific, how does biological information flow
+through the network? We computed cross-layer PMI between SAE feature activations, encoding the same
+500,000 positions through both source- and target-layer SAEs. An information highway is a
+source-layer feature with at least one dependency on a target-layer feature above a PMI threshold
+$\tau$.
+
+Under a TopK constraint two features can co-activate simply because of marginal activation rates,
+so any fixed threshold on raw PMI risks inflating the highway count. We therefore computed a
+permutation null for three long-range pairs (L0$\to$L5, L5$\to$L11, L11$\to$L17) by independently
+column-shuffling the target-layer activation matrix 20 times, recomputing the statistic, and taking
+the maximum across rounds of the 99th percentile of finite PMI as a per-pair null threshold. The
+reported count uses $\tau = \max(3.0, \tau_{\text{null}}^{p99})$; the null threshold came out at
+2.46 or below for every pair, so the effective threshold is 3.0 and the highway fractions are not
+an artifact of the sparsity constraint.
+
+For the long-range pairs (\suptab{highways}, \suptab{highways_null}), L0$\to$L5 is at 98.96\%,
+L5$\to$L11 at 96.66\%, and L11$\to$L17 at 99.02\%, with mean maximum PMI between 6.61 and 6.79 and individual connections exceeding PMI~10.
+Across all 17 consecutive pairs L$_{i}$$\to$L$_{i+1}$ the curve is near-flat in the 94.7--99.1\%
+range (\suptab{highways_consecutive}) with no sharp drop at any transition (Fig.~\ref{fig:highways}); the slight taper at
+L16$\to$L17 (94.70\%) is consistent with the terminal-layer specialization described above.
+Information flow is therefore continuous across the Geneformer stack rather than bottlenecked at
+particular layers---in line with layer-wise benchmarking of scFM representations in downstream
+tasks~\cite{wang2025scdrugmap}.
+
+Biologically meaningful cascades emerge among the strongest cross-layer connections. Biologically meaningful cascades appear among the strongest cross-layer connections
+(\suptab{cascades}). The mTORC1-regulation to autophagy connection (L0$\to$L5, PMI~=~9.55) recapitulates a well-known
+signaling axis, and protein-modification features at L11 connect to angiogenesis regulation at L17
+(PMI~=~10.62).
+
+scGPT shows a different pattern (\suptab{scgpt_highways}, \supfig{scgpt_highways}): upstream
+connectivity is consistently high (86.6--95.5\%), but
+downstream connectivity falls from 95.7\% (L0$\to$L4) to 62.9\% (L8$\to$L11), indicating a
+progressive concentration of information toward later layers that Geneformer does not show
+(97.4--99.8\% downstream throughout).
+
+\subsection*{Feature space geometry}
+\label{sec:geometry}
+
+Projecting decoder weight vectors with UMAP under cosine distance produces structureless point
+clouds at every layer. This is the expected geometry rather than a failure of the projection:
+decoder directions are quasi-orthogonal by construction, with a mean \emph{signed} pairwise cosine
+of 0.0007 and a mean \emph{absolute} pairwise cosine of 0.033--0.040 (Table~\ref{tab:full18}), and
+a within-module versus between-module effect size of Cohen's $d = 0.075$. Thousands of features
+pack into 1,152 dimensions by spreading nearly uniformly over the hypersphere, so no
+distance-preserving two-dimensional embedding of the directions themselves can be informative.
+
+We therefore visualized the co-activation network directly using a force-directed layout
+(\supfig{umap_overview}). Each module forms a spatially coherent community, with annotated
+features distributed across all communities while sparsely annotated features concentrate centrally,
+and the layer-11 graph resolves this structure in detail (\supfig{l11_detail}). Annotation-based projections (TF-IDF weighted ontology vectors) provide independent
+confirmation that the module structure reflects biological similarity
+(\supfig{annotation_projections}).
+
+\subsection*{Cell type enrichment}
+\label{sec:celltypes}
+
+To connect features to cellular identity we computed, for each feature, its mean activation in
+cells of each type among the 3,000 Tabula Sapiens cells spanning 56 cell types across immune,
+kidney and lung tissue, and tested for enrichment (Fisher's exact test, Benjamini--Hochberg
+correction).
+
+In the scGPT atlas, 2,028 of 2,048 features (99.0\%) at layer~7 are enriched for at least one cell
+type, with similar coverage at all layers. The patterns are tissue-coherent: immune features
+activate preferentially in T cells, B cells, macrophages and dendritic cells; kidney features in
+proximal tubule cells and podocytes; lung features in alveolar epithelial and pulmonary endothelial
+cells. For the Geneformer atlas we passed the same Tabula Sapiens cells through the model and
+encoded them with the multi-line control dictionaries; despite the mismatch in training
+distribution---immortalized lines against primary tissue---the dictionaries generalize to these
+tissue contexts. Features of both models tile cell-identity space
+comprehensively, consistent with the models' training on diverse cell populations.
+
+\subsection*{Batch and assay confounds}
+\label{sec:batch}
+
+Cell-type enrichment alone does not distinguish biology from donor or sequencing-assay batch
+effects, a particular concern for Tabula Sapiens, which spans 24 donors and 4 sequencing
+chemistries. For each scGPT feature at layers \{0, 4, 7, 11\} we computed the mutual information
+between its activation and two categorical metadata fields: tissue (3 values) and cell type (56 values)
+(\suptab{batch}), tissue serving as a coarse proxy for sample-level batch because the three tissues came
+from different preparations. Across all four layers, mean mutual information with cell type is
+about 2.5$\times$ that with tissue---at layer~11, 0.0040 against 0.0016---and essentially no
+feature is tissue-dominant (0/1990 at L0, 0/2038 at L4, 0/1999 at L7, 1/1766 at L11). Coarse tissue
+batch is therefore not the primary driver of scGPT feature activation. Donor and assay identity are
+not recorded in the cached extraction metadata and a donor-level decomposition is beyond what these
+data support.
+
+\subsection*{Interactive feature atlases}
+\label{sec:atlases}
+
+To enable community access to the complete atlases we developed and deployed two interactive web
+platforms: the Geneformer Feature Atlas
+(\url{https://biodyn-ai.github.io/geneformer-atlas/}; 82,525 features across 18 layers) and the
+scGPT Feature Atlas (\url{https://biodyn-ai.github.io/scgpt-atlas/}; 24,527 features across 12
+layers). Both provide six integrated views---Layer Explorer, Feature Detail Pages, Module Explorer,
+Cross-Layer Flow, Gene Search, and Ontology Search---are built with React, Vite and Plotly.js,
+served via GitHub Pages, and require no installation.
+
+
+\subsection*{What the dictionary adds over the principal subspace}
+\label{sec:svd}
+
+A dictionary of 4,608 atoms and a basis of 50 principal axes are not comparable objects, so the
+observation that few features align with the leading axes cannot by itself establish that the
+information is inaccessible to linear decomposition. We therefore computed the exact
+eigendecomposition of the activation covariance at every layer and compared the two representations
+under matched conditions (Fig.~\ref{fig:svd}, \suptab{svd_sweep} and \suptab{svd_capacity}).
+
+\paragraph{Reconstruction-matched capacity.} Truncated SVD requires rank \textbf{250--403} to reach
+the variance the SAE explains on held-out positions---403 at layer~0 (SAE 0.848), 317 at layer~5
+(0.856), 308 at layer~11 (0.823) and 250 at layer~17 (0.775). A 50-axis basis is five- to eightfold
+short of the SAE's own reconstruction capacity, so it is the wrong reference for asking what the
+dictionary can see.
+
+\paragraph{Where SAE directions sit.} For each unit-normalized decoder direction we computed the
+cumulative projection $\rho_k$ onto the rank-$k$ principal subspace, for every $k$ up to the full
+1,152 dimensions, against the random-direction expectation $\rho_k = k/d$. SAE directions are
+systematically concentrated in the leading subspace: at $k{=}100$ the median direction has
+$\rho_k = 0.21$ at layer~0 and 0.33 at layer~11, against 0.087 for a random direction, a two- to
+fourfold excess. The median direction reaches half of its norm by $k = 247$ (L0), 190 (L5), 178
+(L11) and 152 (L17), where a random direction requires 576, and reaches 90\% by $k = 664$--764
+against 1,037. SAE features are not hidden from the principal subspace; they occupy its
+high-variance part preferentially.
+
+\paragraph{Low single-axis alignment is not a capacity artefact.} The fraction of features whose
+absolute cosine with at least one of the leading $k$ axes exceeds 0.5 saturates by $k \approx
+20$--50 and does not increase thereafter. Even against the \emph{complete} 1,152-dimensional basis
+it is 0.98\% at layer~0, 0.13\% at layer~5, 0.09\% at layer~11 and 0.26\% at layer~17. Offering more
+axes does not recruit more features, because each feature distributes its norm across many axes
+rather than concentrating on one. The same conclusion holds across cosine thresholds
+$\{0.3, 0.5, 0.7, 0.9\}$ (\suptab{svd_sweep}).
+
+\paragraph{Annotation yield per direction.} We annotated the leading 50 principal axes with the
+identical top-20-gene enrichment protocol used for SAE features, in both polarities, since a
+principal axis is signed whereas a TopK feature is one-sided. Per direction, principal axes are at
+least as annotatable as features: at layer~0, 98\% of axes carry at least one significant term with
+a mean of 159.5 terms per direction and 2,029 unique terms, against 90\%, 64.4 and 1,977 for 100
+randomly drawn SAE features; at layer~11 the corresponding numbers are 98\%, 178.8 and 2,083 against
+93\%, 71.3 and 2,045. Biological annotation is therefore not the exclusive property of
+non-aligned directions.
+
+Taken together, these three measurements locate what the dictionary contributes. It is not access to
+information that linear decomposition cannot reach---the leading principal subspace contains most of
+each feature's norm and annotates readily. It is a different \emph{parameterization} of that
+information: thousands of sparse, one-sided, individually interpretable directions in place of a few
+hundred dense, signed, polysemantic ones. That is the property the rest of this study relies on,
+because it is what makes per-feature annotation, per-feature co-activation structure, and
+per-feature causal intervention possible at all.
+
+\subsection*{How many distinct concepts the atlas contains}
+\label{sec:concepts}
+
+Dictionary atoms trained at different layers occupy different vector spaces, so their counts cannot
+be pooled into a number of concepts held simultaneously in one representation. What can be compared
+across layers is each feature's gene-level signature. We built a similarity graph over all 82,525
+Geneformer features from their top-20 gene sets and partitioned it (Methods; Fig.~\ref{fig:concepts},
+\suptab{concepts}).
+
+The 82,525 atoms resolve into \textbf{18,711 distinct gene-level programs}, that is 4.4 atoms per
+program. The count is insensitive to the clustering resolution: 18,695 at $\gamma{=}0.5$ and 18,748
+at $\gamma{=}2.0$. The distribution is strongly bimodal: 17,690 programs are singletons---features
+whose gene signature overlaps no other feature's---while 1,021 multi-atom programs absorb the
+remaining 64,835 atoms, the largest containing 3,221. Redundancy is therefore concentrated in a
+small number of heavily re-derived programs rather than spread evenly. As exact sets the signatures
+are nearly all distinct: 82,442 distinct signatures, with only 56 shared by more than one feature.
+
+Programs recur across depth. Of the multi-atom programs, 97.1\% appear at two or more layers, and
+the mean program spans 3.16 layers. Read together with the near-complete representational turnover
+between adjacent layers, this gives a consistent picture: each layer rebuilds a largely fresh
+dictionary, but the gene-level programs those dictionaries express are re-derived throughout the
+stack.
+
+Within a single layer---the only place a features-per-space ratio is defined---the dictionary is
+4$\times$ overcomplete (4,608 atoms in 1,152 dimensions, of which 4,568 are alive at layer~11) and
+resolves 814--1,360 distinct programs depending on depth (1,301 at L0, 814 at L5, 1,252 at L11,
+1,360 at L17). The packing is close to the geometric limit: mean absolute decoder coherence is
+0.036 at layer~11 against a Welch bound of 0.0255 for 4,608 unit vectors in 1,152 dimensions, so
+the dictionary is near-optimally spread rather than exploiting an unusually large capacity.
+
+
+\subsection*{Causal ablation: what a feature is necessary for}
+\label{sec:causal}
+
+Annotation and co-activation establish that features correspond to biology, but not that the model
+uses them. To test necessity we ablated single features at layer~11: the hidden state was encoded
+through the SAE, one feature's activation set to zero, the state decoded and substituted, and the
+forward pass continued to the output logits. Disruption is the mean absolute change in output
+logits at a set of gene positions, and specificity is that quantity on a gene set divided by the
+same quantity on all other positions (Fig.~\ref{fig:causal}, \suptab{causal_arms}).
+
+The design of this test determines what it can show. A feature's annotation is assigned from the
+genes it most strongly activates on, so evaluating disruption at those same genes asks whether
+ablating a feature affects the genes that define it---a question whose answer is close to
+tautological. We therefore partitioned the gene positions of each tested feature into three disjoint
+sets: genes that are both in the feature's top-20 activating genes and in its annotated term; genes
+of the annotated term that are \emph{not} among its top-20 (an evaluation set independent of the
+annotation evidence); and all remaining positions. Each feature additionally received its own null:
+a random gene set matched to its held-out set in size and in mean-activation decile. Features were
+drawn from three arms---the most richly annotated features, a uniformly random sample of annotated
+features, and a uniformly random sample of all alive features---so that the result cannot depend on
+how features were selected. All 119 tested features come from K562 cells.
+
+Ablation has a large and reproducible effect on the genes a feature activates on. Median
+specificity on the top-20 genes against all other positions is 35.5$\times$ in the richly annotated
+arm, 64.3$\times$ and 62.1$\times$ in the two random arms, with over 92\% of features exceeding
+2$\times$ in every arm. Restricted to the genes that are both in the top-20 and in the annotated
+term, the medians are 37.3$\times$, 56.9$\times$ and 66.9$\times$.
+
+On the independent evaluation set the effect disappears. Median specificity on annotated-term genes
+outside the feature's top-20 is \textbf{1.04}, \textbf{0.94} and \textbf{0.97} in the three arms.
+The matched random gene sets give 0.89, 0.91 and 0.89, so the held-out sets are statistically
+indistinguishable from gene sets chosen at random with the same size and activation level: a
+per-feature Wilcoxon signed-rank test of held-out against matched random gives $p = 0.76$ and
+$p = 0.34$ in the two unbiased arms, and $p = 0.006$ with a median difference of 0.13 in the richly
+annotated arm. Fourteen of the 119 features admit no independent evaluation at all, because every
+gene of their annotated term already lies within their own top-20.
+
+The conclusion is narrower than the ablation magnitudes alone suggest. Single-feature ablation
+produces a specific, reproducible, gene-level effect, and that effect is confined to the genes on
+which the feature fires. It does not extend to the remainder of the biological process the feature
+is annotated with. Feature-level interventions therefore reveal genuine computational structure
+that component-level ablation misses~\cite{kendiukhov2025systematic}, but the structure they reveal
+is the feature's own support rather than the pathway it is labelled with.
+
+
+\subsection*{Cross-model comparison on matched inputs}
+\label{sec:crossmodel}
+
+The two atlases were built from different cells, so any direct comparison of their statistics
+confounds architecture with input distribution. To separate the two we trained Geneformer
+dictionaries on the same 3,000 Tabula Sapiens cells used for the scGPT atlas, with identical
+architecture and hyperparameters, and compared the models at matched relative depth
+(\suptab{crossmodel}). Because the scGPT dictionaries were originally trained on all available
+positions rather than a subsample, we also retrained them under the Geneformer protocol as a
+control.
+
+On matched inputs there is no uniform architectural advantage. Geneformer reconstructs better at
+the input end (0.7731 against 0.7258 at relative depth 0), the two are indistinguishable at about a
+quarter depth (0.7749 against 0.7729), and scGPT is ahead through the second half, reaching 0.8862
+against 0.7241 at the output end. The difference between the models is a depth-dependent crossover
+rather than a constant offset, and it is invisible unless the inputs are matched.
+
+Input distribution accounts for a difference of the same order. The same Geneformer dictionaries
+reconstruct their own CRISPRi-like data 5--8 percentage points better than Tabula Sapiens at every
+depth---0.8444 against 0.7731 at layer~0, for example. Both dictionaries sit close to the packing
+limit for their dimensionality: mean absolute decoder coherence is 0.030--0.036 for Geneformer and
+0.039--0.047 for scGPT, against Welch bounds of 0.0255 and 0.0362 respectively.
+
+\subsection*{Robustness to training choices}
+\label{sec:robustness}
+
+\paragraph{Architecture.} Grid-training at layer~11 over expansion ratio $\{2\times, 4\times,
+8\times\}$ and sparsity $k \in \{16, 32, 64\}$ gives variance explained rising monotonically with
+both, from 0.706 to 0.884, with the reported configuration in the middle at 0.819
+(\suptab{hyperparam}). Module count stays between 6 and 12 across the entire grid and mean decoder
+coherence between 0.033 and 0.042, so the reported structure is not a property of one corner of the
+hyperparameter space.
+
+\paragraph{Random seed.} The atlas dictionaries were trained with seed 42. Retraining at layers 0
+and 11 under six runs each---five differing only in initialisation and batch order, one with a
+different training subsample---separates what is a property of the model from what is a property of
+the run (\suptab{seed_stability}).
+
+Everything the atlas reports in aggregate is reproducible. Variance explained is
+$0.8454 \pm 0.0003$ at layer~0 and $0.8200 \pm 0.0003$ at layer~11, the annotation rate is
+$0.935 \pm 0.009$ and $0.933 \pm 0.010$, module counts are $7.2 \pm 0.4$ and $8.3 \pm 1.0$, and
+dead-feature counts are $2 \pm 1$ and $32 \pm 4$.
+
+Individual dictionary atoms are not. The mean best decoder cosine between runs is 0.282 at layer~0
+and 0.294 at layer~11, and fewer than 1\% of atoms have a counterpart above 0.9 in another run. The
+reference for these numbers is what a random direction achieves: the best match a random unit
+direction finds among 4,608 directions in 1,152 dimensions is $0.113 \pm 0.008$, and no random
+direction reaches 0.9. Cross-seed agreement is therefore well above chance and far below
+reproducibility. Independent runs learn different bases that explain the same variance and carry the
+same annotation. This bears on how the released atlases should be read: their aggregate structure
+is a property of the model, while the identity of any individual catalogued feature is partly a
+property of the training run---consistent with the gene-level analysis above, in which the recurring
+unit across layers is the program rather than the atom.
+
+\subsection*{Features without ontology annotation}
+\label{sec:unannotated}
+
+Between 41\% and 55\% of features carry no significant ontology annotation, and it matters whether
+these are structure the databases do not cover or noise. Clustering unannotated features by
+top-20 gene-set similarity places only 2--3\% into standalone gene-set clusters, among them
+ribosomal protein programs and mitochondrial complex assembly (\suptab{novel}).
+
+Two tests separate them from annotated features (\suptab{unannotated_new}). Cell-type specificity
+does not: at layers $\{0, 5, 11, 17\}$, 89.4--95.0\% of unannotated features are enriched for at
+least one cell type against 94.5--95.8\% of annotated ones, and a matched random-feature null sits
+at 91.9--94.7\%, so essentially every feature at these layers is cell-type selective and the test
+has no discriminating power. Perturbation responsiveness does: at layer~11, 2.32\% of unannotated
+features appear in a perturbation response list against 0.15\% of annotated features, a fifteenfold
+difference, with unannotated features equal or more responsive at the other three layers as well.
+
+A cautious reading is that some unannotated features carry perturbation-response signal the
+ontology databases do not describe. Being non-random is not the same as being biologically
+meaningful, however: a feature that is cell-type selective may equally be tracking donor or assay
+structure, which is why the batch analysis above is reported alongside.
+
+
+\subsection*{What the perturbation data can support}
+\label{sec:evaluability}
+
+The preceding sections establish that features are biologically annotated, modularly organized and
+causally specific. The question that remains is whether they encode regulatory logic: when a
+transcription factor is knocked down, do the features that respond correspond to that factor's
+known targets?
+
+A recovery rate answers that question only against a reference. Before measuring the atlas we
+therefore asked how much curated regulatory structure the assay can express at all. The CRISPRi
+resource measures 6,546 genes. Of the 73 perturbed transcription factors with at least 50 cells,
+only nine have five or more TRRUST targets among the measured genes, three have ten or more, and
+one has twenty or more; the median perturbed factor has exactly \textbf{one} measurable target
+(Fig.~\ref{fig:ceiling}b, \suptab{evaluability}). DoRothEA, whose regulons are larger, does
+better---13 factors with five or more measured targets at the A+B+C confidence tier, median 15---but
+the constraint is severe under every reference. For most of the panel, target-specific recovery is
+not merely difficult; it is undefined, for any method.
+
+\subsection*{A recoverability benchmark}
+\label{sec:ceiling}
+
+We therefore evaluated the SAE alongside methods that span the range of what is possible on these
+data, each emitting a ranked list of 100 putative targets per factor and each scored by the same
+hypergeometric enrichment with Benjamini--Hochberg correction across the panel and the measured
+genes as the universe (Fig.~\ref{fig:ceiling}a, \suptab{ceiling}).
+
+Differential expression of the knockdown itself is the perturbation-aware reference: it uses the
+same cells and the actual intervention, and therefore bounds what any observational method can
+achieve here. It recovers curated targets for 1/9 factors against TRRUST (11.1\%), 3/13 against
+DoRothEA A+B+C (23.1\%) and 8/18 against DoRothEA at all confidence levels (44.4\%). Established
+network inference does not approach this bound: GENIE3 reaches 12.5\%, 10.0\% and 0.0\% under the
+three references, GRNBoost2 12.5\%, 10.0\% and 7.1\%, and simple co-expression 25.0\%, 20.0\% and
+14.3\%. Contextual gene embeddings taken directly from the model, without any sparse decomposition,
+reach 12.5\%, 10.0\% and 0.0\%. Size-matched random gene sets recover nothing under any reference,
+confirming that the test is calibrated.
+
+Two things follow. The ceiling on these data is low---even the intervention itself identifies
+curated targets for fewer than half of the factors---and no observational method, whether a
+purpose-built network-inference algorithm or a foundation-model representation, comes close to it.
+The choice of universe matters for this calibration: scoring against a nominal 20,000-gene universe
+rather than the 6,546 measured genes makes random gene sets appear significant for 16.7\% of
+factors, because predictions can only be drawn from what is measured.
+
+\subsection*{Perturbation responses are detectable but not transcription-factor specific}
+\label{sec:perturbation}
+
+We mapped perturbation responses at layer~11 using up to 200 CRISPRi cells per target against 600
+non-targeting cells of the same line, encoding every cell through the atlas dictionary (Methods).
+The panel comprises 20 evaluable transcription factors and, as a negative control, ten
+perturbations of genes that are not transcription factors under any reference.
+
+\paragraph{The unit of replication.} A perturbation is applied per cell, but a per-position
+statistic treats each gene position as an observation. The intraclass correlation of feature
+activation across positions within a cell is 0.000298, which at the observed 2,020 positions per
+cell gives a design effect of 1.61: the effective sample size is about 62\% of the nominal position
+count. The correction is worth making and we make it throughout---significance is assessed over
+cells---but its magnitude is bounded, because TopK sparsity leaves activations at different
+positions of one cell close to independent.
+
+\paragraph{Responses are weak and non-specific.} Thresholding on effect size alone---a shift
+exceeding half a control standard deviation, with no correction for testing 4,608 features---the
+panel yields a mean of 3.20 responding features per factor, with 15 of 20 factors showing at least
+one. Correcting for multiple testing across features collapses this to two of twenty, so most of
+what a per-feature threshold registers does not survive the number of features being tested.
+Assessed over cells at the same effect threshold, the mean is 1.90 responding features per factor (\suptab{cell_level}). The ten non-transcription-factor controls yield
+\emph{more} responding features than the transcription factors (2.30 versus 1.90), so what the
+features register is not specific to transcription-factor perturbation.
+
+\paragraph{Where the sensitivity ends.} The clearest measurement of the limit compares the two
+readouts on identical cells. Differential expression detects the knocked-down gene itself in 15 of
+16 targets, at FDR $< 0.05$ with a median Cohen's $d$ of $-1.19$ (range $-2.76$ to $-0.49$). The
+SAE feature response detects it in 1 of 20. The perturbation is therefore unambiguously present in
+the expression profile of the same cells and is not registered by the feature responses. The
+features are not insensitive because the data are thin; they track global cell-state shifts rather
+than the gene-level consequences of the intervention. This is the specific sense in which detection
+is limited, and it is a property of what the dictionary encodes.
+
+\paragraph{Sample size.} Restricting to the 14 factors with at least 100 cells, so that sample size
+is not confounded with which factors are available, the responding-feature count is flat across a
+tenfold increase in cells (0.56 at $n{=}10$, 0.65 at $n{=}20$, 0.65 at $n{=}50$, 0.61 at
+$n{=}100$). Detection of the knockdown rises from 5.0\% to 7.1\% and saturates. Nominal target
+enrichment improves from $n{=}10$ to $n{=}50$ (7.7\% to 27.5\%) and then plateaus, so the earlier
+choice of 20 cells was somewhat under-powered, but the gain saturates well before the effect becomes
+substantial, and under correction across the panel no sample size yields a significant factor
+(\suptab{sweep}).
+
+\paragraph{Widening the training distribution.} A dictionary trained on the same control cells
+pooled with 3,000 Tabula Sapiens cells from three primary tissues gives 2.55 responding features per
+factor against 1.90 for the atlas dictionary, with the same non-transcription-factor controls at
+2.30 and detection of the knockdown at 0 of 20. Diversifying the training distribution beyond
+immortalized lines does not make regulatory structure recoverable.
+
+\subsection*{Replication across cell lines and independent datasets}
+\label{sec:replication}
+
+The measurement was repeated in three further cell lines from the same resource, with perturbed and
+non-targeting cells drawn from the same line in every case, and on two perturbation datasets
+generated by other groups with other protocols and substantially larger gene panels
+(Fig.~\ref{fig:power}c, \suptab{crossline}).
+
+Across K562, RPE1, Jurkat and HepG2 the pattern is the same. Pooling the four lines,
+\textbf{1 of 66} evaluable transcription factors shows target enrichment at FDR $< 0.05$
+(1.5\%): none of 18 in K562, none of 16 in RPE1, one of 16 in Jurkat and none of 16 in HepG2. The
+knocked-down gene itself is detected in 2 of 68 factors across the four lines. Responding-feature
+counts are low throughout (means of 0.06--1.90 per factor) and do not separate transcription
+factors from the non-transcription-factor controls, which average 0.17--2.30 in the same lines. The
+design effect is 1.61--1.73 everywhere, so the correction for the unit of replication behaves
+consistently across backgrounds. RPE1 is a non-transformed retinal pigment epithelial line and
+HepG2 a hepatocyte line, so the result is not confined to the leukaemic backgrounds in which these
+models are most often probed.
+
+Both external datasets measure far more of the transcriptome than the primary resource, and the
+difference changes the result. In THP-1 monocytes 18,649 genes are measured and the median
+perturbed factor has 19.5 curated TRRUST targets among them; in the K562 Perturb-seq data 33,694
+genes are measured. The Perturb-seq screen is a CRISPR \emph{activation} experiment, so it also
+tests the question under gene induction rather than repression: the median perturbed factor is
+induced with a Cohen's $d$ of $+0.98$ and yields 405 differentially expressed genes.
+
+On these data the features do recover targets. Against DoRothEA the SAE reaches 20--22\% of factors
+in the THP-1 data and 23--25\% in the Perturb-seq data, where on the primary panel it reached none.
+Against TRRUST it reaches none in either, while differential expression on the same cells reaches
+18\% and 30\%.
+
+Whether that recovery is transcription-factor-specific depends on the reference, and a control
+settles which part of it to believe. We ran ten perturbations of genes absent from every reference
+network through the identical pipeline and tested their predicted sets against the \emph{same}
+regulons as the transcription factors. Against the high-confidence DoRothEA subset, a factor's own
+predicted set is enriched for its own regulon in 2 of 13 cases (15\%) while the
+non-transcription-factor predictions are enriched for those same regulons in 1 of 117 (1\%) --- a
+fifteenfold separation, so this signal is specific. Against the union of all confidence levels the
+separation largely disappears: 7 of 16 (44\%) for the matching factors against 39 of 144 (27\%) for
+the controls. Those regulons have a median of 402 measured genes and reach 9,321, and a broad
+expression signature enriches for them regardless of which gene was perturbed. The
+all-confidence numbers therefore do not measure regulatory recovery, and we do not read them as
+such.
+
+Two conclusions follow, and they pull in different directions. The absence of detectable
+transcription-factor specificity in the primary CRISPRi panel is substantially a property of that
+assay: with a median of one measurable target per factor, neither these features nor differential
+expression on the same cells nor established network inference can demonstrate specificity there.
+Where the transcriptome is measured and the perturbation is strong, the features carry a modest but
+genuinely factor-specific target signal. Fifteen percent of factors, against a one percent control
+rate, is a small fraction of a small panel; it is also clearly not zero.
+
+
+% Figure blocks. Each guards its own graphic so the manuscript still compiles while a
+% figure is being regenerated; check_refs.py fails the build if any guard is still active
+% at submission time.
+\newcommand{\reviewfig}[4]{%
+  \begin{figure}[htbp]\centering
+  \IfFileExists{figures/#1}{\includegraphics[width=\textwidth]{figures/#1}}%
+    {\fbox{\parbox[c][3cm][c]{0.9\textwidth}{\centering FIGURE PENDING: \texttt{\detokenize{#1}}}}}
+  \caption{#2}\label{#3}
+  \end{figure}#4}
+
+\reviewfig{gb_fig1_atlas_overview.pdf}{\textbf{Sparse autoencoder feature atlas of Geneformer
+V2-316M.} TopK sparse autoencoders trained on all 18 layers yield 82,525 alive features.
+Reconstruction quality declines with depth while dead features increase.}{fig:overview}{}
+
+\reviewfig{fig_svd_capacity.pdf}{\textbf{The dictionary re-parameterizes the principal subspace
+rather than reaching past it.} (a)~Cumulative projection $\rho_k$ of each decoder direction onto
+the rank-$k$ principal subspace, median over features, against the random-direction expectation
+$k/d$; the shaded band is the interquartile range at layer~17 and the dotted line marks the
+50-axis basis. (b)~Truncated-SVD rank required to match the SAE's own variance explained, per
+layer. (c)~Significant enrichment terms per direction when the leading 50 principal axes are
+annotated with the protocol used for SAE features. Enrichment uses Gene Ontology, KEGG
+(Kanehisa Laboratories) and Reactome gene sets.}{fig:svd}{}
+
+\reviewfig{fig_concepts.pdf}{\textbf{Dictionary atoms and the distinct programs they express.}
+(a)~Atoms and distinct gene-level programs per layer. (b)~Aggregate across all 18 dictionaries.
+(c)~Mean absolute decoder coherence against the Welch bound, the smallest achievable maximum
+coherence for that many unit vectors in 1,152 dimensions.}{fig:concepts}{}
+
+\reviewfig{gb_fig4_ontology_heatmap.pdf}{\textbf{Biological annotation follows a U-shaped profile
+across layers.} Early layers encode molecular programs, middle layers develop more abstract
+representations, later layers re-specialize before becoming prediction-focused. Enrichment uses
+Gene Ontology, KEGG (Kanehisa Laboratories), Reactome, STRING and TRRUST gene
+sets.}{fig:ushape}{}
+
+\reviewfig{gb_fig5_coactivation.pdf}{\textbf{Co-activation modules and how their identity changes
+with depth.} Module themes shift from molecular machinery at layer~0 to integrative cellular
+programs at layer~11.}{fig:modules}{}
+
+\reviewfig{fig_highways.pdf}{\textbf{Cross-layer information flow is continuous.} (a)~Highway
+fraction for the three long-range layer pairs after permutation-null correction; the
+99th-percentile null threshold sits below the applied threshold for every pair, so the correction
+does not shift the fractions. (b)~The same quantity for all 17 consecutive layer pairs, with no
+sharp drop at any transition.}{fig:highways}{}
+
+\reviewfig{fig_ceiling.pdf}{\textbf{What these data can support.} (a)~Fraction of transcription
+factors whose predicted target set is enriched for its curated targets, at matched prediction-set
+size and under one hypergeometric framework, for every method. (b)~How many perturbed
+transcription factors have enough curated targets among the measured genes to be evaluable at
+all.}{fig:ceiling}{}
+
+\reviewfig{fig_power_replication.pdf}{\textbf{Unit of replication, sample size, and replication
+across cell lines.} (a)~Responding features under a cell-level test against a position-pooled test
+on the same cells. (b)~Target enrichment and the positive control (detection of the knockdown
+itself) as a function of perturbed cells per target, with bootstrap intervals. (c)~Regulatory
+specificity in each of the four cell lines, with perturbed and control cells drawn from the same
+line.}{fig:power}{}
+
+\reviewfig{fig_causal.pdf}{\textbf{Causal feature ablation with an independent evaluation set.}
+Specificity ratios when the evaluated genes are those of the annotated term that are excluded from
+the feature's own top-20 genes, against the confounded definition and against a size- and
+activation-matched random gene set drawn per feature.}{fig:causal}{}
+
+\section{Discussion}
+We have presented a systematic application of sparse autoencoders to single-cell foundation models,
+producing feature atlases for two architecturally distinct models: 82,525 features across 18 layers
+of Geneformer V2-316M and 24,527 features across 12 layers of scGPT whole-human. Both atlases
+reveal models that have organized biological knowledge into modular, interconnected internal
+representations. Against that organization stands a specific negative result: the features do not
+carry transcription-factor-to-target regulatory logic at a rate distinguishable from what the
+underlying measurements support.
+
+\paragraph{Superposition is real but is not invisibility.}
+Comparing thousands of dictionary atoms with a handful of principal axes cannot establish that a
+model's structure is inaccessible to linear decomposition, because the two sides of that comparison
+differ in capacity by two orders of magnitude. Under a matched comparison the picture is sharper and
+more interesting. SAE directions are not principal axes---even against the complete
+1,152-dimensional basis, under 1\% of features align with any single axis above a cosine of 0.5---but
+neither are they hidden from the principal subspace: the median direction places half of its norm
+in the leading 150--250 components, well ahead of the random-direction reference, and truncated SVD
+needs rank 250--403 to match the SAE's own reconstruction quality. Nor is biological annotation the
+exclusive property of non-aligned directions: annotated with an identical protocol, the leading 50
+principal axes yield at least as many enriched terms per direction as randomly drawn SAE features.
+What the dictionary provides is not access to otherwise unreachable information but a
+\emph{different parameterization} of it---many sparse, one-sided, individually interpretable
+directions in place of a few dense, signed, polysemantic ones. That is a real and useful property,
+and it is the one worth claiming.
+
+\paragraph{What a feature count does and does not mean.}
+Dictionary atoms trained at different layers occupy different vector spaces and cannot be summed
+into a count of concepts coexisting in one representation. Within a single layer the dictionary is
+4$\times$ overcomplete and resolves roughly 1,250 distinct gene-level programs from 4,608 atoms; in
+aggregate the 18 dictionaries hold 82,525 atoms that resolve 18,711 distinct programs, with 97\% of
+multi-atom programs recurring in two or more layers. The interesting quantity is not a compression
+ratio but this pattern of re-derivation: each layer rebuilds a largely fresh dictionary, yet the
+gene-level programs those dictionaries express recur throughout the stack.
+
+\paragraph{Hierarchical biological abstraction across layers.}
+The U-shaped annotation profile, the shift in module themes from molecular machinery to integrative
+programs, and the near-complete representational turnover between adjacent layers together describe
+hierarchical biological abstraction. This parallels findings in large language models, where early
+layers handle token-level processing and later layers more abstract semantic computation, but here
+the tokens are genes and the semantics are biological programs.
+
+\paragraph{Feature-level structure versus component-level nulls.}
+Ablating a single feature produces a large, reproducible and gene-specific change in the model's
+output where ablation of whole attention heads or MLP layers produces null behavioural
+effects~\cite{kendiukhov2025systematic}. Computation is therefore organized around directions in
+the residual stream rather than around architectural components, which is why component-level
+interventions missed it. The scope of that effect is narrow, however: it falls on the genes the
+feature fires on and not on the remainder of the biological process the feature is annotated with,
+which is indistinguishable from a size- and activation-matched random gene set. A feature is a
+handle on its own support, not on the pathway its label names---a distinction that matters for
+anyone intending to use SAE features as intervention targets.
+
+\paragraph{The co-expression--regulation boundary, and where it actually lies.}
+Our results extend to the residual stream a boundary that has now been located by several
+independent probes of the same models. Attention-derived edge scores add no incremental predictive
+value over gene-level features for perturbation-target prediction~\cite{kendiukhov2025systematic}.
+Causal circuit tracing recovers a dense, biologically coherent computational graph whose edges do
+not correspond to directed regulatory relationships~\cite{kendiukhov2026circuittracing}, and
+exhaustive mapping of that graph finds massive redundancy rather than identifiable regulatory
+pathways~\cite{kendiukhov2026exhaustive}. Direct causal intervention on gene representations in
+scGPT does not recover regulatory targets~\cite{kendiukhov2026causalintervention}, and adversarial
+validation of in-silico perturbation profiles shows the same for predicted perturbation
+responses~\cite{kendiukhov2026insilico}. Analyses of the representation geometry reach the same
+place from a different direction: the structure these models learn is organized by cell state and
+pathway membership~\cite{kendiukhov2026topology,kendiukhov2026celltypeprograms}, and although
+residual-stream geometry does carry an incremental gene-regulatory signal, that signal is fragile
+and does not survive stricter cross-validation~\cite{kendiukhov2026grsgeometry}. Sparse
+dictionaries are one more probe, applied to the one representation the others did not decompose,
+and they find what the others found.
+
+No finite set of probes can establish that regulatory information is absent from a model, because
+the proposition that it resides in some representation not yet examined is not refutable by
+examination. What can be done is to state which representations have been examined, with which
+instruments, and what was found. Attention weights, individual components, the causal graph
+connecting them, gene-embedding geometry, in-silico perturbation responses, and now a sparse
+decomposition of the residual stream have each been examined; none yields transcription
+factor-to-target structure above what the underlying measurements support. That is the sense in
+which we take the finding to be a property of these models rather than of any one instrument.
+
+The important qualification is what that boundary can be attributed to, and here the evidence is
+two-sided in a way that the primary dataset alone could not reveal.
+
+A specificity rate is uninterpretable without knowing how much of the regulatory relationship is
+recoverable from the same measurements. On the CRISPRi resource the atlas was built from, that
+ceiling is very low: the assay measures 6,546 genes and the median perturbed transcription factor
+has a single curated target among them. Differential expression computed directly on the knockdown
+recovers curated targets for a minority of factors, established network inference recovers no more,
+and the sparse features recover none, in any of four cell lines. The correct reading of that panel
+is not that the models lack regulatory structure but that the measurement cannot decide the
+question.
+
+On perturbation data that measure the transcriptome, the same features do recover targets. In a
+CRISPR-activation screen with 33,694 genes measured and strong induction, a factor's predicted
+target set is enriched for its own high-confidence regulon in 15\% of cases, against 1\% for
+perturbations of genes that are not in any reference network --- a fifteenfold separation from a
+matched control, and therefore specific rather than a generic perturbation signature. Against
+low-confidence regulons of several hundred genes the separation collapses and the apparent
+enrichment is not specific, which is why we report the two confidence tiers separately.
+
+The claim this study can support is therefore narrower than the absence of regulatory logic, and
+wider than a null result confined to one assay. Sparse features of these models carry a small
+amount of genuinely transcription-factor-specific target information, detectable only where the
+assay measures the targets and the perturbation is strong, and negligible under the conditions in
+which such analyses are usually run. Fifteen percent of a thirteen-factor panel is a modest signal
+by any standard; it is also not nothing, and an interpretability method that reports zero on a
+6,546-gene panel is measuring the panel as much as the model.
+
+\paragraph{Where the unit of analysis matters, and by how much.}
+A perturbation is applied to a cell, but a per-position statistic treats every gene position in
+that cell as a separate observation. Whether this matters depends on how strongly feature
+activation is correlated within a cell, which is an empirical question we can answer rather than
+assume. The intraclass correlation of SAE feature activation across positions of the same cell is
+$2.98 \times 10^{-4}$, which for the observed 2,020 positions per cell gives a design
+effect of 1.61, that is an effective sample size of 62\% of the nominal count. The effective sample size is therefore a modest fraction of the
+nominal position count rather than smaller by three orders of magnitude: sparse feature activations
+at different gene positions of one cell are close to independent, because the sparsity pattern
+dominates the within-cell variance.
+
+The correction is nonetheless the right one to make, and we make it: significance is assessed with
+the cell as the unit of replication throughout, holding the effect-size definition fixed at the
+position-level scale so that the cell-level and position-level results differ only in what is
+counted as an independent observation. We recommend the cell-level formulation as the default for
+any interpretability analysis that tests per-position statistics against a per-cell intervention,
+while noting that its practical effect here is bounded and measurable.
+
+\paragraph{Implications for foundation model training.}
+Current scFM training objectives may inherently bias representations toward co-expression. Learning
+causal regulatory relationships would require training signals that distinguish cause from
+correlation, such as perturbation-prediction objectives incorporated during pre-training. Equally,
+evaluating whether a model has learned such relationships requires assays that measure the target
+genes: a genome-scale perturbation atlas with a restricted expression panel bounds what any
+interpretability method can demonstrate, however good the method is.
+
+\paragraph{SAEs as a general interpretability framework for biological models.}
+Independent of the regulatory question, this work establishes SAEs as a productive framework for
+scFM interpretability. Applying an identical pipeline to two architecturally distinct models, with
+qualitatively consistent results, demonstrates that these tools transfer to any transformer-based
+biological model.
+
+\paragraph{What would settle it.}
+The decisive experiment is now clear and is not the one we set out to run. Regulatory structure in
+these representations should be assessed on perturbation atlases that measure the whole
+transcriptome, against high-confidence regulons, with perturbations of non-regulatory genes as a
+matched control, and with the recoverable ceiling computed on the same cells. Applied to a
+6,546-gene panel, any interpretability method will report a null result whose cause cannot be
+identified. We would encourage the field to report the evaluability of the assay alongside any
+claim about what a model does or does not encode.
+
+\paragraph{Limitations.}
+Several bounds apply to what we report. The regulatory analysis is limited by the gene panel of the
+perturbation assay, as quantified above; a perturbation resource measuring the full transcriptome
+would raise the ceiling against which any method is judged. TRRUST and DoRothEA are themselves
+incomplete and literature-biased; a ChIP-seq-derived catalog would give an orthogonal view we have
+not pursued. Our SAEs use one point in a wide architecture space, and although a targeted
+expansion-by-sparsity ablation and a multi-seed stability analysis both leave the conclusions
+intact, the space is not exhausted. Causal patching tests single-feature ablation; combinatorial
+effects remain unexplored. Our SAEs are trained on unperturbed activations, which may bias the
+learned dictionary toward cell-state and co-expression programs; training on pooled perturbed and
+control activations with perturbation identity as an auxiliary signal is the most direct way to test
+this and is beyond the scope of the present analysis. Finally, donor and assay identity are not
+recorded in the cached extraction metadata for the Tabula Sapiens arm, so the batch analysis rests
+on tissue as a coarse proxy.
+
+\section{Methods}
+\subsection*{Models and data}
+
+\paragraph{Geneformer.} We used Geneformer V2-316M~\cite{theodoris2023transfer} (18 transformer
+layers, 1,152 hidden dimensions, 18 attention heads per layer) from HuggingFace
+(\texttt{ctheodoris/\allowbreak Geneformer}, subfolder \texttt{Geneformer-V2-316M}). Perturbation
+data come from the Replogle genome-scale CRISPRi resource~\cite{replogle2022mapping} as a single
+processed matrix spanning four cell lines (K562, RPE1, Jurkat, HepG2; 643,413 cells, 6,546 measured
+genes, 2,023 perturbation targets plus non-targeting controls).
+
+\paragraph{Control cohort.} The atlas was built from 2,000 non-targeting control cells sampled at
+random (seed 42) from the 39,165 non-targeting cells in the resource. Because the control condition
+is defined by perturbation label, this cohort spans all four lines: 591 Jurkat, 581 K562, 567 RPE1
+and 261 HepG2 cells (mean 2,028 genes per cell, 4,056,351 total token positions). The atlas
+dictionaries are therefore learned from a multi-cell-line control population, and we refer to them
+throughout as the multi-line control atlas rather than attributing them to any single line. Cohort
+composition for every analysis is recorded in \suptab{cohorts}. For the multi-tissue
+comparison we additionally used 3,000 cells from Tabula Sapiens~\cite{tabula2022tabula} (1,000
+immune cells across 43 cell types, 1,000 kidney cells, 1,000 lung cells), yielding 5,623,164 token
+positions.
+
+\paragraph{Cell-line assignment in downstream analyses.} Analyses that compare perturbed against
+control cells draw both from the same line, so that a difference between the two cannot reflect a
+difference in cell-line composition. Causal patching is likewise run within a single stated line.
+Where an analysis uses the atlas dictionary on cells of one line, this is a deliberate transfer
+setting and is labelled as such.
+
+\paragraph{scGPT.} We used scGPT whole-human~\cite{cui2024scgpt} (12 transformer layers, 512 hidden
+dimensions, 8 attention heads per layer), trained on approximately 33 million single-cell
+transcriptomic profiles. scGPT ingests each cell as a pair of parallel token sequences:
+gene-identity tokens drawn from a vocabulary of approximately 60,700 genes, and \emph{binned}
+expression-value tokens (log1p-normalized counts discretized into 51 bins by default). Genes are
+sorted by expression level (descending) and padded or truncated to a maximum sequence length of
+1,200. Pre-training uses an attention-masking scheme (``gene prompt'' and ``value prompt'' modes)
+that enables generative prediction of expression values conditional on gene identity, which we
+refer to throughout as a generative or causal-attention objective to distinguish it from
+Geneformer's bidirectional masked-token objective. Activations were extracted from the same 3,000
+Tabula Sapiens cells, yielding 3,561,832 token positions per layer.
+
+\paragraph{Input handling for each model.} The two models differ at the first layer, and this
+difference propagates through all downstream analyses. For Geneformer the input is deterministic
+given a cell: the per-gene expression vector is sorted, each gene receives a rank token, and no
+continuous magnitude is passed to the model. For scGPT both the gene-identity token and its bin
+index are embedded and summed before the transformer stack, so the model has direct access to a
+coarse magnitude signal. Residual-stream activations therefore capture, at every layer, a
+representation whose only expression signal is gene \emph{rank} for Geneformer, and one that
+includes both rank-ordered gene identity and a binned magnitude for scGPT.
+
+\subsection*{Activation extraction}
+
+For both models we performed forward passes with PyTorch hooks registered at each transformer
+layer's output (after the residual connection), collecting hidden states at every gene position.
+Activations were stored as memory-mapped NumPy arrays (float32). Extraction used Apple Silicon MPS
+acceleration. For Geneformer ($d{=}1{,}152$) this is 336.4~GB for 18 K562 layers (18.7~GB per
+layer) and 103.6~GB for four Tabula Sapiens layers; for scGPT ($d{=}512$), approximately 82~GB for
+12 layers.
+
+For the perturbation analyses, where the quantity of interest is a per-cell summary rather than the
+raw residual stream, we instead hooked the target layer directly, encoded the captured hidden state
+through the layer's SAE on the accelerator, and reduced to per-cell statistics (mean activation,
+firing rate, and mean square of each feature over that cell's gene positions) before transfer.
+Cells were batched by sequence length. This keeps the cell as the retained unit of observation and
+makes the per-cell feature matrices small enough to resample freely.
+
+\subsection*{TopK sparse autoencoder architecture and training}
+
+We used TopK SAEs~\cite{makhzani2013ksparse} parameterized by input dimension $d$. The encoder maps
+$\mathbf{x} \in \mathbb{R}^{d}$ (centered by subtracting the training-set mean $\boldsymbol{\mu}$)
+through a linear projection to a pre-activation vector in $\mathbb{R}^{4d}$, followed by TopK
+sparsification retaining only the $k{=}32$ largest activations, to which a ReLU is applied. The
+decoder reconstructs via $\hat{\mathbf{x}} = W_\text{dec}\mathbf{h}_\text{sparse} +
+\mathbf{b}_\text{dec}$, where $W_\text{dec}$ columns are re-normalized to unit norm after each
+gradient step. Training minimized reconstruction MSE; sparsity is enforced structurally by the TopK
+operation rather than by an $L_1$ penalty.
+
+For Geneformer ($d{=}1{,}152$): 4,608 features per layer, trained on a 1M-position subsample per
+layer. For scGPT ($d{=}512$): 2,048 features per layer, trained on all 3,561,832 positions per
+layer. Both used Adam, learning rate $3 \times 10^{-4}$, batch size 4,096, and 5 epochs. The atlas
+SAEs were trained with random seed 42, which also fixes the training subsample; the sensitivity of
+every reported quantity to this choice is characterized in the seed-stability analysis below.
+
+\subsection*{Feature analysis and ontology annotation}
+
+For each alive feature (activation frequency $> 0$ on 100K held-out positions) we identified the
+top 20 genes by mean activation magnitude. Each feature was tested for enrichment against Gene
+Ontology Biological Process~\cite{ashburner2000go}, KEGG pathways~\cite{kanehisa2000kegg}, Reactome
+pathways~\cite{jassal2020reactome}, STRING protein--protein interactions~\cite{szklarczyk2023string},
+and TRRUST TF--target relationships~\cite{han2018trrust}. TF--target priors from
+DoRothEA~\cite{garcia-alonso2019dorothea} were used at the A+B+C confidence subset and at the union
+of all confidence levels. Enrichment was assessed with a one-sided Fisher's exact test and
+Benjamini--Hochberg FDR at $\alpha = 0.05$, with term sizes restricted to 5--500 genes.
+
+\subsection*{Comparison against the principal subspace}
+
+At each layer we computed the exact eigendecomposition of the activation covariance from a
+500,000-position sample (40 evenly spaced contiguous blocks), giving all $d$ principal directions
+and their eigenvalues. Three comparisons follow.
+
+\emph{Reconstruction-matched capacity.} The truncated-SVD rank $k^{*}$ at which cumulative
+eigenvalue mass equals the SAE's variance explained on held-out positions.
+
+\emph{Cumulative projection.} For each unit-normalized decoder direction $\mathbf{d}_f$ we computed
+$\rho_k = \lVert P_k \mathbf{d}_f \rVert^2 = \sum_{i \le k} (\mathbf{d}_f \cdot \mathbf{v}_i)^2$,
+the fraction of the direction's norm lying in the rank-$k$ principal subspace, for all $k$ from 1
+to $d$. The reference for these curves is a random unit direction, for which
+$\mathbb{E}[\rho_k] = k/d$.
+
+\emph{Single-axis alignment.} The fraction of features whose absolute cosine similarity with at
+least one of the leading $k$ axes exceeds $\tau$, reported jointly over
+$k \in \{1, \dots, d\}$ and $\tau \in \{0.3, 0.5, 0.7, 0.9\}$ so that the figure does not depend on
+either choice.
+
+\emph{Annotation yield per direction.} The leading 50 principal axes were annotated with the
+identical top-20-gene enrichment protocol used for SAE features. Because a principal axis is signed
+whereas a TopK feature is one-sided, each axis was annotated in both polarities (genes with the
+most positive and most negative mean projection), and results are reported per polarity and for
+their union.
+
+\subsection*{Counting distinct concepts across layers}
+
+Dictionary atoms from different layers occupy different vector spaces and cannot be pooled as
+directions. They can be compared in the shared gene space through their top-20 gene signatures. We
+built a similarity graph over all 82,525 Geneformer features, placing an edge between two features
+whose top-20 gene sets share at least 5 genes and have Jaccard similarity at least 0.14, and
+partitioned it with the Leiden algorithm~\cite{traag2019louvain} at resolutions
+$\gamma \in \{0.5, 1.0, 2.0\}$. The number of communities is the number of distinct gene-level
+programs. We additionally report, per layer, the number of atoms, the number of distinct programs,
+the mean absolute decoder coherence, and the Welch bound
+$\sqrt{(n-d)/(d(n-1))}$ for $n$ unit vectors in $\mathbb{R}^{d}$, which is the smallest achievable
+maximum coherence and therefore the correct reference for how many near-orthogonal directions a
+$d$-dimensional space can host.
+
+\subsection*{Co-activation graph and module detection}
+
+For each layer, pointwise mutual information (PMI~\cite{manning1999foundations}) was computed
+between all pairs of alive features across the layer's token positions; feature $i$ is active at
+position $j$ if it is among the top-$k$ activations there, and
+$\text{PMI}(i,j) = \log_2 P(i,j) / [P(i)P(j)]$. Edges were retained above a significance threshold
+($p < 0.001$ under a 1,000-sample permutation null in which feature activations were independently
+column-shuffled). Community detection used the Leiden algorithm~\cite{traag2019louvain} at
+resolution $\gamma = 1.0$, the \texttt{leidenalg} default. Because a single resolution is a choice
+rather than a ground truth, we swept $\gamma \in \{0.5, 0.75, 1.0, 1.5, 2.0\}$ at layers 0 and 11
+and report the resulting partition sizes and adjusted Rand indices; module counts in the main text
+are the $\gamma{=}1.0$ cut of a hierarchical structure whose qualitative module identities are
+recognizable throughout the range.
+
+\subsection*{Causal feature patching}
+
+Single-feature ablation was performed with PyTorch forward hooks. At the target layer's output the
+hidden state was encoded through the SAE, one feature's activation was zeroed, the state was
+decoded and substituted, and the forward pass continued to the output logits. Disruption is the
+mean change in output logits at a set of gene positions.
+
+Three properties of the design keep the evaluation independent of the annotation. First, features
+are drawn from three arms: the most richly annotated features, a uniformly random sample of
+annotated features, and a uniformly random sample of all alive features. Second, for each feature we
+partition gene positions into those whose gene is in both the feature's top-20 activating genes and
+its annotated term, those in the annotated term but \emph{not} in the top-20 (the independent
+evaluation set), and all others. Third, for every feature we draw a random gene set matched in size
+and in mean-activation decile to the independent evaluation set, giving each feature its own null.
+Specificity is the ratio of mean absolute disruption on a gene set to that on all other positions,
+and the held-out ratio is reported against the matched-random ratio for the same feature.
+
+\subsection*{Perturbation response mapping}
+
+For each perturbation target we sampled up to 200 CRISPRi cells and compared them against 600
+non-targeting control cells of the same line, encoding every cell through the layer-11 SAE as
+described above. A feature responds if its per-cell mean activation differs between perturbed and
+control cells (Mann--Whitney $U$ over cells, Benjamini--Hochberg across features, FDR $< 0.05$) with
+$|d| > 0.5$ (Cohen's $d$ over cells). The cell is the unit of replication throughout: gene positions
+within a cell are not independent observations, and we report the intraclass correlation of feature
+activation within cells together with the number of features that a position-pooled test would call
+significant on exactly the same cells.
+
+TF specificity is evaluated in the same framework as every other method (below): the union of the
+top-20 gene lists of responding features, ranked by effect size, forms the predicted target set,
+which is tested for enrichment of the TF's curated targets by hypergeometric test with
+Benjamini--Hochberg correction across the panel. A label-permutation null, in which perturbed and
+control labels are shuffled across the same cells, calibrates the procedure.
+
+\subsection*{Recoverability benchmark}
+
+A recovery rate is interpretable only against the amount of information the measurements contain.
+We therefore evaluated several methods on one footing: each emits a ranked list of putative targets
+for every TF in the panel, the top 100 of which are tested for enrichment of that TF's curated
+targets by hypergeometric test with Benjamini--Hochberg correction across the panel.
+
+\emph{Panel.} TFs perturbed in the cell line with at least 50 cells and at least 5 curated targets
+present among the 6,546 measured genes. The second criterion is reported explicitly, because a TF
+whose curated targets are not measured cannot show target-specific behaviour under any method.
+
+\emph{Universe.} The hypergeometric universe is the set of measured genes. Using a nominal
+20,000-gene universe is anticonservative here, since every method can only draw predictions from
+measured genes; we report both, and the random-gene-set control is calibrated only under the
+measured-gene universe.
+
+\emph{Methods.} (i)~Differential expression of the knockdown itself (Mann--Whitney over cells,
+perturbed vs non-targeting, Benjamini--Hochberg across genes), which is perturbation-aware and
+constitutes the empirical ceiling attainable on these data. (ii)~GENIE3~\cite{huynhthu2010genie3}
+and (iii)~GRNBoost2~\cite{moerman2019grnboost2}, in their published formulation: every target gene
+is regressed on the candidate regulators with a tree ensemble and regulators are ranked by variable
+importance (random forest with \texttt{max\_features}~=~$\sqrt{p}$; and stochastic gradient boosting
+with learning rate 0.01, \texttt{max\_features}~=~0.1, subsample 0.9 and early stopping), fitted on
+the same control cells. (iv)~Pearson and (v)~Spearman co-expression with the TF on the same control
+cells. (vi)~Cosine similarity between mean contextual gene embeddings taken from the Geneformer
+residual stream, a model-internal baseline that uses no SAE. (vii)~Size-matched random gene sets.
+(viii)~The SAE feature response described above.
+
+\subsection*{Replication across cell lines}
+
+The perturbation analysis was repeated in RPE1, Jurkat and HepG2 cells from the same CRISPRi
+resource, which are independent screens in independent cell backgrounds processed identically. In
+every line, perturbed cells are compared against non-targeting cells of that same line. Each line
+was analysed with two dictionaries: the multi-line control atlas dictionary, and the dictionary
+additionally trained on Tabula Sapiens primary tissue, which asks whether widening the training
+distribution beyond immortalized lines changes what is recovered.
+
+\subsection*{Run-to-run stability}
+
+The atlas SAE was retrained at layers 0, 5, 11 and 17 under five independent seeds with the
+training subsample held fixed, isolating initialization and batch-order stochasticity, plus one
+additional run per layer with a different 1M-position training subsample. Dictionaries were compared
+by decoder cosine similarity, reporting both the unconstrained best match for each atom and a greedy
+one-to-one assignment. Variance explained, dead-feature count, decoder coherence, annotation rate,
+and module count were recomputed per run.
+
+\subsection*{Matched cross-model comparison}
+
+Because the two atlases were built from different inputs, architecture and input distribution are
+confounded in any direct comparison of their statistics. We therefore trained Geneformer SAEs on the
+same Tabula Sapiens cells used for the scGPT atlas, with identical hyperparameters, and compared the
+two models on matched data at matched relative depth (layer index divided by depth minus one). For
+the Geneformer arm we additionally separate two effects by reporting the variance explained when the
+K562-trained SAE is applied to Tabula Sapiens activations against that of the SAE trained on those
+activations directly.
+
+\subsection*{Interactive web atlases}
+
+Both feature atlases were deployed as single-page web applications built with React 18, TypeScript,
+Vite 6, Tailwind CSS, and Plotly.js. All feature data were preprocessed into compact JSON files
+served statically via GitHub Pages.
+
+\subsection*{Dimensionality reduction and visualization}
+
+We projected decoder weight vectors to two dimensions using UMAP~\cite{mcinnes2018umap} with cosine
+distance, obtaining structureless point clouds as expected from quasi-orthogonal directions. We
+therefore visualized the co-activation graph directly with a force-directed layout
+(Fruchterman--Reingold via NetworkX); the corresponding supplementary figures are force-directed
+layouts of that graph and are not UMAP or t-SNE projections. For independent validation,
+annotation-based feature vectors (TF-IDF weighted ontology terms) were projected with UMAP
+($n_\text{neighbors}=15$, $\min_\text{dist}=0.1$, cosine metric) and t-SNE (perplexity 20, cosine
+metric).
+
+\subsection*{Computational environment}
+
+All experiments were run on a single Apple Silicon workstation (Apple M2 Pro, 10 cores, 32~GB
+unified memory). Acceleration used PyTorch's MPS backend, with CPU fallback for operations without
+an MPS implementation (Leiden community detection, ontology Fisher tests, tree-ensemble regression).
+Software stack: Python 3.11; PyTorch 2.x with MPS; NumPy, SciPy, scikit-learn, pandas, scanpy,
+anndata, leidenalg, python-igraph, networkx, umap-learn, statsmodels, h5py. Exact package versions
+are pinned in \texttt{requirements.txt} in the code repository. Wall-clock times for the longest
+steps are logged alongside the compute environment: Geneformer K562 activation extraction
+$\sim$8~h, SAE training $\sim$3~min per layer, per-layer PMI and Leiden $\sim$20--60~min,
+per-cell perturbation encoding $\sim$0.9 cells~s$^{-1}$.
+
+\section*{Data availability}
+All datasets analysed in this study are publicly available.
+
+\begin{itemize}\itemsep2pt
+\item \textbf{Genome-scale CRISPRi Perturb-seq} (K562, RPE1, Jurkat, HepG2)~\cite{replogle2022mapping}:
+Figshare+, \url{https://doi.org/10.25452/figshare.plus.20029387.v1}.
+\item \textbf{ECCITE-seq of THP-1 monocytes}~\cite{papalexi2021eccite}: available through the
+scPerturb collection, \url{https://doi.org/10.5281/zenodo.13350497}.
+\item \textbf{Perturb-seq of K562}~\cite{norman2019exploring}: available through the scPerturb
+collection, \url{https://doi.org/10.5281/zenodo.13350497}.
+\item \textbf{Tabula Sapiens}~\cite{tabula2022tabula}:
+\url{https://tabula-sapiens-portal.ds.czbiohub.org/} and CZ CELLxGENE.
+\item \textbf{Geneformer V2-316M}~\cite{theodoris2023transfer}:
+\url{https://huggingface.co/ctheodoris/Geneformer} (subfolder \texttt{Geneformer-V2-316M}).
+\item \textbf{scGPT whole-human}~\cite{cui2024scgpt}: \url{https://github.com/bowang-lab/scGPT}.
+\item \textbf{TRRUST v2}~\cite{han2018trrust}: \url{https://www.grnpedia.org/trrust/}.
+\item \textbf{DoRothEA}~\cite{garcia-alonso2019dorothea}: \url{https://saezlab.github.io/dorothea/}.
+\item \textbf{Gene Ontology}~\cite{ashburner2000go}: \url{http://geneontology.org/}.
+\item \textbf{KEGG}~\cite{kanehisa2000kegg}: \url{https://www.kegg.jp/}. KEGG pathway gene sets are
+used under permission from Kanehisa Laboratories.
+\item \textbf{Reactome}~\cite{jassal2020reactome}: \url{https://reactome.org/}.
+\item \textbf{STRING}~\cite{szklarczyk2023string}: \url{https://string-db.org/}.
+\end{itemize}
+
+\noindent
+The two feature atlases produced by this work are released as interactive web platforms:
+Geneformer (\url{https://biodyn-ai.github.io/geneformer-atlas/}) and scGPT
+(\url{https://biodyn-ai.github.io/scgpt-atlas/}).
+
+\section*{Code availability}
+All analysis code, trained sparse autoencoder checkpoints, feature catalogs, and the result files
+from which every figure and table in this article is generated are archived at Zenodo,
+\textbf{[Zenodo DOI to be inserted at acceptance]}, and are also available at
+\url{https://github.com/Biodyn-AI/bio-sae}. The archive includes the figure- and
+table-generation scripts, so each reported number can be traced to the result file that produced
+it, together with a reference-consistency check that verifies the correspondence between the main
+text and the Supplementary Information. Source for the interactive atlases is at
+\url{https://github.com/Biodyn-AI/geneformer-atlas} and
+\url{https://github.com/Biodyn-AI/scgpt-atlas}.
+
+\section*{Acknowledgements}
+Computations were performed on Apple Silicon hardware with MPS acceleration.
+
+\section*{Author contributions}
+I.K. is the sole author. I.K. conceptualized the study, developed the methodology, wrote all
+software, performed all computational experiments, built the interactive feature atlases,
+analysed and interpreted the results, and wrote the manuscript.
+
+\section*{Competing interests}
+The author declares no competing interests.
+
+\bibliography{references}
+
+\end{document}

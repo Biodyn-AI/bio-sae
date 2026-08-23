@@ -1,0 +1,161 @@
+We have presented a systematic application of sparse autoencoders to single-cell foundation models,
+producing feature atlases for two architecturally distinct models: 82,525 features across 18 layers
+of Geneformer V2-316M and 24,527 features across 12 layers of scGPT whole-human. Both atlases
+reveal models that have organized biological knowledge into modular, interconnected internal
+representations. Against that organization stands a specific negative result: the features do not
+carry transcription-factor-to-target regulatory logic at a rate distinguishable from what the
+underlying measurements support.
+
+\paragraph{Superposition is real but is not invisibility.}
+Comparing thousands of dictionary atoms with a handful of principal axes cannot establish that a
+model's structure is inaccessible to linear decomposition, because the two sides of that comparison
+differ in capacity by two orders of magnitude. Under a matched comparison the picture is sharper and
+more interesting. SAE directions are not principal axes---even against the complete
+1,152-dimensional basis, under 1\% of features align with any single axis above a cosine of 0.5---but
+neither are they hidden from the principal subspace: the median direction places half of its norm
+in the leading 150--250 components, well ahead of the random-direction reference, and truncated SVD
+needs rank 250--403 to match the SAE's own reconstruction quality. Nor is biological annotation the
+exclusive property of non-aligned directions: annotated with an identical protocol, the leading 50
+principal axes yield at least as many enriched terms per direction as randomly drawn SAE features.
+What the dictionary provides is not access to otherwise unreachable information but a
+\emph{different parameterization} of it---many sparse, one-sided, individually interpretable
+directions in place of a few dense, signed, polysemantic ones. That is a real and useful property,
+and it is the one worth claiming.
+
+\paragraph{What a feature count does and does not mean.}
+Dictionary atoms trained at different layers occupy different vector spaces and cannot be summed
+into a count of concepts coexisting in one representation. Within a single layer the dictionary is
+4$\times$ overcomplete and resolves roughly 1,250 distinct gene-level programs from 4,608 atoms; in
+aggregate the 18 dictionaries hold 82,525 atoms that resolve 18,711 distinct programs, with 97\% of
+multi-atom programs recurring in two or more layers. The interesting quantity is not a compression
+ratio but this pattern of re-derivation: each layer rebuilds a largely fresh dictionary, yet the
+gene-level programs those dictionaries express recur throughout the stack.
+
+\paragraph{Hierarchical biological abstraction across layers.}
+The U-shaped annotation profile, the shift in module themes from molecular machinery to integrative
+programs, and the near-complete representational turnover between adjacent layers together describe
+hierarchical biological abstraction. This parallels findings in large language models, where early
+layers handle token-level processing and later layers more abstract semantic computation, but here
+the tokens are genes and the semantics are biological programs.
+
+\paragraph{Feature-level structure versus component-level nulls.}
+Ablating a single feature produces a large, reproducible and gene-specific change in the model's
+output where ablation of whole attention heads or MLP layers produces null behavioural
+effects~\cite{kendiukhov2025systematic}. Computation is therefore organized around directions in
+the residual stream rather than around architectural components, which is why component-level
+interventions missed it. The scope of that effect is narrow, however: it falls on the genes the
+feature fires on and not on the remainder of the biological process the feature is annotated with,
+which is indistinguishable from a size- and activation-matched random gene set. A feature is a
+handle on its own support, not on the pathway its label names---a distinction that matters for
+anyone intending to use SAE features as intervention targets.
+
+\paragraph{The co-expression--regulation boundary, and where it actually lies.}
+Our results extend to the residual stream a boundary that has now been located by several
+independent probes of the same models. Attention-derived edge scores add no incremental predictive
+value over gene-level features for perturbation-target prediction~\cite{kendiukhov2025systematic}.
+Causal circuit tracing recovers a dense, biologically coherent computational graph whose edges do
+not correspond to directed regulatory relationships~\cite{kendiukhov2026circuittracing}, and
+exhaustive mapping of that graph finds massive redundancy rather than identifiable regulatory
+pathways~\cite{kendiukhov2026exhaustive}. Direct causal intervention on gene representations in
+scGPT does not recover regulatory targets~\cite{kendiukhov2026causalintervention}, and adversarial
+validation of in-silico perturbation profiles shows the same for predicted perturbation
+responses~\cite{kendiukhov2026insilico}. Analyses of the representation geometry reach the same
+place from a different direction: the structure these models learn is organized by cell state and
+pathway membership~\cite{kendiukhov2026topology,kendiukhov2026celltypeprograms}, and although
+residual-stream geometry does carry an incremental gene-regulatory signal, that signal is fragile
+and does not survive stricter cross-validation~\cite{kendiukhov2026grsgeometry}. Sparse
+dictionaries are one more probe, applied to the one representation the others did not decompose,
+and they find what the others found.
+
+No finite set of probes can establish that regulatory information is absent from a model, because
+the proposition that it resides in some representation not yet examined is not refutable by
+examination. What can be done is to state which representations have been examined, with which
+instruments, and what was found. Attention weights, individual components, the causal graph
+connecting them, gene-embedding geometry, in-silico perturbation responses, and now a sparse
+decomposition of the residual stream have each been examined; none yields transcription
+factor-to-target structure above what the underlying measurements support. That is the sense in
+which we take the finding to be a property of these models rather than of any one instrument.
+
+The important qualification is what that boundary can be attributed to, and here the evidence is
+two-sided in a way that the primary dataset alone could not reveal.
+
+A specificity rate is uninterpretable without knowing how much of the regulatory relationship is
+recoverable from the same measurements. On the CRISPRi resource the atlas was built from, that
+ceiling is very low: the assay measures 6,546 genes and the median perturbed transcription factor
+has a single curated target among them. Differential expression computed directly on the knockdown
+recovers curated targets for a minority of factors, established network inference recovers no more,
+and the sparse features recover none, in any of four cell lines. The correct reading of that panel
+is not that the models lack regulatory structure but that the measurement cannot decide the
+question.
+
+On perturbation data that measure the transcriptome, the same features do recover targets. In a
+CRISPR-activation screen with 33,694 genes measured and strong induction, a factor's predicted
+target set is enriched for its own high-confidence regulon in 15\% of cases, against 1\% for
+perturbations of genes that are not in any reference network --- a fifteenfold separation from a
+matched control, and therefore specific rather than a generic perturbation signature. Against
+low-confidence regulons of several hundred genes the separation collapses and the apparent
+enrichment is not specific, which is why we report the two confidence tiers separately.
+
+The claim this study can support is therefore narrower than the absence of regulatory logic, and
+wider than a null result confined to one assay. Sparse features of these models carry a small
+amount of genuinely transcription-factor-specific target information, detectable only where the
+assay measures the targets and the perturbation is strong, and negligible under the conditions in
+which such analyses are usually run. Fifteen percent of a thirteen-factor panel is a modest signal
+by any standard; it is also not nothing, and an interpretability method that reports zero on a
+6,546-gene panel is measuring the panel as much as the model.
+
+\paragraph{Where the unit of analysis matters, and by how much.}
+A perturbation is applied to a cell, but a per-position statistic treats every gene position in
+that cell as a separate observation. Whether this matters depends on how strongly feature
+activation is correlated within a cell, which is an empirical question we can answer rather than
+assume. The intraclass correlation of SAE feature activation across positions of the same cell is
+$2.98 \times 10^{-4}$, which for the observed 2,020 positions per cell gives a design
+effect of 1.61, that is an effective sample size of 62\% of the nominal count. The effective sample size is therefore a modest fraction of the
+nominal position count rather than smaller by three orders of magnitude: sparse feature activations
+at different gene positions of one cell are close to independent, because the sparsity pattern
+dominates the within-cell variance.
+
+The correction is nonetheless the right one to make, and we make it: significance is assessed with
+the cell as the unit of replication throughout, holding the effect-size definition fixed at the
+position-level scale so that the cell-level and position-level results differ only in what is
+counted as an independent observation. We recommend the cell-level formulation as the default for
+any interpretability analysis that tests per-position statistics against a per-cell intervention,
+while noting that its practical effect here is bounded and measurable.
+
+\paragraph{Implications for foundation model training.}
+Current scFM training objectives may inherently bias representations toward co-expression. Learning
+causal regulatory relationships would require training signals that distinguish cause from
+correlation, such as perturbation-prediction objectives incorporated during pre-training. Equally,
+evaluating whether a model has learned such relationships requires assays that measure the target
+genes: a genome-scale perturbation atlas with a restricted expression panel bounds what any
+interpretability method can demonstrate, however good the method is.
+
+\paragraph{SAEs as a general interpretability framework for biological models.}
+Independent of the regulatory question, this work establishes SAEs as a productive framework for
+scFM interpretability. Applying an identical pipeline to two architecturally distinct models, with
+qualitatively consistent results, demonstrates that these tools transfer to any transformer-based
+biological model.
+
+\paragraph{What would settle it.}
+The decisive experiment is now clear and is not the one we set out to run. Regulatory structure in
+these representations should be assessed on perturbation atlases that measure the whole
+transcriptome, against high-confidence regulons, with perturbations of non-regulatory genes as a
+matched control, and with the recoverable ceiling computed on the same cells. Applied to a
+6,546-gene panel, any interpretability method will report a null result whose cause cannot be
+identified. We would encourage the field to report the evaluability of the assay alongside any
+claim about what a model does or does not encode.
+
+\paragraph{Limitations.}
+Several bounds apply to what we report. The regulatory analysis is limited by the gene panel of the
+perturbation assay, as quantified above; a perturbation resource measuring the full transcriptome
+would raise the ceiling against which any method is judged. TRRUST and DoRothEA are themselves
+incomplete and literature-biased; a ChIP-seq-derived catalog would give an orthogonal view we have
+not pursued. Our SAEs use one point in a wide architecture space, and although a targeted
+expansion-by-sparsity ablation and a multi-seed stability analysis both leave the conclusions
+intact, the space is not exhausted. Causal patching tests single-feature ablation; combinatorial
+effects remain unexplored. Our SAEs are trained on unperturbed activations, which may bias the
+learned dictionary toward cell-state and co-expression programs; training on pooled perturbed and
+control activations with perturbation identity as an auxiliary signal is the most direct way to test
+this and is beyond the scope of the present analysis. Finally, donor and assay identity are not
+recorded in the cached extraction metadata for the Tabula Sapiens arm, so the batch analysis rests
+on tissue as a coarse proxy.

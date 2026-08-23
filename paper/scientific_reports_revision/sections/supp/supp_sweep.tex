@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Sample-size sweep.} Perturbation response as a function of cells per target.}
+\label{tab:sweep}
+\smallskip
+\small
+\begin{tabular}{rrrrr}
+\toprule
+Cells per target & Responding features & Detects knockdown (\%) & Nominal enrichment (\%) & Draws \\
+\midrule
+10 & 0.56 & 5.0 & 7.7 & 280 \\
+20 & 0.65 & 6.8 & 15.5 & 280 \\
+50 & 0.65 & 7.1 & 27.5 & 280 \\
+100 & 0.61 & 7.1 & 26.9 & 280 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Restricted to the 14 transcription factors with at least 100 cells, so sample size is not confounded with which factors are available. Twenty bootstrap draws per factor per sample size. Enrichment p-values are nominal; under Benjamini--Hochberg across the panel no sample size yields a significant factor.
+\end{table}

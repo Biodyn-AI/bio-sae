@@ -1,0 +1,2149 @@
+{
+  "seed": 42,
+  "scores": {
+    "TRRUST|measured": {
+      "genie3": {
+        "n_tfs": 8,
+        "n_significant": 1,
+        "frac_significant": 0.125,
+        "median_fold_enrichment": 0.0,
+        "mean_overlap": 0.5,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 11,
+            "overlap": 3,
+            "fold_enrichment": 17.85272727272727,
+            "p": 0.000522222834655883,
+            "fdr": 0.004177782677247064,
+            "significant": true
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 1,
+            "fold_enrichment": 10.91,
+            "p": 0.0882613746498245,
+            "fdr": 0.353045498599298,
+            "significant": false
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 8,
+        "n_significant": 1,
+        "frac_significant": 0.125,
+        "median_fold_enrichment": 0.0,
+        "mean_overlap": 0.75,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 11,
+            "overlap": 4,
+            "fold_enrichment": 23.80363636363636,
+            "p": 1.558766967945829e-05,
+            "fdr": 0.0001247013574356663,
+            "significant": true
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 1,
+            "fold_enrichment": 13.092,
+            "p": 0.07410614059687971,
+            "fdr": 0.23536366573286535,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 1,
+            "fold_enrichment": 10.91,
+            "p": 0.0882613746498245,
+            "fdr": 0.23536366573286535,
+            "significant": false
+          }
+        ]
+      }
+    },
+    "TRRUST|20000": {
+      "genie3": {
+        "n_tfs": 8,
+        "n_significant": 1,
+        "frac_significant": 0.125,
+        "median_fold_enrichment": 0.0,
+        "mean_overlap": 0.5,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 11,
+            "overlap": 3,
+            "fold_enrichment": 54.54545454545455,
+            "p": 1.9438668626937253e-05,
+            "fdr": 0.00015550934901549803,
+            "significant": true
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 1,
+            "fold_enrichment": 33.333333333333336,
+            "p": 0.029631148491970394,
+            "fdr": 0.11852459396788158,
+            "significant": false
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 8,
+        "n_significant": 1,
+        "frac_significant": 0.125,
+        "median_fold_enrichment": 0.0,
+        "mean_overlap": 0.75,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 11,
+            "overlap": 4,
+            "fold_enrichment": 72.72727272727273,
+            "p": 1.8900043379821526e-07,
+            "fdr": 1.512003470385722e-06,
+            "significant": true
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 1,
+            "fold_enrichment": 40.0,
+            "p": 0.02475369761733843,
+            "fdr": 0.07901639597858771,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 7,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 6,
+            "overlap": 1,
+            "fold_enrichment": 33.333333333333336,
+            "p": 0.029631148491970394,
+            "fdr": 0.07901639597858771,
+            "significant": false
+          }
+        ]
+      }
+    },
+    "DoRothEA_ABC|measured": {
+      "genie3": {
+        "n_tfs": 10,
+        "n_significant": 1,
+        "frac_significant": 0.1,
+        "median_fold_enrichment": 0.0,
+        "mean_overlap": 1.2,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 6,
+            "fold_enrichment": 7.701176470588235,
+            "p": 0.00011291215897594784,
+            "fdr": 0.0011291215897594783,
+            "significant": true
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 33,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 15,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 14,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 1,
+            "fold_enrichment": 1.2835294117647058,
+            "p": 0.5453154640561513,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 31,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 57,
+            "overlap": 4,
+            "fold_enrichment": 4.593684210526315,
+            "p": 0.010907578232465655,
+            "fdr": 0.05453789116232828,
+            "significant": false
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 32,
+            "overlap": 1,
+            "fold_enrichment": 2.045625,
+            "p": 0.38969708337292847,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 83,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 10,
+        "n_significant": 1,
+        "frac_significant": 0.1,
+        "median_fold_enrichment": 1.664577205882353,
+        "mean_overlap": 1.4,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 7,
+            "fold_enrichment": 8.98470588235294,
+            "p": 1.049569793319096e-05,
+            "fdr": 0.00010495697933190961,
+            "significant": true
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 33,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 15,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 14,
+            "overlap": 1,
+            "fold_enrichment": 4.675714285714285,
+            "p": 0.194053132289967,
+            "fdr": 0.64684377429989,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 1,
+            "fold_enrichment": 1.2835294117647058,
+            "p": 0.5453154640561513,
+            "fdr": 0.9088591067602522,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 31,
+            "overlap": 1,
+            "fold_enrichment": 2.111612903225806,
+            "p": 0.38018339800072143,
+            "fdr": 0.7793941667458569,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 57,
+            "overlap": 3,
+            "fold_enrichment": 3.4452631578947366,
+            "p": 0.05595728842506732,
+            "fdr": 0.2797864421253366,
+            "significant": false
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 32,
+            "overlap": 1,
+            "fold_enrichment": 2.045625,
+            "p": 0.38969708337292847,
+            "fdr": 0.7793941667458569,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 83,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          }
+        ]
+      }
+    },
+    "DoRothEA_ABC|20000": {
+      "genie3": {
+        "n_tfs": 10,
+        "n_significant": 2,
+        "frac_significant": 0.2,
+        "median_fold_enrichment": 0.0,
+        "mean_overlap": 1.2,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 6,
+            "fold_enrichment": 23.52941176470588,
+            "p": 2.0157317276129642e-07,
+            "fdr": 2.0157317276129643e-06,
+            "significant": true
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 33,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 15,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 14,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 1,
+            "fold_enrichment": 3.9215686274509802,
+            "p": 0.22582747243545134,
+            "fdr": 0.5645686810886283,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 31,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 57,
+            "overlap": 4,
+            "fold_enrichment": 14.035087719298247,
+            "p": 0.000189651806615233,
+            "fdr": 0.0009482590330761651,
+            "significant": true
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 32,
+            "overlap": 1,
+            "fold_enrichment": 6.25,
+            "p": 0.14830439984737168,
+            "fdr": 0.4943479994912389,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 83,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 10,
+        "n_significant": 2,
+        "frac_significant": 0.2,
+        "median_fold_enrichment": 5.08578431372549,
+        "mean_overlap": 1.4,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 7,
+            "fold_enrichment": 27.45098039215686,
+            "p": 6.105441980858341e-09,
+            "fdr": 6.10544198085834e-08,
+            "significant": true
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 33,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 15,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 14,
+            "overlap": 1,
+            "fold_enrichment": 14.285714285714285,
+            "p": 0.06779120477060561,
+            "fdr": 0.22597068256868538,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 51,
+            "overlap": 1,
+            "fold_enrichment": 3.9215686274509802,
+            "p": 0.22582747243545134,
+            "fdr": 0.37637912072575225,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 31,
+            "overlap": 1,
+            "fold_enrichment": 6.451612903225807,
+            "p": 0.14401784491178032,
+            "fdr": 0.29660879969474335,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 57,
+            "overlap": 3,
+            "fold_enrichment": 10.526315789473685,
+            "p": 0.002918148313838738,
+            "fdr": 0.014590741569193691,
+            "significant": true
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 32,
+            "overlap": 1,
+            "fold_enrichment": 6.25,
+            "p": 0.14830439984737168,
+            "fdr": 0.29660879969474335,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 83,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          }
+        ]
+      }
+    },
+    "DoRothEA_all|measured": {
+      "genie3": {
+        "n_tfs": 14,
+        "n_significant": 0,
+        "frac_significant": 0.0,
+        "median_fold_enrichment": 0.9155467836257309,
+        "mean_overlap": 3.5714285714285716,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 7,
+            "fold_enrichment": 2.7438323353293415,
+            "p": 0.013618279198597191,
+            "fdr": 0.19065590878036068,
+            "significant": false
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 2,
+            "fold_enrichment": 0.5897297297297297,
+            "p": 0.8589093196366222,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 5,
+            "fold_enrichment": 1.6614213197969543,
+            "p": 0.18240825889868686,
+            "fdr": 0.5107431249163232,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 0.6513432835820896,
+            "p": 0.8179614188187367,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 2,
+            "fold_enrichment": 0.9697777777777778,
+            "p": 0.6156279390156116,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 1,
+            "fold_enrichment": 0.41430379746835444,
+            "p": 0.9147521278637023,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 5,
+            "fold_enrichment": 2.032919254658385,
+            "p": 0.09940231244150377,
+            "fdr": 0.3479080935452632,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 3,
+            "fold_enrichment": 0.6914788732394366,
+            "p": 0.8159387330810992,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 8,
+            "fold_enrichment": 1.7514381270903008,
+            "p": 0.08579378128160091,
+            "fdr": 0.3479080935452632,
+            "significant": false
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 0.36983050847457627,
+            "p": 0.9368602021645568,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 2.0185903083700443,
+            "p": 0.05802752680620338,
+            "fdr": 0.3479080935452632,
+            "significant": false
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 3,
+            "fold_enrichment": 0.8613157894736841,
+            "p": 0.6830070018647116,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 4,
+            "fold_enrichment": 1.3291370558375635,
+            "p": 0.3548649311266413,
+            "fdr": 0.8280181726288297,
+            "significant": false
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 14,
+        "n_significant": 1,
+        "frac_significant": 0.07142857142857142,
+        "median_fold_enrichment": 0.7465880614277454,
+        "mean_overlap": 3.2857142857142856,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 10,
+            "fold_enrichment": 3.9197604790419165,
+            "p": 0.00021332400281945702,
+            "fdr": 0.002986536039472398,
+            "significant": true
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 6,
+            "fold_enrichment": 1.769189189189189,
+            "p": 0.12325978864865193,
+            "fdr": 0.5752123470270424,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 1,
+            "fold_enrichment": 4.09125,
+            "p": 0.218542979350627,
+            "fdr": 0.6479767884664717,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 1,
+            "fold_enrichment": 0.33228426395939087,
+            "p": 0.9540128480216342,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 0.6513432835820896,
+            "p": 0.8179614188187367,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 1,
+            "fold_enrichment": 0.4848888888888889,
+            "p": 0.8775410635507036,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 2,
+            "fold_enrichment": 0.8286075949367089,
+            "p": 0.7005819291431581,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 4,
+            "fold_enrichment": 1.6263354037267082,
+            "p": 0.23142028159516845,
+            "fdr": 0.6479767884664717,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 2,
+            "fold_enrichment": 0.4609859154929577,
+            "p": 0.9358088635174217,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 5,
+            "fold_enrichment": 1.094648829431438,
+            "p": 0.48396155958538156,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 0.36983050847457627,
+            "p": 0.9368602021645568,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 2.0185903083700443,
+            "p": 0.05802752680620338,
+            "fdr": 0.40619268764342364,
+            "significant": false
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 2,
+            "fold_enrichment": 0.5742105263157894,
+            "p": 0.868976597936133,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 2,
+            "fold_enrichment": 0.6645685279187817,
+            "p": 0.8090613449858252,
+            "fdr": 0.9540128480216342,
+            "significant": false
+          }
+        ]
+      }
+    },
+    "DoRothEA_all|20000": {
+      "genie3": {
+        "n_tfs": 14,
+        "n_significant": 6,
+        "frac_significant": 0.42857142857142855,
+        "median_fold_enrichment": 2.797270955165692,
+        "mean_overlap": 3.5714285714285716,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 7,
+            "fold_enrichment": 8.383233532934133,
+            "p": 2.0815272345472403e-05,
+            "fdr": 0.00029141381283661363,
+            "significant": true
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 2,
+            "fold_enrichment": 1.8018018018018016,
+            "p": 0.30494300344006164,
+            "fdr": 0.388109277105533,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 5,
+            "fold_enrichment": 5.0761421319796955,
+            "p": 0.003115859576149285,
+            "fdr": 0.008724406813217997,
+            "significant": true
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 1.9900497512437814,
+            "p": 0.2660812678804325,
+            "fdr": 0.3725137750326055,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 2,
+            "fold_enrichment": 2.962962962962963,
+            "p": 0.1464946438372834,
+            "fdr": 0.25636562671524593,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 1,
+            "fold_enrichment": 1.2658227848101264,
+            "p": 0.5484704407881555,
+            "fdr": 0.6351896720983968,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 5,
+            "fold_enrichment": 6.211180124223602,
+            "p": 0.001292748874885577,
+            "fdr": 0.0045246210620995195,
+            "significant": true
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 3,
+            "fold_enrichment": 2.1126760563380285,
+            "p": 0.16997124429319052,
+            "fdr": 0.26439971334496304,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 8,
+            "fold_enrichment": 5.351170568561873,
+            "p": 0.00012859612751629104,
+            "fdr": 0.0006754235318796152,
+            "significant": true
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 1.1299435028248588,
+            "p": 0.5898189812342256,
+            "fdr": 0.6351896720983968,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 6.167400881057269,
+            "p": 0.00014473361397420326,
+            "fdr": 0.0006754235318796152,
+            "significant": true
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 3,
+            "fold_enrichment": 2.6315789473684212,
+            "p": 0.1062847090079102,
+            "fdr": 0.2125694180158204,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 4,
+            "fold_enrichment": 4.060913705583756,
+            "p": 0.017197617805957313,
+            "fdr": 0.04012777488056706,
+            "significant": true
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 14,
+        "n_significant": 5,
+        "frac_significant": 0.35714285714285715,
+        "median_fold_enrichment": 2.2810512112060657,
+        "mean_overlap": 3.2857142857142856,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 10,
+            "fold_enrichment": 11.976047904191617,
+            "p": 1.1401560532360952e-08,
+            "fdr": 1.5962184745305333e-07,
+            "significant": true
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 6,
+            "fold_enrichment": 5.405405405405405,
+            "p": 0.0008751415598875222,
+            "fdr": 0.00408399394614177,
+            "significant": true
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 1,
+            "fold_enrichment": 12.5,
+            "p": 0.0770967170967323,
+            "fdr": 0.17989233989237538,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 1,
+            "fold_enrichment": 1.015228426395939,
+            "p": 0.6292968170147442,
+            "fdr": 0.6292968170147442,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 1.9900497512437814,
+            "p": 0.2660812678804325,
+            "fdr": 0.4139041944806728,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 1,
+            "fold_enrichment": 1.4814814814814814,
+            "p": 0.49286397914049623,
+            "fdr": 0.5750079756639123,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 2,
+            "fold_enrichment": 2.531645569620253,
+            "p": 0.18711871939084337,
+            "fdr": 0.37423743878168675,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 4,
+            "fold_enrichment": 4.968944099378882,
+            "p": 0.008723012171548597,
+            "fdr": 0.03053054260042009,
+            "significant": true
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 2,
+            "fold_enrichment": 1.4084507042253522,
+            "p": 0.4164335620627979,
+            "fdr": 0.5300063517162883,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 5,
+            "fold_enrichment": 3.34448160535117,
+            "p": 0.0171843023546247,
+            "fdr": 0.04811604659294916,
+            "significant": true
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 1.1299435028248588,
+            "p": 0.5898189812342256,
+            "fdr": 0.6292968170147442,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 6.167400881057269,
+            "p": 0.00014473361397420326,
+            "fdr": 0.0010131352978194228,
+            "significant": true
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 2,
+            "fold_enrichment": 1.7543859649122808,
+            "p": 0.3159949378887583,
+            "fdr": 0.4423929130442616,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 2,
+            "fold_enrichment": 2.030456852791878,
+            "p": 0.25866888843123115,
+            "fdr": 0.4139041944806728,
+            "significant": false
+          }
+        ]
+      }
+    },
+    "union|measured": {
+      "genie3": {
+        "n_tfs": 16,
+        "n_significant": 0,
+        "frac_significant": 0.0,
+        "median_fold_enrichment": 0.7763973313565604,
+        "mean_overlap": 3.125,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 7,
+            "fold_enrichment": 2.7438323353293415,
+            "p": 0.013618279198597191,
+            "fdr": 0.21789246717755506,
+            "significant": false
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 2,
+            "fold_enrichment": 0.5897297297297297,
+            "p": 0.8589093196366222,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 5,
+            "fold_enrichment": 1.6614213197969543,
+            "p": 0.18240825889868686,
+            "fdr": 0.583706428475798,
+            "significant": false
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 0.6513432835820896,
+            "p": 0.8179614188187367,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 2,
+            "fold_enrichment": 0.9697777777777778,
+            "p": 0.6156279390156116,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 1,
+            "fold_enrichment": 0.41430379746835444,
+            "p": 0.9147521278637023,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 5,
+            "fold_enrichment": 2.032919254658385,
+            "p": 0.09940231244150377,
+            "fdr": 0.3976092497660151,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 3,
+            "fold_enrichment": 0.6914788732394366,
+            "p": 0.8159387330810992,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 8,
+            "fold_enrichment": 1.7514381270903008,
+            "p": 0.08579378128160091,
+            "fdr": 0.3976092497660151,
+            "significant": false
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 0.36983050847457627,
+            "p": 0.9368602021645568,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 2.0185903083700443,
+            "p": 0.05802752680620338,
+            "fdr": 0.3976092497660151,
+            "significant": false
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 3,
+            "fold_enrichment": 0.8613157894736841,
+            "p": 0.6830070018647116,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 4,
+            "fold_enrichment": 1.3291370558375635,
+            "p": 0.3548649311266413,
+            "fdr": 0.9463064830043768,
+            "significant": false
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 16,
+        "n_significant": 1,
+        "frac_significant": 0.0625,
+        "median_fold_enrichment": 0.7465880614277454,
+        "mean_overlap": 2.9375,
+        "universe": 6546,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 10,
+            "fold_enrichment": 3.9197604790419165,
+            "p": 0.00021332400281945702,
+            "fdr": 0.0034131840451113124,
+            "significant": true
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 6,
+            "fold_enrichment": 1.769189189189189,
+            "p": 0.12325978864865193,
+            "fdr": 0.49303915459460773,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 1,
+            "fold_enrichment": 4.09125,
+            "p": 0.218542979350627,
+            "fdr": 0.6171207509204492,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 1,
+            "fold_enrichment": 0.33228426395939087,
+            "p": 0.9540128480216342,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 1,
+            "fold_enrichment": 13.092,
+            "p": 0.07410614059687971,
+            "fdr": 0.39523274985002516,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 0.6513432835820896,
+            "p": 0.8179614188187367,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 1,
+            "fold_enrichment": 0.4848888888888889,
+            "p": 0.8775410635507036,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 2,
+            "fold_enrichment": 0.8286075949367089,
+            "p": 0.7005819291431581,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 4,
+            "fold_enrichment": 1.6263354037267082,
+            "p": 0.23142028159516845,
+            "fdr": 0.6171207509204492,
+            "significant": false
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 2,
+            "fold_enrichment": 0.4609859154929577,
+            "p": 0.9358088635174217,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 5,
+            "fold_enrichment": 1.094648829431438,
+            "p": 0.48396155958538156,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 0.36983050847457627,
+            "p": 0.9368602021645568,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 2.0185903083700443,
+            "p": 0.05802752680620338,
+            "fdr": 0.39523274985002516,
+            "significant": false
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 2,
+            "fold_enrichment": 0.5742105263157894,
+            "p": 0.868976597936133,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 2,
+            "fold_enrichment": 0.6645685279187817,
+            "p": 0.8090613449858252,
+            "fdr": 1.0,
+            "significant": false
+          }
+        ]
+      }
+    },
+    "union|20000": {
+      "genie3": {
+        "n_tfs": 16,
+        "n_significant": 6,
+        "frac_significant": 0.375,
+        "median_fold_enrichment": 2.3721275018532246,
+        "mean_overlap": 3.125,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 7,
+            "fold_enrichment": 8.383233532934133,
+            "p": 2.0815272345472403e-05,
+            "fdr": 0.00033304435752755845,
+            "significant": true
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 2,
+            "fold_enrichment": 1.8018018018018016,
+            "p": 0.30494300344006164,
+            "fdr": 0.4435534595491806,
+            "significant": false
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 5,
+            "fold_enrichment": 5.0761421319796955,
+            "p": 0.003115859576149285,
+            "fdr": 0.009970750643677712,
+            "significant": true
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 1.9900497512437814,
+            "p": 0.2660812678804325,
+            "fdr": 0.425730028608692,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 2,
+            "fold_enrichment": 2.962962962962963,
+            "p": 0.1464946438372834,
+            "fdr": 0.2929892876745668,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 1,
+            "fold_enrichment": 1.2658227848101264,
+            "p": 0.5484704407881555,
+            "fdr": 0.7259310538267392,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 5,
+            "fold_enrichment": 6.211180124223602,
+            "p": 0.001292748874885577,
+            "fdr": 0.005170995499542308,
+            "significant": true
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 3,
+            "fold_enrichment": 2.1126760563380285,
+            "p": 0.16997124429319052,
+            "fdr": 0.302171100965672,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 8,
+            "fold_enrichment": 5.351170568561873,
+            "p": 0.00012859612751629104,
+            "fdr": 0.0007719126078624174,
+            "significant": true
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 1.1299435028248588,
+            "p": 0.5898189812342256,
+            "fdr": 0.7259310538267392,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 6.167400881057269,
+            "p": 0.00014473361397420326,
+            "fdr": 0.0007719126078624174,
+            "significant": true
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 3,
+            "fold_enrichment": 2.6315789473684212,
+            "p": 0.1062847090079102,
+            "fdr": 0.24293647773236618,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 4,
+            "fold_enrichment": 4.060913705583756,
+            "p": 0.017197617805957313,
+            "fdr": 0.045860314149219504,
+            "significant": true
+          }
+        ]
+      },
+      "grnboost2": {
+        "n_tfs": 16,
+        "n_significant": 4,
+        "frac_significant": 0.25,
+        "median_fold_enrichment": 2.2810512112060657,
+        "mean_overlap": 2.9375,
+        "universe": 20000,
+        "per_tf": [
+          {
+            "tf": "ATF4",
+            "n_predicted": 100,
+            "n_known": 167,
+            "overlap": 10,
+            "fold_enrichment": 11.976047904191617,
+            "p": 1.1401560532360952e-08,
+            "fdr": 1.8242496851777524e-07,
+            "significant": true
+          },
+          {
+            "tf": "BRCA1",
+            "n_predicted": 100,
+            "n_known": 25,
+            "overlap": 0,
+            "fold_enrichment": 0.0,
+            "p": 1.0,
+            "fdr": 1.0,
+            "significant": false
+          },
+          {
+            "tf": "CEBPZ",
+            "n_predicted": 100,
+            "n_known": 222,
+            "overlap": 6,
+            "fold_enrichment": 5.405405405405405,
+            "p": 0.0008751415598875222,
+            "fdr": 0.004667421652733451,
+            "significant": true
+          },
+          {
+            "tf": "DNMT1",
+            "n_predicted": 100,
+            "n_known": 16,
+            "overlap": 1,
+            "fold_enrichment": 12.5,
+            "p": 0.0770967170967323,
+            "fdr": 0.17622106764967382,
+            "significant": false
+          },
+          {
+            "tf": "E2F6",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 1,
+            "fold_enrichment": 1.015228426395939,
+            "p": 0.6292968170147442,
+            "fdr": 0.6712499381490604,
+            "significant": false
+          },
+          {
+            "tf": "ERCC2",
+            "n_predicted": 100,
+            "n_known": 5,
+            "overlap": 1,
+            "fold_enrichment": 40.0,
+            "p": 0.02475369761733843,
+            "fdr": 0.06600986031290247,
+            "significant": false
+          },
+          {
+            "tf": "MAX",
+            "n_predicted": 100,
+            "n_known": 201,
+            "overlap": 2,
+            "fold_enrichment": 1.9900497512437814,
+            "p": 0.2660812678804325,
+            "fdr": 0.425730028608692,
+            "significant": false
+          },
+          {
+            "tf": "MYBL2",
+            "n_predicted": 100,
+            "n_known": 135,
+            "overlap": 1,
+            "fold_enrichment": 1.4814814814814814,
+            "p": 0.49286397914049623,
+            "fdr": 0.6066018204806107,
+            "significant": false
+          },
+          {
+            "tf": "SETDB1",
+            "n_predicted": 100,
+            "n_known": 158,
+            "overlap": 2,
+            "fold_enrichment": 2.531645569620253,
+            "p": 0.18711871939084337,
+            "fdr": 0.37423743878168675,
+            "significant": false
+          },
+          {
+            "tf": "SP2",
+            "n_predicted": 100,
+            "n_known": 161,
+            "overlap": 4,
+            "fold_enrichment": 4.968944099378882,
+            "p": 0.008723012171548597,
+            "fdr": 0.03489204868619439,
+            "significant": true
+          },
+          {
+            "tf": "SRF",
+            "n_predicted": 100,
+            "n_known": 284,
+            "overlap": 2,
+            "fold_enrichment": 1.4084507042253522,
+            "p": 0.4164335620627979,
+            "fdr": 0.5552447494170639,
+            "significant": false
+          },
+          {
+            "tf": "TBP",
+            "n_predicted": 100,
+            "n_known": 299,
+            "overlap": 5,
+            "fold_enrichment": 3.34448160535117,
+            "p": 0.0171843023546247,
+            "fdr": 0.05498976753479904,
+            "significant": false
+          },
+          {
+            "tf": "TERF1",
+            "n_predicted": 100,
+            "n_known": 177,
+            "overlap": 1,
+            "fold_enrichment": 1.1299435028248588,
+            "p": 0.5898189812342256,
+            "fdr": 0.6712499381490604,
+            "significant": false
+          },
+          {
+            "tf": "TFDP1",
+            "n_predicted": 100,
+            "n_known": 227,
+            "overlap": 7,
+            "fold_enrichment": 6.167400881057269,
+            "p": 0.00014473361397420326,
+            "fdr": 0.0011578689117936261,
+            "significant": true
+          },
+          {
+            "tf": "THAP1",
+            "n_predicted": 100,
+            "n_known": 228,
+            "overlap": 2,
+            "fold_enrichment": 1.7543859649122808,
+            "p": 0.3159949378887583,
+            "fdr": 0.4596290005654666,
+            "significant": false
+          },
+          {
+            "tf": "THAP11",
+            "n_predicted": 100,
+            "n_known": 197,
+            "overlap": 2,
+            "fold_enrichment": 2.030456852791878,
+            "p": 0.25866888843123115,
+            "fdr": 0.425730028608692,
+            "significant": false
+          }
+        ]
+      }
+    }
+  },
+  "panel_size": 20,
+  "evaluability": {
+    "n_perturbed_targets": 1383,
+    "n_targets_with_enough_cells": 1256,
+    "n_tf_in_any_reference": 79,
+    "TRRUST_tfs_perturbed": 73,
+    "TRRUST_tfs_with_ge1_measured_targets": 55,
+    "TRRUST_tfs_with_ge3_measured_targets": 21,
+    "TRRUST_tfs_with_ge5_measured_targets": 9,
+    "TRRUST_tfs_with_ge10_measured_targets": 3,
+    "TRRUST_tfs_with_ge20_measured_targets": 1,
+    "TRRUST_median_measured_targets_per_tf": 1.0,
+    "DoRothEA_ABC_tfs_perturbed": 21,
+    "DoRothEA_ABC_tfs_with_ge1_measured_targets": 17,
+    "DoRothEA_ABC_tfs_with_ge3_measured_targets": 14,
+    "DoRothEA_ABC_tfs_with_ge5_measured_targets": 13,
+    "DoRothEA_ABC_tfs_with_ge10_measured_targets": 13,
+    "DoRothEA_ABC_tfs_with_ge20_measured_targets": 10,
+    "DoRothEA_ABC_median_measured_targets_per_tf": 15.0,
+    "DoRothEA_all_tfs_perturbed": 30,
+    "DoRothEA_all_tfs_with_ge1_measured_targets": 27,
+    "DoRothEA_all_tfs_with_ge3_measured_targets": 22,
+    "DoRothEA_all_tfs_with_ge5_measured_targets": 18,
+    "DoRothEA_all_tfs_with_ge10_measured_targets": 18,
+    "DoRothEA_all_tfs_with_ge20_measured_targets": 17,
+    "DoRothEA_all_median_measured_targets_per_tf": 146.5,
+    "union_tfs_perturbed": 79,
+    "union_tfs_with_ge1_measured_targets": 60,
+    "union_tfs_with_ge3_measured_targets": 30,
+    "union_tfs_with_ge5_measured_targets": 20,
+    "union_tfs_with_ge10_measured_targets": 19,
+    "union_tfs_with_ge20_measured_targets": 18,
+    "union_median_measured_targets_per_tf": 1.0,
+    "panel_size": 20
+  },
+  "config": {
+    "cell_line": "k562",
+    "layer": 11,
+    "min_cells": 50,
+    "min_targets": 5,
+    "n_control_cells": 2000,
+    "n_pert_cells": 200,
+    "methods": [
+      "genie3",
+      "grnboost2"
+    ],
+    "seed": 42
+  }
+}

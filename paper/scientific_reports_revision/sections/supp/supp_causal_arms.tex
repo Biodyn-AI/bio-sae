@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Causal ablation under three feature-selection rules and three evaluation gene sets.}}
+\label{tab:causal_arms}
+\smallskip
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Selection arm & Features & top-20 $\cap$ term & Held-out term & Matched random & $p$ \\
+\midrule
+richly annotated & 40 & 37.3 & 1.04 & 0.89 & 0.006 \\
+random annotated & 40 & 56.9 & 0.94 & 0.91 & 0.765 \\
+random feature & 26 & 66.9 & 0.97 & 0.89 & 0.340 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Median specificity ratio, mean $|\Delta\text{logit}|$ on the gene set over the same quantity on all other positions, at layer~11 in k562 cells with 60 cells per feature. The held-out set is the annotated term's genes excluding the feature's own top-20; the matched random set is drawn per feature at the same size and mean-activation decile. The last column is a Wilcoxon signed-rank test of held-out against matched random. 14 of 119 features admit no held-out set because their annotated term lies entirely within their top-20 genes.
+\end{table}
