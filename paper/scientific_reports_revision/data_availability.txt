@@ -1,0 +1,16 @@
+All datasets analysed in this study are publicly available.
+
+- Genome-scale CRISPRi Perturb-seq (K562, RPE1, Jurkat, HepG2): Figshare+, https://doi.org/10.25452/figshare.plus.20029387.v1.
+- ECCITE-seq of THP-1 monocytes: available through the scPerturb collection, https://doi.org/10.5281/zenodo.13350497.
+- Perturb-seq of K562: available through the scPerturb collection, https://doi.org/10.5281/zenodo.13350497.
+- Tabula Sapiens: https://tabula-sapiens-portal.ds.czbiohub.org/ and CZ CELLxGENE.
+- Geneformer V2-316M: https://huggingface.co/ctheodoris/Geneformer (subfolder Geneformer-V2-316M).
+- scGPT whole-human: https://github.com/bowang-lab/scGPT.
+- TRRUST v2: https://www.grnpedia.org/trrust/.
+- DoRothEA: https://saezlab.github.io/dorothea/.
+- Gene Ontology: http://geneontology.org/.
+- KEGG: https://www.kegg.jp/. KEGG pathway gene sets are used as term sets for enrichment testing under permission granted by Kanehisa Laboratories; no KEGG image or pathway map is reproduced.
+- Reactome: https://reactome.org/.
+- STRING: https://string-db.org/.
+
+The two feature atlases produced by this work are released as interactive web platforms: Geneformer (https://biodyn-ai.github.io/geneformer-atlas/) and scGPT (https://biodyn-ai.github.io/scgpt-atlas/).
