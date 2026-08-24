@@ -83,3 +83,5 @@ experiments/revision_srep/*/*
 !experiments/revision_srep/E6_svd_capacity/*.npz
 experiments/revision_srep/cell_features/
 experiments/revision_srep/*/sae_models/
+submission/
+*.zip
