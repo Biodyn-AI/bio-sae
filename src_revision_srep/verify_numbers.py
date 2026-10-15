@@ -86,6 +86,24 @@ for banned in ("15\\% of factors against 1\\%", "fifteenfold separation",
     if banned in text:
         problems.append(f"superseded claim still present: {banned!r}")
 
+# self-detection of the perturbed gene: one evaluable set, one rule per readout
+sd = jget("E11_self_detection/summary.json")
+k562, pooled = sd["per_line"]["k562"], sd["pooled"]
+check("k562 evaluable", 16, k562["n_evaluable"])
+check("k562 DE detects", 15, k562["de_detected"])
+check("k562 SAE detects", 1, k562["sae_detected"])
+check("pooled evaluable", 61, pooled["n_evaluable"])
+check("pooled DE detects", 55, pooled["de_detected"])
+check("pooled SAE detects", 2, pooled["sae_detected"])
+in_text("\\textbf{15 of 16}")
+in_text("\\textbf{1 of 16}")
+in_text("55 cases and by the feature")
+# the earlier mismatched denominators must not reappear
+for banned in ("in 15 of\n16 targets", "detects it in 1 of 20",
+               "detected in 2 of 68 factors"):
+    if banned in text:
+        problems.append(f"mismatched-denominator phrasing still present: {banned!r}")
+
 print(f"{sum(1 for c in checks if c[3])}/{len(checks)} numeric checks passed")
 for n, s, a, ok in checks:
     if not ok:

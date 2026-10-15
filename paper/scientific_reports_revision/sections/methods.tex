@@ -181,6 +181,35 @@ which is tested for enrichment of the TF's curated targets by hypergeometric tes
 Benjamini--Hochberg correction across the panel. A label-permutation null, in which perturbed and
 control labels are shuffled across the same cells, calibrates the procedure.
 
+\subsection*{Detection of the perturbed gene}
+
+Both readouts are asked how often they recover the perturbed gene itself, which requires a common
+evaluable set and an explicit rule for each, since the two operate on different quantities.
+
+\emph{Evaluable set.} A target is evaluable only if its perturbed gene is measured in the
+expression assay \emph{and} present in the model's gene vocabulary, so that it could appear in a
+feature's gene list. A target failing either condition is excluded from both the numerator and the
+denominator of both readouts, rather than being counted as a failure by one and omitted by the
+other.
+
+\emph{Differential expression.} The perturbed gene is detected when its own expression differs
+between its perturbed cells and the non-targeting cells of the same line, by Mann--Whitney over
+cells with Benjamini--Hochberg correction across all measured genes at FDR $< 0.05$. This is the
+same test, on the same cells, as the differential-expression arm of the recoverability benchmark,
+except that the perturbed gene is retained rather than excluded.
+
+\emph{SAE feature response.} The perturbed gene is detected when it appears among the top-20
+activating genes of at least one responding feature, responding being defined as elsewhere in this
+work. This is the rule by which the predicted target set is formed, applied to the perturbed gene
+instead of to its curated targets.
+
+\emph{Matched comparison.} Because those two rules ask different questions, we additionally score
+both readouts identically: each emits a ranked list over genes---by absolute effect size for
+differential expression, by responding-feature effect size for the SAE---and the perturbed gene
+counts as detected if it falls within the first 100 entries. Differential expression is computed on
+exactly the cells the per-cell feature matrices were built from, whose row indices are recorded
+alongside them.
+
 \subsection*{Recoverability benchmark}
 
 A recovery rate is interpretable only against the amount of information the measurements contain.

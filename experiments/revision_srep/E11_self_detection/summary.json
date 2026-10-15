@@ -1,0 +1,1725 @@
+{
+  "seed": 42,
+  "definitions": {
+    "evaluable": "perturbed gene is measured in the assay and present in the model gene vocabulary, so either readout could detect it",
+    "de_detected": "perturbed gene's own expression differs between its perturbed cells and the non-targeting cells of the same line (Mann-Whitney over cells, BH across all measured genes, FDR < 0.05)",
+    "sae_detected": "perturbed gene appears among the top-20 activating genes of at least one responding feature",
+    "matched_top_k": "perturbed gene falls within the first K entries of each readout's ranked gene list, same K for both"
+  },
+  "per_line": {
+    "k562": {
+      "n_targets": 20,
+      "n_evaluable": 16,
+      "excluded_not_measured": [
+        "BRF2",
+        "GATA1",
+        "HINFP",
+        "STAT5A"
+      ],
+      "excluded_not_in_vocabulary": [],
+      "de_detected": 15,
+      "sae_detected": 1,
+      "matched_de": 16,
+      "matched_sae": 1,
+      "median_de_rank": 1.0
+    },
+    "rpe1": {
+      "n_targets": 16,
+      "n_evaluable": 16,
+      "excluded_not_measured": [],
+      "excluded_not_in_vocabulary": [],
+      "de_detected": 13,
+      "sae_detected": 0,
+      "matched_de": 12,
+      "matched_sae": 0,
+      "median_de_rank": 9.5
+    },
+    "jurkat": {
+      "n_targets": 16,
+      "n_evaluable": 14,
+      "excluded_not_measured": [
+        "ARID3A",
+        "STAT5B"
+      ],
+      "excluded_not_in_vocabulary": [],
+      "de_detected": 14,
+      "sae_detected": 1,
+      "matched_de": 14,
+      "matched_sae": 1,
+      "median_de_rank": 1.0
+    },
+    "hepg2": {
+      "n_targets": 16,
+      "n_evaluable": 15,
+      "excluded_not_measured": [
+        "STAT5B"
+      ],
+      "excluded_not_in_vocabulary": [],
+      "de_detected": 13,
+      "sae_detected": 0,
+      "matched_de": 14,
+      "matched_sae": 0,
+      "median_de_rank": 1.0
+    }
+  },
+  "pooled": {
+    "n_targets": 68,
+    "n_evaluable": 61,
+    "de_detected": 55,
+    "sae_detected": 2,
+    "matched_de": 56,
+    "matched_sae": 2,
+    "median_de_rank": 2.0,
+    "median_de_cohens_d": -1.0189863443374634
+  },
+  "per_target": [
+    {
+      "line": "k562",
+      "gene": "TBP",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 143,
+      "de": {
+        "cohens_d": -0.7958343029022217,
+        "fdr": 1.392165279812907e-08,
+        "rank": 4,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "SRF",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 120,
+      "de": {
+        "cohens_d": -0.4865853190422058,
+        "fdr": 0.22772097177093972,
+        "rank": 3,
+        "detected": false,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "GATA1",
+      "perturbed_gene_measured": false,
+      "perturbed_gene_in_vocabulary": false,
+      "evaluable": false,
+      "n_cells": 95
+    },
+    {
+      "line": "k562",
+      "gene": "THAP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 107,
+      "de": {
+        "cohens_d": -0.7033879160881042,
+        "fdr": 4.5490361558097745e-05,
+        "rank": 10,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "TFDP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 140,
+      "de": {
+        "cohens_d": -2.5017430782318115,
+        "fdr": 1.0768012416226374e-46,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "CEBPZ",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 104,
+      "de": {
+        "cohens_d": -2.0653605461120605,
+        "fdr": 7.621872757036063e-33,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "STAT5A",
+      "perturbed_gene_measured": false,
+      "perturbed_gene_in_vocabulary": false,
+      "evaluable": false,
+      "n_cells": 170
+    },
+    {
+      "line": "k562",
+      "gene": "MAX",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 161,
+      "de": {
+        "cohens_d": -1.273651361465454,
+        "fdr": 5.012461813147154e-23,
+        "rank": 5,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": true,
+        "rank": 19,
+        "n_predicted": 120,
+        "n_responding_features": 7
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": true
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "E2F6",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 140,
+      "de": {
+        "cohens_d": -1.0744794607162476,
+        "fdr": 5.501786733378436e-14,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "THAP11",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 60,
+      "de": {
+        "cohens_d": -1.0858153104782104,
+        "fdr": 3.3576977115182735e-06,
+        "rank": 2,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "TERF1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 72,
+      "de": {
+        "cohens_d": -1.2546216249465942,
+        "fdr": 7.0977836408449236e-09,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "BRF2",
+      "perturbed_gene_measured": false,
+      "perturbed_gene_in_vocabulary": false,
+      "evaluable": false,
+      "n_cells": 170
+    },
+    {
+      "line": "k562",
+      "gene": "ATF4",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 59,
+      "de": {
+        "cohens_d": -2.457022190093994,
+        "fdr": 3.266913366015877e-22,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "SP2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 115,
+      "de": {
+        "cohens_d": -0.5756511688232422,
+        "fdr": 0.0050928415282749575,
+        "rank": 6,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "SETDB1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 123,
+      "de": {
+        "cohens_d": -0.7580950856208801,
+        "fdr": 2.804593726517533e-06,
+        "rank": 3,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "MYBL2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 81,
+      "de": {
+        "cohens_d": -2.144071340560913,
+        "fdr": 7.333481789238484e-24,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 1,
+        "n_responding_features": 1
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "HINFP",
+      "perturbed_gene_measured": false,
+      "perturbed_gene_in_vocabulary": false,
+      "evaluable": false,
+      "n_cells": 157
+    },
+    {
+      "line": "k562",
+      "gene": "BRCA1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 87,
+      "de": {
+        "cohens_d": -1.8191401958465576,
+        "fdr": 6.19814196484616e-21,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "DNMT1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 161,
+      "de": {
+        "cohens_d": -2.867058753967285,
+        "fdr": 8.989860408191e-62,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "k562",
+      "gene": "ERCC2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 116,
+      "de": {
+        "cohens_d": -0.8015827536582947,
+        "fdr": 1.0805664279735188e-06,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "SP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.7245407700538635,
+        "fdr": 0.000381087312743171,
+        "rank": 2,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "TBP",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 83,
+      "de": {
+        "cohens_d": -0.54635089635849,
+        "fdr": 0.005825356088214535,
+        "rank": 155,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 5,
+        "n_responding_features": 1
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": false,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "SRF",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 93,
+      "de": {
+        "cohens_d": -0.5125194787979126,
+        "fdr": 0.008282862040067415,
+        "rank": 142,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": false,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "GABPA",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 62,
+      "de": {
+        "cohens_d": -0.7505009770393372,
+        "fdr": 0.0007106320530606051,
+        "rank": 112,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": false,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "NFYB",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 78,
+      "de": {
+        "cohens_d": -0.9442705512046814,
+        "fdr": 2.8607622826256323e-07,
+        "rank": 61,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 5,
+        "n_responding_features": 1
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "USF2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 94,
+      "de": {
+        "cohens_d": -1.1398793458938599,
+        "fdr": 6.862273469076473e-11,
+        "rank": 4,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "THAP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.6739163398742676,
+        "fdr": 1.964322262385957e-05,
+        "rank": 401,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 1
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": false,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "TFDP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.8728750944137573,
+        "fdr": 1.617561942015606e-23,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "MAX",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 85,
+      "de": {
+        "cohens_d": -0.8097752332687378,
+        "fdr": 4.788245471906219e-05,
+        "rank": 5,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 5,
+        "n_responding_features": 1
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "E2F6",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.615960955619812,
+        "fdr": 0.09308260354330243,
+        "rank": 1,
+        "detected": false,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "THAP11",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.7925826907157898,
+        "fdr": 1.1615869025131107e-05,
+        "rank": 10,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "SP2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 72,
+      "de": {
+        "cohens_d": -0.47849300503730774,
+        "fdr": 0.12799850374862687,
+        "rank": 56,
+        "detected": false,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "SETDB1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.47505536675453186,
+        "fdr": 0.13867557008934342,
+        "rank": 9,
+        "detected": false,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "MYBL2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.0189863443374634,
+        "fdr": 2.6173894511777792e-08,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "MBD3",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.2095725536346436,
+        "fdr": 7.349412761580898e-12,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "rpe1",
+      "gene": "CLOCK",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.0732121467590332,
+        "fdr": 1.0133728271953094e-10,
+        "rank": 10,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "MYC",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.0925484895706177,
+        "fdr": 4.451497049487315e-13,
+        "rank": 24,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 200,
+        "n_responding_features": 20
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "SP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.9909681677818298,
+        "fdr": 2.0499786506339656e-08,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "YY1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 57,
+      "de": {
+        "cohens_d": -2.3025877475738525,
+        "fdr": 1.404291930643826e-19,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 23,
+        "n_responding_features": 3
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "TBP",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 84,
+      "de": {
+        "cohens_d": -0.7567440867424011,
+        "fdr": 7.360967606880492e-05,
+        "rank": 26,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "SRF",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 84,
+      "de": {
+        "cohens_d": -0.6798902750015259,
+        "fdr": 0.007002597835737115,
+        "rank": 3,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "ARID3A",
+      "perturbed_gene_measured": false,
+      "perturbed_gene_in_vocabulary": false,
+      "evaluable": false,
+      "n_cells": 100
+    },
+    {
+      "line": "jurkat",
+      "gene": "GABPA",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.011020302772522,
+        "fdr": 1.6066171908714946e-09,
+        "rank": 6,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "HMBOX1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 64,
+      "de": {
+        "cohens_d": -0.7419202923774719,
+        "fdr": 0.0018302261967144016,
+        "rank": 7,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "USF2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.244422435760498,
+        "fdr": 4.572427921950392e-13,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "THAP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.9870048761367798,
+        "fdr": 3.277245747417922e-08,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "TFDP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -2.0962796211242676,
+        "fdr": 4.311741785994894e-27,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "CEBPZ",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.3820247650146484,
+        "fdr": 1.870872325717472e-15,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "STAT5B",
+      "perturbed_gene_measured": false,
+      "perturbed_gene_in_vocabulary": false,
+      "evaluable": false,
+      "n_cells": 100
+    },
+    {
+      "line": "jurkat",
+      "gene": "MAX",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 73,
+      "de": {
+        "cohens_d": -1.5211222171783447,
+        "fdr": 1.4163271018840442e-13,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": true,
+        "rank": 21,
+        "n_predicted": 102,
+        "n_responding_features": 6
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": true
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "THAP11",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.2476656436920166,
+        "fdr": 3.048285281300261e-13,
+        "rank": 2,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "jurkat",
+      "gene": "E2F6",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.8215022683143616,
+        "fdr": 3.4620437282926785e-05,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "SP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 77,
+      "de": {
+        "cohens_d": -0.8950106501579285,
+        "fdr": 4.428056174937011e-05,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "TBP",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 75,
+      "de": {
+        "cohens_d": -0.6425514817237854,
+        "fdr": 0.00840104541628587,
+        "rank": 17,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "GABPA",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 76,
+      "de": {
+        "cohens_d": -0.6878387331962585,
+        "fdr": 0.004716726344000915,
+        "rank": 5,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "NFYB",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 90,
+      "de": {
+        "cohens_d": -1.1342681646347046,
+        "fdr": 9.607666756395659e-10,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "HMBOX1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 60,
+      "de": {
+        "cohens_d": -0.5529555082321167,
+        "fdr": 0.831031620462675,
+        "rank": 2,
+        "detected": false,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "THAP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -0.6284279227256775,
+        "fdr": 0.0001265752533796371,
+        "rank": 104,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": false,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "TFDP1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.4015657901763916,
+        "fdr": 6.60954693180338e-16,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "ZNF207",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 70,
+      "de": {
+        "cohens_d": -2.0133304595947266,
+        "fdr": 2.0209435088246666e-21,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "CEBPZ",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.956291675567627,
+        "fdr": 6.782100297050098e-26,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 4,
+        "n_responding_features": 1
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "STAT5B",
+      "perturbed_gene_measured": false,
+      "perturbed_gene_in_vocabulary": false,
+      "evaluable": false,
+      "n_cells": 91
+    },
+    {
+      "line": "hepg2",
+      "gene": "THAP11",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 83,
+      "de": {
+        "cohens_d": -1.3982089757919312,
+        "fdr": 1.1708127962265735e-13,
+        "rank": 2,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "E2F6",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 54,
+      "de": {
+        "cohens_d": -1.2508819103240967,
+        "fdr": 2.291970735785771e-06,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "TERF2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 72,
+      "de": {
+        "cohens_d": -1.0237988233566284,
+        "fdr": 1.2171995314034523e-07,
+        "rank": 13,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "SETDB1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 62,
+      "de": {
+        "cohens_d": -0.6494624018669128,
+        "fdr": 0.15970094889043368,
+        "rank": 2,
+        "detected": false,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "MYBL2",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 100,
+      "de": {
+        "cohens_d": -1.8518319129943848,
+        "fdr": 7.429750243045833e-24,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    },
+    {
+      "line": "hepg2",
+      "gene": "DNMT1",
+      "perturbed_gene_measured": true,
+      "perturbed_gene_in_vocabulary": true,
+      "evaluable": true,
+      "n_cells": 81,
+      "de": {
+        "cohens_d": -1.9975782632827759,
+        "fdr": 2.815247045197892e-21,
+        "rank": 1,
+        "detected": true,
+        "n_genes_ranked": 6546
+      },
+      "sae": {
+        "detected": false,
+        "rank": null,
+        "n_predicted": 0,
+        "n_responding_features": 0
+      },
+      "matched_top_k": {
+        "k": 100,
+        "de": true,
+        "sae": false
+      }
+    }
+  ],
+  "config": {
+    "layer": 11,
+    "tag": "main/k562sae",
+    "match_k": 100,
+    "seed": 42
+  }
+}

@@ -413,6 +413,50 @@ def t_crossmodel():
                  "scGPT/TS matched & Geneformer/K562 \\\\", rows, note)
 
 
+def t_self_detection():
+    d = maybe("E11_self_detection/summary.json")
+    if not d:
+        return None
+    rows = []
+    for line, e in d["per_line"].items():
+        rows.append(" & ".join([
+            LINE_LABEL.get(line, line),
+            f"{e['n_evaluable']}/{e['n_targets']}",
+            f"{e['de_detected']}/{e['n_evaluable']}",
+            f"{e['sae_detected']}/{e['n_evaluable']}",
+            f"{e['matched_de']}/{e['n_evaluable']}",
+            f"{e['matched_sae']}/{e['n_evaluable']}",
+            f"{e['median_de_rank']:.0f}" if e["median_de_rank"] else "---",
+        ]) + " \\\\")
+    p = d["pooled"]
+    rows.append("\\midrule")
+    rows.append(" & ".join([
+        "\\textbf{Pooled}", f"\\textbf{{{p['n_evaluable']}/{p['n_targets']}}}",
+        f"\\textbf{{{p['de_detected']}/{p['n_evaluable']}}}",
+        f"\\textbf{{{p['sae_detected']}/{p['n_evaluable']}}}",
+        f"{p['matched_de']}/{p['n_evaluable']}",
+        f"{p['matched_sae']}/{p['n_evaluable']}",
+        f"{p['median_de_rank']:.0f}" if p["median_de_rank"] else "---",
+    ]) + " \\\\")
+    note = ("A target is evaluable only if the perturbed gene is measured in the assay and present "
+            "in the model gene vocabulary, so that either readout could recover it; excluded "
+            "targets are dropped from both numerator and denominator of both readouts. "
+            "Differential expression detects the gene when its own expression differs between its "
+            "perturbed cells and the non-targeting cells of the same line (Mann--Whitney over "
+            "cells, Benjamini--Hochberg across all measured genes, FDR $<$ 0.05). The feature "
+            "readout detects it when the gene appears among the top-20 activating genes of at "
+            "least one responding feature. The matched columns score both by the same rule: the "
+            "perturbed gene falls within the first 100 entries of each readout's ranked gene list. "
+            "The final column is the median rank of the perturbed gene among all measured genes "
+            "by effect size.")
+    return table("tab:self_detection",
+                 "\\textbf{Detection of the perturbed gene by each readout, on a common "
+                 "evaluable set.}",
+                 "lcccccr",
+                 "Cell line & Evaluable & DE detects & SAE detects & DE top-100 & "
+                 "SAE top-100 & Median DE rank \\\\", rows, note)
+
+
 BUILDERS = [
     ("supp_cohorts.tex", t_cohorts),
     ("supp_svd_capacity.tex", t_svd_capacity),
@@ -425,6 +469,7 @@ BUILDERS = [
     ("supp_sweep.tex", t_sweep),
     ("supp_causal_arms.tex", t_causal_arms),
     ("supp_crossmodel.tex", t_crossmodel),
+    ("supp_self_detection.tex", t_self_detection),
 ]
 
 

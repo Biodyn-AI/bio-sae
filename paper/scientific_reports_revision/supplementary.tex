@@ -522,6 +522,28 @@ ERCC2 & 116 & 0 & 0 & 0.0 & 0.000 & no \\
 
 \begin{table}[htbp]
 \centering
+\caption{\textbf{Detection of the perturbed gene by each readout, on a common evaluable set.}}
+\label{tab:self_detection}
+\smallskip
+\small
+\begin{tabular}{lcccccr}
+\toprule
+Cell line & Evaluable & DE detects & SAE detects & DE top-100 & SAE top-100 & Median DE rank \\
+\midrule
+K562 & 16/20 & 15/16 & 1/16 & 16/16 & 1/16 & 1 \\
+RPE1 & 16/16 & 13/16 & 0/16 & 12/16 & 0/16 & 10 \\
+Jurkat & 14/16 & 14/14 & 1/14 & 14/14 & 1/14 & 1 \\
+HepG2 & 15/16 & 13/15 & 0/15 & 14/15 & 0/15 & 1 \\
+\midrule
+\textbf{Pooled} & \textbf{61/68} & \textbf{55/61} & \textbf{2/61} & 56/61 & 2/61 & 2 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize A target is evaluable only if the perturbed gene is measured in the assay and present in the model gene vocabulary, so that either readout could recover it; excluded targets are dropped from both numerator and denominator of both readouts. Differential expression detects the gene when its own expression differs between its perturbed cells and the non-targeting cells of the same line (Mann--Whitney over cells, Benjamini--Hochberg across all measured genes, FDR $<$ 0.05). The feature readout detects it when the gene appears among the top-20 activating genes of at least one responding feature. The matched columns score both by the same rule: the perturbed gene falls within the first 100 entries of each readout's ranked gene list. The final column is the median rank of the perturbed gene among all measured genes by effect size.
+\end{table}
+
+\begin{table}[htbp]
+\centering
 \caption{\textbf{Sample-size sweep.} Perturbation response as a function of cells per target.}
 \label{tab:sweep}
 \smallskip

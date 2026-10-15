@@ -9,6 +9,7 @@
 \usepackage{titlesec}
 \usepackage{enumitem}
 \usepackage{amsmath,amssymb}
+\input{sections/supp_numbers}
 
 \definecolor{rcol}{RGB}{40,40,40}
 \newenvironment{reviewer}{\color{rcol}\itshape}{\par}
@@ -464,6 +465,47 @@ in the Replogle reference (Alexandra $\rightarrow$ Angela Pogson); the venue for
 reference (arXiv $\rightarrow$ ICLR 2024) with the published author order; and author-name errors in
 two further entries. Web-only sources are now proper \texttt{@misc} entries with URLs and access
 years, and a DOI has been added to every one of the 19 entries that has one.
+
+\section*{Second round}
+
+\point{The reported rates of 15/16, 1/20, and 2/68 appear to arise from different detection
+procedures and partially different denominators. Please define precisely what constitutes detection
+of the perturbed gene by differential expression and by the SAE feature-response analysis.}
+\reply The reviewer is right on both counts, and checking it found a reporting error on our side.
+
+\textbf{The denominators.} Of the 20 perturbed factors in the primary panel, four have no
+measurement of their own gene in the 6,546-gene assay, so the perturbed gene cannot be recovered by
+either readout for those targets. The denominator 16 was the subset whose gene is measured, while
+20 was the full panel; quoting one against the other was our error, not a difference of design.
+Both readouts are now scored on one explicitly defined evaluable set --- the perturbed gene must be
+measured in the assay \emph{and} present in the model's gene vocabulary, so that either readout
+could in principle recover it --- and a target failing either condition is excluded from the
+numerator and the denominator of both, rather than counted as a failure by one and omitted by the
+other. On that basis the primary panel gives \textbf{15 of 16} for differential expression and
+\textbf{1 of 16} for the feature response, and the four-cell-line figure, previously quoted as
+2 of 68, becomes \textbf{55 of 61} against \textbf{2 of 61}.
+
+\textbf{The two procedures.} Both are now defined in Methods, in their own subsection, and restated
+where the numbers appear. Differential expression detects the perturbed gene when that gene's own
+expression differs between its perturbed cells and the non-targeting cells of the same line, by
+Mann--Whitney over cells with Benjamini--Hochberg correction across all measured genes at
+FDR $< 0.05$. The SAE readout detects it when the gene appears among the top-20 activating genes of
+at least one responding feature, which is the rule by which the predicted target set is formed
+throughout the paper, applied to the perturbed gene rather than to its curated targets.
+
+\textbf{A matched comparison, since those rules still ask different questions.} We have added one
+in which both readouts are scored identically: each emits a ranked gene list, and the perturbed gene
+counts as recovered if it falls within the first 100 entries. That gives 16 of 16 for differential
+expression against 1 of 16 for the features in the primary panel, and 56 of 61 against 2 of 61
+pooled across the four lines. The contrast is therefore not an artefact of the two rules differing.
+We also report the median rank of the perturbed gene among all measured genes by effect size, which
+is 1 --- in the median target the perturbed gene is the single most changed gene in the
+transcriptome, and the features still do not register it.
+
+The differential expression here is recomputed on exactly the cells the per-cell feature matrices
+were built from, whose row indices are stored alongside them, so the two readouts see identical
+cells as well as identical targets. The full per-line breakdown is in
+Supplementary Table~S\supref{tab-self_detection}.
 
 \section*{A correction to the description of the data}
 

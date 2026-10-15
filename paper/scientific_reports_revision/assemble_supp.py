@@ -40,6 +40,7 @@ ORDER = [
     ("gen", "supp_evaluability.tex"),
     ("gen", "supp_ceiling.tex"),
     ("gen", "supp_cell_level.tex"),
+    ("gen", "supp_self_detection.tex"),
     ("gen", "supp_sweep.tex"),
     ("gen", "supp_crossline.tex"),
     ("gen", "supp_causal_arms.tex"),

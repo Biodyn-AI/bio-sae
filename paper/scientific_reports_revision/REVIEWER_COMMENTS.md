@@ -222,3 +222,18 @@ The point-by-point replies are in `response_to_reviewers.tex`.
 > 2. Several references appear to be inaccurate or incompletely formatted, including References 20
 > and 23. The authors should verify the bibliographic details and standardize all references
 > according to the journal's required format.
+
+---
+
+## Second round (Reviewer 2)
+
+> The revised manuscript confirms that the authors have undertaken substantial new analyses. In my
+> assessment, the original concerns regarding cross-layer feature counting, the capacity-mismatched
+> comparison of SAE and SVD, positional pseudoreplication, and the confounded cross-model comparison
+> have now been substantially addressed. The revised manuscript has been significantly strengthened,
+> and in my view, no additional large-scale round of major analyses is needed. However, a few
+> remaining issues need to be addressed before the manuscript can be accepted. The reported rates of
+> 15/16, 1/20, and 2/68 appear to arise from different detection procedures and partially different
+> denominators. Please define precisely what constitutes detection of the perturbed gene by
+> differential expression and by the SAE feature-response analysis.
+
